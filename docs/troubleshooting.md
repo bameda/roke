@@ -25,6 +25,15 @@ settings in `project.env`. The line `[roke] project: ...` printed on start
 shows the services and options that were applied, and `roke settings`
 shows every setting of the project and where it comes from.
 
+### `the project is already running ...`
+
+Another session of the same project is open, and starting this one would
+recreate a container it uses, leaving it without network or services. To
+run two agents at once, list them in `ROKE_PARALLEL_AGENTS` in the project's
+`project.env` (see [several agents at once](../agents/README.md#several-agents-at-once));
+otherwise use the same agent and options as the open session, or finish it
+first (or run `roke down`).
+
 ### Something cannot connect (a download, an API, a database...)
 
 The network is restricted by default. Run `roke network blocked` to see what the

@@ -74,6 +74,39 @@ be in the image: if it is not, add it to `ROKE_AGENTS` and run
   model, permissions, your own MCP servers, custom commands and skills use
   each agent's format, so configure each agent separately.
 
+## Several agents at once
+
+Each project runs one agent at a time by default. To have two agents work
+on the same project at the same time, one in each terminal, list them in the
+project's `project.env`:
+
+```dotenv
+ROKE_PARALLEL_AGENTS=claude,codex
+```
+
+The project's network then allows the destinations of all of them, whichever
+starts, so starting the second does not change the network under the first.
+Without that line, each agent gets only its own destinations: working with a
+single agent keeps the network as narrow as possible.
+
+roke never cuts off a session that is running: if starting another one would
+recreate a container the first is using (the gateway, because of a
+different agent or different `-p` ports, or a service), it refuses and says
+why. Finish the first session, or stop the project with `roke down`, then
+start again.
+
+Both agents edit the same files and share the services and the network, so
+give them tasks in different parts of the project, and do not start two dev
+servers on the same port. For fully separate work, give the second agent a
+[git worktree](https://git-scm.com/docs/git-worktree), which roke treats as
+a project of its own, with its own services and data:
+
+```fish
+git worktree add ../shop-experiment -b experiment
+cd ../shop-experiment
+roke --agent codex
+```
+
 ## Instructions for the agent
 
 On every start, the box builds the agent's instructions from four parts, in

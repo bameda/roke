@@ -108,6 +108,13 @@ class Workspace:
         self.installed = installed
         self.agent = agent
         env["ROKE_AGENT"] = agent
+        self.parallel_agents = split_list(env.get("ROKE_PARALLEL_AGENTS", ""))
+        for name in self.parallel_agents:
+            if not self.agents.exists(name):
+                die(
+                    f"unknown agent in ROKE_PARALLEL_AGENTS: '{name}' "
+                    f"(available: {' '.join(self.agents.names())})"
+                )
 
     # --- the services ------------------------------------------------------------------
     def select_services(self) -> None:
@@ -219,14 +226,16 @@ class Workspace:
                 settings.file_entries(BOX_DIR / "docker" / "gateway" / "allow.txt"),
             )
         ]
-        if self.agent != "none":
-            layers.append(
-                (
-                    "agent",
-                    f"agents/{self.agent}/allow.txt",
-                    settings.file_entries(self.agents.file(self.agent, "allow.txt")),
-                )
-            )
+        # The agent's destinations, and those of the agents allowed to run in
+        # parallel in this project, so that the gateway is the same for all
+        # of them and starting one does not recreate it under another.
+        agents = network_agents(self.agent, self.parallel_agents)
+        if agents:
+            entries: list[str] = []
+            for name in agents:
+                entries += settings.file_entries(self.agents.file(name, "allow.txt"))
+            source = " ".join(f"agents/{name}/allow.txt" for name in agents)
+            layers.append(("agents" if len(agents) > 1 else "agent", source, entries))
         service_allow = []
         for name in self.selected:
             service_allow += settings.file_entries(self.services.file(name).parent / "allow.txt")
@@ -303,3 +312,13 @@ class Workspace:
 def split_list(text: str) -> list[str]:
     """The names in a comma-separated setting."""
     return [n.strip() for n in text.replace(" ", ",").split(",") if n.strip()]
+
+
+def network_agents(agent: str, parallel: list[str]) -> list[str]:
+    """The agents whose destinations the network allows: the one running and,
+    when it is one of them, those allowed to run in parallel."""
+    if agent == "none":
+        return sorted(parallel)
+    if agent in parallel:
+        return sorted(parallel)
+    return [agent]

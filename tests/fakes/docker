@@ -28,6 +28,20 @@ exported = {
 with open(os.environ["FAKE_DOCKER_LOG"], "a") as log:
     log.write(json.dumps({"args": args, "env": exported}) + "\n")
 
+# Running containers: sessions (FAKE_SESSIONS="claude,codex", one-off runs of
+# the box) and services (FAKE_RUNNING_HASHES="gateway=h1,postgres=h2").
+if args[:1] == ["ps"]:
+    for agent in filter(None, os.environ.get("FAKE_SESSIONS", "").split(",")):
+        print(f"box\tTrue\t\tsess-{agent}")
+    for item in filter(None, os.environ.get("FAKE_RUNNING_HASHES", "").split(",")):
+        service, hash_ = item.split("=", 1)
+        print(f"{service}\tFalse\t{hash_}\tid-{service}")
+    sys.exit(0)
+if args[:1] == ["inspect"]:
+    container = args[-1]
+    if container.startswith("sess-"):
+        print(json.dumps([f"ROKE_AGENT={container[5:]}"]))
+    sys.exit(0)
 if args[:1] in (["volume"],):
     sys.exit(0)
 if args[:2] == ["image", "inspect"]:
@@ -54,8 +68,19 @@ if args[:1] == ["compose"]:
         sys.exit(0)
     if "config" in rest:
         real = os.environ.get("FAKE_REAL_COMPOSE")
+        if real and "--hash" in rest:
+            # Record the hashes, so tests can compare them between runs.
+            out = subprocess.run([real, *rest], capture_output=True, text=True)
+            with open(os.environ["FAKE_DOCKER_LOG"], "a") as log:
+                log.write(json.dumps({"args": ["hashes"], "stdout": out.stdout}) + "\n")
+            print(out.stdout, end="")
+            sys.exit(out.returncode)
         if real:
             sys.exit(subprocess.run([real, *rest]).returncode)
+        if "--hash" in rest:
+            for item in filter(None, os.environ.get("FAKE_CONFIG_HASHES", "").split(",")):
+                print(" ".join(item.split("=", 1)))
+            sys.exit(0)
         print("services: {}")
         sys.exit(0)
 sys.exit(0)

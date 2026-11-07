@@ -27,6 +27,45 @@ def running_projects() -> list[str]:
     return out.stdout.split()
 
 
+def running_containers(project: str) -> list[dict[str, str]]:
+    """The project's running containers: service, whether it is a session
+    (a one-off run of the box), the hash of its configuration, and its id."""
+    fmt = (
+        '{{.Label "com.docker.compose.service"}}\t{{.Label "com.docker.compose.oneoff"}}\t'
+        '{{.Label "com.docker.compose.config-hash"}}\t{{.ID}}'
+    )
+    out = subprocess.run(
+        [
+            "docker",
+            "ps",
+            "--filter",
+            f"label=com.docker.compose.project={project}",
+            "--format",
+            fmt,
+        ],
+        capture_output=True,
+        text=True,
+    ).stdout
+    rows = []
+    for line in out.splitlines():
+        parts = line.split("\t")
+        if len(parts) == 4:
+            rows.append(dict(zip(("service", "oneoff", "hash", "id"), parts, strict=True)))
+    return rows
+
+
+def container_env(container: str) -> dict[str, str]:
+    out = subprocess.run(
+        ["docker", "inspect", "--format", "{{json .Config.Env}}", container],
+        capture_output=True,
+        text=True,
+    ).stdout
+    try:
+        return dict(item.split("=", 1) for item in json.loads(out) if "=" in item)
+    except ValueError:
+        return {}
+
+
 def stop_project(name: str) -> int:
     return subprocess.run(["docker", "compose", "-p", name, "down", "--remove-orphans"]).returncode
 
@@ -54,6 +93,12 @@ class Compose:
     def running(self, service: str) -> bool:
         out = self.call("ps", "--status", "running", "--quiet", service, capture=True)
         return bool(out.stdout.strip())
+
+    def config_hashes(self) -> dict[str, str]:
+        """The hash of each service's configuration, as compose computes it to
+        decide whether a running container must be recreated."""
+        out = self.call("config", "--hash", "*", capture=True).stdout
+        return dict(line.split(None, 1) for line in out.splitlines() if " " in line.strip())
 
     def config(self, files=None) -> dict:
         """The resolved configuration, as docker compose reports it."""

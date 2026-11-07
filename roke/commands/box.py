@@ -5,8 +5,14 @@ import sys
 
 from roke import urls as urls_output
 from roke.commands.network import render_network
-from roke.docker import require_docker, running_projects, stop_project
-from roke.ui import info
+from roke.docker import (
+    container_env,
+    require_docker,
+    running_containers,
+    running_projects,
+    stop_project,
+)
+from roke.ui import die, info
 from roke.workspace import Workspace
 
 
@@ -37,6 +43,7 @@ def run(req) -> int:
         f"services: {ws.env['ROKE_SERVICES'] or 'none'}  ·  "
         f".git: {'rw' if ws.git_rw else 'ro'}  ·  serena: {'yes' if ws.serena else 'no'}"
     )
+    protect_running_sessions(ws, compose)
     return compose.call("run", *args, "box", *req.cmd).returncode
 
 
@@ -89,6 +96,7 @@ def settings(req) -> None:
                 f"Settings  {ws.config}: {found or '(no files)'}",
                 f"Agent     {agent}",
                 f"Network   {ws.network} ({ws.network_source})",
+                *([f"Parallel  {', '.join(ws.parallel_agents)}"] if ws.parallel_agents else []),
                 f"Services  {', '.join(labels) or 'none'}",
                 f"Ports     {' '.join(ws.ports) or 'none'}",
                 f"MCPs      {mcp_labels(ws) or 'none'}",
@@ -136,4 +144,36 @@ def mcp_labels(ws) -> str:
     return ", ".join(
         name if name in ws.resolved_mcps else f"{name} (left out: needs secrets)"
         for name in ws.selected_mcps
+    )
+
+
+def protect_running_sessions(ws, compose) -> None:
+    """Refuse to start a session that would recreate a container another
+    session is using: docker compose run recreates the running dependencies
+    whose configuration changed, and recreating the gateway would leave the
+    other session without network."""
+    running = running_containers(compose.name)
+    sessions = [c for c in running if c["service"] == "box" and c["oneoff"] == "True"]
+    if not sessions:
+        return
+    wanted = compose.config_hashes()
+    changed = sorted(
+        c["service"]
+        for c in running
+        if c["oneoff"] != "True" and c["service"] in wanted and wanted[c["service"]] != c["hash"]
+    )
+    if not changed:
+        return
+    agents = sorted({container_env(c["id"]).get("ROKE_AGENT", "?") for c in sessions})
+    if "gateway" in changed and any(agent != ws.agent for agent in agents):
+        together = ",".join(sorted({*agents, ws.agent}))
+        die(
+            f"the project is already running {', '.join(agents)}, and its network does not "
+            f"allow {ws.agent} too: set ROKE_PARALLEL_AGENTS={together} in the project's "
+            "project.env, then finish that session (or run roke down) and start again"
+        )
+    die(
+        "the project is already running a session, and starting this one would recreate "
+        f"{', '.join(changed)}, cutting that session off (different ports, services or "
+        "network): finish it first, or run roke down"
     )
