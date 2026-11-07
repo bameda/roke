@@ -25,6 +25,7 @@ Online services:
 | [`context7`](context7/README.md) | Up-to-date documentation and code examples of libraries | Optionally `CONTEXT7_API_KEY` |
 | [`fetch`](fetch/README.md) | Web pages as markdown, from the allowed destinations | — |
 | [`github`](github/README.md) | Repositories, issues, pull requests and Actions | `GITHUB_PAT` |
+| [`penpot`](penpot/README.md) | Read and change your Penpot designs | `PENPOT_MCP_KEY` |
 
 For the project's [services](../services/README.md), each one starting the
 service it talks to and using the project's settings (database, user,

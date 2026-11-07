@@ -149,3 +149,15 @@ def test_an_mcp_needing_an_unknown_service(env):
     env.roke("mcp", "add", "broken", cwd=shop)
     r = env.roke(cwd=shop)
     assert r.code != 0 and "needs the service 'nope'" in r.err
+
+
+def test_penpot_url_with_its_key_and_instance(env):
+    shop = env.project()
+    env.roke("mcp", "add", "penpot", cwd=shop)
+    assert mcp_file(env.roke(cwd=shop).last("run")) is None  # no PENPOT_MCP_KEY yet
+    env.append(env.config / "secrets.env", "PENPOT_MCP_KEY=k3y\n")
+    servers = json.loads(mcp_file(env.roke(cwd=shop).last("run")).read_text())["servers"]
+    assert servers["penpot"]["url"] == "https://design.penpot.app/mcp/stream?userToken=k3y"
+    env.append(env.config / "roke.env", "PENPOT_URL=https://penpot.example.com\n")
+    servers = json.loads(mcp_file(env.roke(cwd=shop).last("run")).read_text())["servers"]
+    assert servers["penpot"]["url"] == "https://penpot.example.com/mcp/stream?userToken=k3y"

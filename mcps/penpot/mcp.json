@@ -1,0 +1,6 @@
+{
+  "description": "Penpot: read and change your designs, through Penpot's hosted MCP server",
+  "url": "${PENPOT_URL:-https://design.penpot.app}/mcp/stream?userToken=${PENPOT_MCP_KEY}",
+  "requires": ["PENPOT_MCP_KEY"],
+  "allow": ["design.penpot.app"]
+}
