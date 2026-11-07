@@ -54,3 +54,12 @@ def test_urls_shows_one_variable_per_line(env, compose):
     lines = [line.strip() for line in r.out.splitlines()]
     for var in ("PGHOST=postgres", "PGPORT=5432", "PGUSER=dev", "PGDATABASE=shop"):
         assert var in lines
+
+
+def test_urls_with_service_mcps(env, compose):
+    shop = env.project()
+    env.roke("mcp", "add", "grafana", "postgres", cwd=shop)
+    r = env.roke("urls", cwd=shop, env={"FAKE_REAL_COMPOSE": compose})
+    assert r.code == 0, r.text
+    assert "grafana      http://127.0.0.1:3001" in r.out
+    assert "postgres     postgres:5432" in r.out

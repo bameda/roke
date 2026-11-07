@@ -25,7 +25,8 @@ conflicts.
 │   ├── claude/
 │   └── opencode/
 ├── projects/           one directory per project (see below)
-└── services/           optional: your own services
+├── services/           optional: your own services
+└── mcps/               optional: your own MCP servers
 ```
 
 `install.sh` creates it from the repository's `examples/config`. You can
@@ -242,6 +243,7 @@ documented in its README in [services](../services/README.md).
 |---|---|---|
 | `ROKE_AGENT` | — | The coding agent to run (`--agent`); required when several are installed |
 | `ROKE_SERVICES` | — | Services to start, comma-separated (`-s`) |
+| `ROKE_MCPS` | — | MCP servers, comma-separated; the project's add to the global ones (`roke mcp add`) |
 | `ROKE_NETWORK` | `restricted` | `restricted` or `open` (`--network`); see [Network](network.md) |
 | `ROKE_NETWORK_ALLOW` | — | Allowed destinations, space-separated; the project's add to the global ones (`roke network add`) |
 | `ROKE_PORTS` | — | Ports to publish on 127.0.0.1, space-separated (`-p`) |

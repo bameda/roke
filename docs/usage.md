@@ -59,6 +59,14 @@ remember:
 | `roke service rm NAME...` | Remove them from it; their data is kept until `roke purge` |
 | `roke service upgrade [NAME...]` | Move the project's services, or some, to roke's current versions; `--major` also for major versions of services that keep data (see [Versions](../services/README.md#versions)) |
 
+**MCP servers** (see [MCP servers](../mcps/README.md))
+
+| Command | Description |
+|---|---|
+| `roke mcp` | The MCP servers, marking the ones this project uses |
+| `roke mcp add NAME...` | Give them to the agent in this project; with `--global`, in every project |
+| `roke mcp rm NAME...` | Take them away; with `--global`, from every project |
+
 **Network** (see [Network](network.md))
 
 | Command | Description |
@@ -104,7 +112,8 @@ roke -C ~/src/shop urls     # another project, from anywhere
 
 `roke settings` shows what applies to the current project and where each
 value comes from: the agent, the network mode, the services, the ports, the
-settings files found, and the allowed network destinations, layer by layer.
+MCP servers, the settings files found, and the allowed network
+destinations, layer by layer.
 
 ```text
 Project   /home/me/src/shop
@@ -113,6 +122,7 @@ Agent     claude (default agent, roke.env)
 Network   restricted (built-in default)
 Services  postgres, mailpit
 Ports     5173
+MCPs      none
 Serena    on
 .git      read-only
 

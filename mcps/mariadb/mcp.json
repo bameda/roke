@@ -1,0 +1,20 @@
+{
+  "description": "MariaDB: schemas and SQL on the project's database",
+  "command": [
+    "npx",
+    "-y",
+    "@toolbox-sdk/server@1.16.0",
+    "--prebuilt=mysql",
+    "--stdio"
+  ],
+  "env": {
+    "MYSQL_HOST": "mariadb",
+    "MYSQL_PORT": "3306",
+    "MYSQL_DATABASE": "${MARIADB_DATABASE:-app}",
+    "MYSQL_USER": "${MARIADB_USER:-dev}",
+    "MYSQL_PASSWORD": "${MARIADB_PASSWORD:-dev}"
+  },
+  "services": [
+    "mariadb"
+  ]
+}

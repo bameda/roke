@@ -26,6 +26,9 @@ services:
 
 **Explore it**: as with [redis](../redis/README.md), using `"$VALKEY_URL"`.
 
+**MCP**: `roke mcp add valkey` gives the agent tools for this service; see
+the [`valkey` MCP](../../mcps/valkey/README.md).
+
 **Data**: not persisted, as with redis.
 
 **Settings**

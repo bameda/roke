@@ -19,12 +19,18 @@ roke_link_config "$AGENT_CONFIG" "$HOME/.claude"
 # before your CLAUDE.md and the project's, and which cannot be excluded.
 cp "$AGENT_INSTRUCTIONS" /etc/claude-code/CLAUDE.md
 
-# Serena, through a per-start MCP configuration passed on the command line.
+# The project's MCP servers (roke mcp) and Serena, through a per-start MCP
+# configuration passed on the command line; MCP servers you add to Claude
+# Code yourself keep working alongside them.
+mcp_servers="$(python3 /opt/roke/agents/mcp.py claude)"
 if ((SERENA_ENABLED)); then
   serena_command claude-code
-  mcp_config="$ROKE_RUNTIME/claude-mcp.json"
-  jq -n --args '{ mcpServers: { serena: {
+  mcp_servers="$(jq --args '. + { serena: {
       type: "stdio", command: $ARGS.positional[0], args: $ARGS.positional[1:]
-    } } }' -- "${SERENA_CMD[@]}" > "$mcp_config"
+    } }' -- "${SERENA_CMD[@]}" <<<"$mcp_servers")"
+fi
+if [[ "$mcp_servers" != "{}" ]]; then
+  mcp_config="$ROKE_RUNTIME/claude-mcp.json"
+  jq '{ mcpServers: . }' <<<"$mcp_servers" > "$mcp_config"
   AGENT_ARGS=(--mcp-config "$mcp_config")
 fi

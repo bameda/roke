@@ -18,6 +18,8 @@ agent's reach.
 - **Services on demand**: databases, caches, queues, test email, tracing,
   API mocks, a simulated Kubernetes API and more, each in its own
   container, with separate data for every project.
+- **MCP servers**: GitHub, Context7 and others, managed like the services
+  and given to whichever agent you use, in its own format.
 - **Restricted network**: by default, the agent only reaches the
   destinations you allow, with any protocol; `roke network blocked` shows what was
   denied and `roke network add` opens it.
@@ -63,6 +65,7 @@ roke shell                 # bash inside the box
 roke exec psql             # a single command inside the box
 roke urls                  # where the app and the services are
 roke service add postgres  # add a service to the project, for good
+roke mcp add github        # give the agent an MCP server, for good
 roke agent use opencode    # use another agent in the project, for good
 roke network blocked       # what the network denied
 roke down                  # stop the project's containers (keeps data)
@@ -83,6 +86,7 @@ usually enough.
 | [Agents](agents/README.md) | The available agents, choosing one, how each logs in and is configured, adding another |
 | [Configuration](docs/configuration.md) | `~/.config/roke`, keeping it in a private repo, per-project settings, tools, settings reference |
 | [Services](services/README.md) | The service catalog, how to use each one and how to add your own |
+| [MCP servers](mcps/README.md) | The MCP catalog, how they reach each agent and how to add your own |
 | [Example projects](examples/projects/README.md) | Ready-made configurations: Ansible, Helm, Python, Node.js, Go, Rust, Rails, Spring Boot, Clojure |
 | [Serena](docs/serena.md) | Semantic code navigation and editing |
 | [Network](docs/network.md) | How the pieces fit, restricted and open mode, allowing destinations |

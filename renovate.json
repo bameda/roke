@@ -17,6 +17,7 @@
   "automerge": false,
   "ignorePaths": [
     "services/_template/**",
+    "mcps/_template/**",
     "**/node_modules/**"
   ],
   "pre-commit": {
@@ -54,6 +55,28 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ARG [A-Z0-9_]+=\"?(?<currentValue>[^\"\\s]+)\"?"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "Local MCP servers' Python packages in mcps/*/mcp.json: uvx package==version",
+      "managerFilePatterns": [
+        "/(^|/)mcps/[^/]+/mcp\\.json$/"
+      ],
+      "matchStrings": [
+        "\"(?<depName>[A-Za-z0-9_.-]+)==(?<currentValue>[0-9][^\"]*)\""
+      ],
+      "datasourceTemplate": "pypi"
+    },
+    {
+      "customType": "regex",
+      "description": "Local MCP servers' npm packages in mcps/*/mcp.json: npx package@version",
+      "managerFilePatterns": [
+        "/(^|/)mcps/[^/]+/mcp\\.json$/"
+      ],
+      "matchStrings": [
+        "\"(?<depName>@?[a-z0-9][a-z0-9._/-]*)@(?<currentValue>[0-9][^\"]*)\""
+      ],
+      "datasourceTemplate": "npm"
     }
   ],
   "packageRules": [

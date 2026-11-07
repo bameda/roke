@@ -72,6 +72,10 @@ workflows.
   `allow.txt` (the destinations it needs) and its README, and add it to the
   agents' table.
 
+- **An MCP server**: follow [Adding your own MCP](mcps/README.md#adding-your-own-mcp):
+  copy `mcps/_template/`, fill in its `mcp.json` and README, and add it to
+  the MCP catalog.
+
 If you are not sure a service or an agent belongs in roke, open an issue
 with the "Service or agent request" form first.
 

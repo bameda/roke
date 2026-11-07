@@ -86,6 +86,7 @@ add what is specific to you:
 | Base | `docker/gateway/allow.txt` in this repository | What mise, the package managers and Serena need: GitHub, npm, PyPI, crates.io, Maven Central... |
 | Agent | `agents/<agent>/allow.txt` | The agent's API and login |
 | Services | `services/<name>/allow.txt` | Rarely needed: services have no route out anyway |
+| MCP servers | `allow` in `mcps/<name>/mcp.json` | What the project's [MCP servers](../mcps/README.md) need |
 | Yours | `ROKE_NETWORK_ALLOW` in `roke.env` | Every project |
 | The project's | `ROKE_NETWORK_ALLOW` in `project.env` | This project; adds to yours |
 

@@ -25,6 +25,9 @@ npx -y mongosh "$MONGODB_URL"
 npx -y mongosh "$MONGODB_URL" --quiet --eval 'db.adminCommand({ listDatabases: 1 })'
 ```
 
+**MCP**: `roke mcp add mongodb` gives the agent tools for this service; see
+the [`mongodb` MCP](../../mcps/mongodb/README.md).
+
 **Data**: persisted in the project's `mongodb-data` volume.
 
 **Settings**

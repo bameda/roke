@@ -64,6 +64,9 @@ container, with files the agent cannot modify.
 
 ## What it does NOT protect
 
+- **Tokens you give to MCP servers.** An MCP server can do outside the box
+  whatever its token allows, for example in GitHub. Give each token only
+  the access the agent needs; see [MCP servers](../mcps/README.md).
 - **Allowed destinations.** In restricted mode, the box can still reach
   the destinations you allow, and in open mode anything at all. See
   [Network](network.md).

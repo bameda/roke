@@ -36,6 +36,9 @@ are kept in the project's `grafana-data` volume. To provision them from
 files, mount a provisioning directory in the project's `compose.yaml`; see
 [Grafana's provisioning docs](https://grafana.com/docs/grafana/latest/administration/provisioning/).
 
+**MCP**: `roke mcp add grafana` gives the agent tools for this service; see
+the [`grafana` MCP](../../mcps/grafana/README.md).
+
 **Data**: persisted in the project's `grafana-data` volume.
 
 **Settings**

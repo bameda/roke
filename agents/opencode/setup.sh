@@ -15,8 +15,8 @@ roke_link_config "$AGENT_CONFIG" "$cfg"
 cp "$AGENT_INSTRUCTIONS" "$cfg/AGENTS.md"
 
 # System configuration (/etc/opencode, highest precedence), rebuilt on every
-# start: updates off, since the image decides the version, and Serena when
-# enabled.
+# start: updates off, since the image decides the version, the project's MCP
+# servers (roke mcp), and Serena when enabled.
 # shellcheck disable=SC2016  # $schema is a literal key
 system_config='{ "$schema": "https://opencode.ai/config.json", "update": "disable" }'
 if ((SERENA_ENABLED)); then
@@ -31,4 +31,8 @@ if ((SERENA_ENABLED)); then
         timeout: { startup: 120000 }
       } } } }' -- "${SERENA_CMD[@]}")"
 fi
+# The project's MCP servers (roke mcp); Serena's entry wins a name clash.
+mcp_servers="$(python3 /opt/roke/agents/mcp.py opencode)"
+system_config="$(jq --argjson extra "$mcp_servers" \
+  '.mcp.servers = ($extra + (.mcp.servers // {}))' <<<"$system_config")"
 printf '%s\n' "$system_config" > /etc/opencode/opencode.json

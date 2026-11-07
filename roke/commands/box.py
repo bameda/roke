@@ -25,6 +25,9 @@ def run(req) -> int:
         args += ["-v", f"{ws.config / 'AGENTS.md'}:/run/roke/user-AGENTS.md:ro"]
     if (p.config / "AGENTS.md").is_file():
         args += ["-v", f"{p.config / 'AGENTS.md'}:/run/roke/project-AGENTS.md:ro"]
+    mcp_config = ws.write_mcp_config()
+    if mcp_config:
+        args += ["-v", f"{mcp_config}:/run/roke/mcp.json:ro"]
     # Read-only .git: prevents the agent from planting hooks or settings
     # (core.fsmonitor, core.hooksPath...) that would run on your host.
     if not ws.git_rw and (p.dir / ".git").is_dir():
@@ -70,7 +73,10 @@ def settings(req) -> None:
     labels = []
     for name in ws.selected:
         origin = ws.services.origin(name)
-        labels.append(f"{name} [{origin}]" if origin else name)
+        label = f"{name} [{origin}]" if origin else name
+        if name in ws.mcp_services:
+            label += f" (for MCP {ws.mcp_services[name]})"
+        labels.append(label)
     agent = (
         "none chosen (roke agent use NAME --global)"
         if ws.agent == "none"
@@ -85,6 +91,7 @@ def settings(req) -> None:
                 f"Network   {ws.network} ({ws.network_source})",
                 f"Services  {', '.join(labels) or 'none'}",
                 f"Ports     {' '.join(ws.ports) or 'none'}",
+                f"MCPs      {mcp_labels(ws) or 'none'}",
                 f"Serena    {'on' if ws.serena else 'off'}",
                 f".git      {'read-write' if ws.git_rw else 'read-only'}",
                 "",
@@ -122,3 +129,11 @@ def _down(req, *args) -> int:
     ws = Workspace(req).open(docker=True)
     ws.load_all()
     return ws.prepare_compose(all_services=True).call("down", *args).returncode
+
+
+def mcp_labels(ws) -> str:
+    """The project's MCP servers, marking those left out for missing secrets."""
+    return ", ".join(
+        name if name in ws.resolved_mcps else f"{name} (left out: needs secrets)"
+        for name in ws.selected_mcps
+    )

@@ -48,6 +48,12 @@ Services
                              current versions (--major: also major versions of
                              services that keep data)
 
+MCP servers
+  roke mcp                   The MCP servers, and the ones this project uses
+  roke mcp add NAME...       Give them to the agent in this project (--global:
+                             in every project)
+  roke mcp rm NAME...        Take them away (--global: from every project)
+
 Network
   roke network               The network mode and the allowed destinations
   roke network add DEST      Allow a destination in this project (--global: in
@@ -79,6 +85,7 @@ SECTIONS = {
     **{c: "The project's box" for c in BOX_COMMANDS},
     "agent": "Agents",
     "service": "Services",
+    "mcp": "MCP servers",
     "network": "Network",
     **{c: "roke itself" for c in ("init", "update", "help")},
 }

@@ -110,6 +110,7 @@ Copy [`_template/`](_template/) to `agents/<name>/` and fill in its files:
 | `AGENT_INSTRUCTIONS` | The combined instructions file described above |
 | `SERENA_ENABLED` | `1` when Serena is enabled for the project |
 | `serena_command CONTEXT` | Sets the array `SERENA_CMD` to the command that starts Serena's MCP server for the project |
+| `python3 /opt/roke/agents/mcp.py FORMAT` | Prints the project's [MCP servers](../mcps/README.md) in an agent's format (`opencode`, `claude` or `codex`); add a format there for a new agent |
 | `roke_link_config SRC DEST` | Links every entry of `SRC` into `DEST`, keeping `DEST` writable for the agent's own files |
 | `ROKE_RUNTIME` | A per-container directory for generated files |
 

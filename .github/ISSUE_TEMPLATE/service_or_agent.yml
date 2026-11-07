@@ -9,6 +9,7 @@ body:
       options:
         - A service
         - A coding agent
+        - An MCP server
     validations:
       required: true
   - type: input

@@ -30,6 +30,9 @@ pg_restore --clean -d "$PGDATABASE" .db.dump
 dropdb --force "$PGDATABASE" && createdb "$PGDATABASE"  # empty the DB
 ```
 
+**MCP**: `roke mcp add postgres` gives the agent tools for this service; see
+the [`postgres` MCP](../../mcps/postgres/README.md).
+
 **Data**: persisted in the project's `pgdata` volume.
 
 **Settings**

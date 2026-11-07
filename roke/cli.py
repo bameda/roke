@@ -10,12 +10,15 @@ RUN_LIKE = ("run", "continue", "shell", "exec", "urls")
 GROUPS: dict[str, dict[str, tuple[int, int | None]]] = {
     "agent": {"list": (0, 0), "use": (1, 1), "reset": (0, 0)},
     "service": {"list": (0, 0), "add": (1, None), "rm": (1, None), "upgrade": (0, None)},
+    "mcp": {"list": (0, 0), "add": (1, None), "rm": (1, None)},
     "network": {"list": (0, 0), "add": (1, 1), "rm": (1, 1), "blocked": (0, 0)},
 }
 USAGES = {
     "agent use": "roke agent use NAME [--global]",
     "service add": "roke service add NAME...",
     "service rm": "roke service rm NAME...",
+    "mcp add": "roke mcp add NAME... [--global]",
+    "mcp rm": "roke mcp rm NAME... [--global]",
     "network add": "roke network add DEST [--global]",
     "network rm": "roke network rm DEST [--global]",
 }

@@ -10,12 +10,15 @@ Each command builds one, calling the steps it needs in this order:
   prepare_compose() the compose files, published ports and environment
 """
 
+import json
 import os
 import sys
 from pathlib import Path
 
 from roke import settings
 from roke.catalog.agents import DEFAULT_INSTALLED, Agents
+from roke.catalog.mcps import Mcps
+from roke.catalog.mcps import resolve as resolve_mcp
 from roke.catalog.services import Services
 from roke.docker import Compose, require_docker
 from roke.paths import BOX_DIR, config_dir
@@ -41,6 +44,7 @@ class Workspace:
         self.project = resolve(self.req.project or os.getcwd(), self.config)
         self.agents = Agents(BOX_DIR)
         self.services = Services(BOX_DIR, self.config / "services", self.project.services_dir)
+        self.mcps = Mcps(BOX_DIR, self.config / "mcps", self.project.config / "mcps")
         if docker:
             require_docker()
         if guards:
@@ -60,8 +64,10 @@ class Workspace:
         p, r = self.project, self.req
         env = settings.load([self.global_env, self.config / "secrets.env"], os.environ.copy())
         self.global_allow = env.pop("ROKE_NETWORK_ALLOW", "")
+        self.global_mcps = env.pop("ROKE_MCPS", "")
         env = settings.load([p.env_file, p.config / "secrets.env"], env)
         self.project_allow = env.get("ROKE_NETWORK_ALLOW", "")
+        self.project_mcps = env.get("ROKE_MCPS", "")
         self.env = env
         self.services_text = r.services if r.services is not None else env.get("ROKE_SERVICES", "")
         self.ports = list(r.ports) or env.get("ROKE_PORTS", "").split()
@@ -114,6 +120,17 @@ class Workspace:
                 die(f"unknown service: '{name}'")
             if name not in self.selected:
                 self.selected.append(name)
+        # Services the project's MCP servers need, such as the server they talk to.
+        self.mcp_services: dict[str, str] = {}
+        for mcp in split_list(self.global_mcps) + split_list(self.project_mcps):
+            if not self.mcps.exists(mcp):
+                continue
+            for name in self.mcps.definition(mcp).get("services", []):
+                if not self.services.exists(name):
+                    die(f"the MCP server {mcp} needs the service '{name}', which does not exist")
+                if name not in self.selected:
+                    self.selected.append(name)
+                    self.mcp_services[name] = mcp
 
     # --- versions ----------------------------------------------------------------------
     def current_version(self, var: str, default: str, env=None) -> str:
@@ -139,6 +156,41 @@ class Workspace:
                 value = self.current_version(var, default, global_env)
                 settings.set_value(p.env_file, var, value)
                 info(f"pinned for {p.name}: {var}={value}")
+
+    # --- MCP servers -------------------------------------------------------------------
+    def select_mcps(self) -> None:
+        """The project's MCP servers, global ones first; those whose required
+        variables are not set are left out, with a warning."""
+        names: list[str] = []
+        for name in split_list(self.global_mcps) + split_list(self.project_mcps):
+            if not self.mcps.exists(name):
+                die(f"unknown MCP server: '{name}' (see roke mcp)")
+            if name not in names:
+                names.append(name)
+        self.selected_mcps = names
+        self.resolved_mcps: dict[str, dict] = {}
+        for name in names:
+            definition = self.mcps.definition(name)
+            missing = [v for v in definition.get("requires", []) if not self.env.get(v)]
+            if missing:
+                info(f"MCP {name} left out: set {', '.join(missing)} in secrets.env")
+                continue
+            resolved = resolve_mcp(definition, self.env)
+            if resolved:
+                self.resolved_mcps[name] = resolved
+
+    def write_mcp_config(self) -> Path | None:
+        """The resolved MCP servers, in a file for the box, readable only by
+        you since it may hold tokens; None when there are none."""
+        if not self.resolved_mcps:
+            return None
+        runtime = Path(os.environ.get("XDG_RUNTIME_DIR") or "/tmp") / "roke"
+        runtime.mkdir(parents=True, exist_ok=True)
+        path = runtime / f"{self.project.compose_name}.mcp.json"
+        path.touch(mode=0o600, exist_ok=True)
+        path.chmod(0o600)
+        path.write_text(json.dumps({"servers": self.resolved_mcps}, indent=2) + "\n")
+        return path
 
     # --- the network -------------------------------------------------------------------
     def choose_network(self) -> None:
@@ -178,8 +230,12 @@ class Workspace:
         service_allow = []
         for name in self.selected:
             service_allow += settings.file_entries(self.services.file(name).parent / "allow.txt")
+        mcp_allow: list[str] = []
+        for name in getattr(self, "resolved_mcps", {}):
+            mcp_allow += [str(d) for d in self.mcps.definition(name).get("allow", [])]
         return layers + [
             ("services", "services/<name>/allow.txt", service_allow),
+            ("mcps", "mcps/<name>/mcp.json", mcp_allow),
             (
                 "global",
                 "ROKE_NETWORK_ALLOW in roke.env (roke network add --global)",
@@ -240,4 +296,10 @@ class Workspace:
         self.load_settings()
         self.choose_agent(required=required_agent)
         self.select_services()
+        self.select_mcps()
         self.choose_network()
+
+
+def split_list(text: str) -> list[str]:
+    """The names in a comma-separated setting."""
+    return [n.strip() for n in text.replace(" ", ",").split(",") if n.strip()]

@@ -1,0 +1,8 @@
+{
+  "description": "Context7: up-to-date documentation and code examples of libraries",
+  "url": "https://mcp.context7.com/mcp",
+  "headers": {
+    "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+  },
+  "allow": ["mcp.context7.com"]
+}

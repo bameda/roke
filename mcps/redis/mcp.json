@@ -1,0 +1,14 @@
+{
+  "description": "Redis: keys, values and commands on the project's Redis",
+  "command": [
+    "uvx",
+    "--from",
+    "redis-mcp-server==0.5.1",
+    "redis-mcp-server",
+    "--url",
+    "redis://redis:6379/0"
+  ],
+  "services": [
+    "redis"
+  ]
+}

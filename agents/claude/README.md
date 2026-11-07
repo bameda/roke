@@ -35,7 +35,7 @@ Claude Code asks once whether to use it.
 on your host. Claude Code's own state (sessions, auto memory, the login)
 stays in the project's home volume.
 
-## Instructions and Serena
+## Instructions, MCP servers and Serena
 
 - **Instructions**: the combined instructions (see
   [agents](../README.md#instructions-for-the-agent)) become the managed
@@ -43,6 +43,8 @@ stays in the project's home volume.
   your `~/.claude/CLAUDE.md` and the project's, and which cannot be
   excluded. In the project, Claude Code reads its `CLAUDE.md`, or its
   `AGENTS.md` when there is no `CLAUDE.md`.
+- **MCP servers**: those of the project (`roke mcp`) are registered next to
+  Serena, in the same place; see [MCP servers](../../mcps/README.md).
 - **Serena**: passed on every start as an MCP configuration file
   (`--mcp-config`), with Serena's `claude-code` context. MCP servers you
   configure yourself keep working alongside it.

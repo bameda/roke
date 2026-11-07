@@ -32,12 +32,14 @@ home volume, so you log in once per project. Alternatively, put
 them. It is mounted read-only, so edit it on your host. An `AGENTS.md` there
 holds instructions for Codex only, added to the combined instructions.
 
-## Instructions and Serena
+## Instructions, MCP servers and Serena
 
 - **Instructions**: the combined instructions (see
   [agents](../README.md#instructions-for-the-agent)) become
   `~/.codex/AGENTS.md`, Codex's global instructions file. The project's own
   `AGENTS.md` is read as usual.
+- **MCP servers**: those of the project (`roke mcp`) are registered next to
+  Serena, in the same place; see [MCP servers](../../mcps/README.md).
 - **Serena**: registered as an MCP server in Codex's system configuration
   (`/etc/codex/config.toml`, regenerated on every start), with Serena's
   `codex` context. MCP servers in your `config.toml` keep working alongside

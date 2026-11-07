@@ -1,0 +1,14 @@
+{
+  "description": "Valkey: keys, values and commands on the project's Valkey",
+  "command": [
+    "uvx",
+    "--from",
+    "redis-mcp-server==0.5.1",
+    "redis-mcp-server",
+    "--url",
+    "redis://valkey:6379/0"
+  ],
+  "services": [
+    "valkey"
+  ]
+}

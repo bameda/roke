@@ -23,6 +23,9 @@ redis-cli -u "$REDIS_URL" monitor   # watch commands live
 redis-cli -u "$REDIS_URL" flushall  # empty it
 ```
 
+**MCP**: `roke mcp add redis` gives the agent tools for this service; see
+the [`redis` MCP](../../mcps/redis/README.md).
+
 **Data**: not persisted. It survives between sessions while the container
 runs, and is lost on `roke down`, which is usually what you want for a
 cache.

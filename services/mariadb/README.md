@@ -35,6 +35,9 @@ The `dev` user only has access to its own database. To create another one
 mariadb -u root -proot -e "CREATE DATABASE app_test; GRANT ALL ON app_test.* TO 'dev'@'%'"
 ```
 
+**MCP**: `roke mcp add mariadb` gives the agent tools for this service; see
+the [`mariadb` MCP](../../mcps/mariadb/README.md).
+
 **Data**: persisted in the project's `mariadb-data` volume.
 
 **Settings**

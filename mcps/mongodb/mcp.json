@@ -1,0 +1,15 @@
+{
+  "description": "MongoDB: collections, queries and aggregations, read-only",
+  "command": [
+    "npx",
+    "-y",
+    "mongodb-mcp-server@3.2.2",
+    "--readOnly"
+  ],
+  "env": {
+    "MDB_MCP_CONNECTION_STRING": "mongodb://${MONGO_USER:-dev}:${MONGO_PASSWORD:-dev}@mongodb:27017/?authSource=admin"
+  },
+  "services": [
+    "mongodb"
+  ]
+}

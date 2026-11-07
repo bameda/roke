@@ -35,4 +35,6 @@ toml_string() {
     echo "]"
     echo "startup_timeout_sec = 120"
   fi
+  # The project's MCP servers (roke mcp).
+  python3 /opt/roke/agents/mcp.py codex
 } > /etc/codex/config.toml

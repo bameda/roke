@@ -16,7 +16,8 @@ points) and is meant to be its own private git repository.
 │   └── opencode/       opencode.jsonc, agents/, commands/, skills/...
 ├── projects/           one directory per project, named after the project's
 │                       directory (see projects/README.md)
-└── services/           optional: your own services, same layout as the catalog
+├── services/           optional: your own services, same layout as the catalog
+└── mcps/               optional: your own MCP servers, same layout as the catalog
 ```
 
 - **Agents**: the selected agent's directory is mounted read-only in the

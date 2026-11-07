@@ -26,12 +26,14 @@ key in `~/.config/roke/secrets.env`.
 read-only, so edit it on your host. The terminal client's own file
 (`cli.json`) stays in the project's home volume.
 
-## Instructions and Serena
+## Instructions, MCP servers and Serena
 
 - **Instructions**: the combined instructions (see
   [agents](../README.md#instructions-for-the-agent)) become
   `~/.config/opencode/AGENTS.md`, OpenCode's global instructions file. The
   project's own `AGENTS.md` is read as usual.
+- **MCP servers**: those of the project (`roke mcp`) are registered next to
+  Serena, in the same place; see [MCP servers](../../mcps/README.md).
 - **Serena**: registered as a local MCP server in OpenCode's system
   configuration (`/etc/opencode/opencode.json`, regenerated on every
   start), with Serena's `ide` context. OpenCode 2 groups MCP tools behind its

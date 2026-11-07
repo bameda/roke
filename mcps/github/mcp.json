@@ -1,0 +1,9 @@
+{
+  "description": "GitHub: repositories, issues, pull requests and Actions",
+  "url": "https://api.githubcopilot.com/mcp/",
+  "headers": {
+    "Authorization": "Bearer ${GITHUB_PAT}"
+  },
+  "requires": ["GITHUB_PAT"],
+  "allow": ["api.githubcopilot.com"]
+}

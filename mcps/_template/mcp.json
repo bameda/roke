@@ -1,0 +1,11 @@
+{
+  "description": "One line on what the MCP gives the agent (shown by roke mcp)",
+
+  "url": "https://mcp.example.com/mcp",
+  "headers": {
+    "Authorization": "Bearer ${EXAMPLE_TOKEN}"
+  },
+
+  "requires": ["EXAMPLE_TOKEN"],
+  "allow": ["mcp.example.com"]
+}

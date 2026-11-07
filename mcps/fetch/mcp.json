@@ -1,0 +1,4 @@
+{
+  "description": "Fetch: web pages as markdown, from the allowed destinations",
+  "command": ["uvx", "mcp-server-fetch==2026.11.4"]
+}

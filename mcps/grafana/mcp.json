@@ -1,0 +1,13 @@
+{
+  "description": "Grafana: dashboards, data sources and queries of the project's Grafana",
+  "command": [
+    "uvx",
+    "mcp-grafana==2.2.0"
+  ],
+  "env": {
+    "GRAFANA_URL": "http://grafana:3000"
+  },
+  "services": [
+    "grafana"
+  ]
+}
