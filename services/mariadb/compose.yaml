@@ -13,7 +13,7 @@ services:
         condition: service_healthy
 
   mariadb:
-    image: mariadb:${MARIADB_VERSION:-11}
+    image: mariadb:${MARIADB_VERSION:-13}
     environment:
       MARIADB_USER: ${MARIADB_USER:-dev}
       MARIADB_PASSWORD: ${MARIADB_PASSWORD:-dev}
