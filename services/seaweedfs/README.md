@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=seaweedfs` in `~/.config/roke/projects/<name>/project.env`, or `roke -s seaweedfs`.
+**Enable**: `roke service add seaweedfs` (or `roke -s seaweedfs` for one run).
 
 [SeaweedFS](https://github.com/seaweedfs/seaweedfs), a mature distributed
 storage system with an S3-compatible API, here as a single node. It is an

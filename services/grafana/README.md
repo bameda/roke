@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=grafana` in `~/.config/roke/projects/<name>/project.env`, or `roke -s grafana`.
+**Enable**: `roke service add grafana` (or `roke -s grafana` for one run).
 
 [Grafana](https://grafana.com/), dashboards for your app's metrics and
 traces. It comes with two data sources already configured, which work when

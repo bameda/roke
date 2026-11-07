@@ -35,11 +35,12 @@ def test_settings(env):
     for part in (
         f"Project   {shop}",
         "Agent     claude (default agent, roke.env)",
-        "Network   restricted (built-in default)",
-        "Services  postgres",
+        "Network   restricted (built-in default): ",
+        "destinations allowed (roke network)",
+        "Services  postgres ",
         "Ports     5173",
         "Serena    off",
         ".git      read-only",
-        "Allowed destinations",
     ):
         assert part in out
+    assert "github.com" not in out  # the list is in roke network

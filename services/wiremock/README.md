@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=wiremock` in `~/.config/roke/projects/<name>/project.env`, or `roke -s wiremock`.
+**Enable**: `roke service add wiremock` (or `roke -s wiremock` for one run).
 
 [WireMock](https://wiremock.org/) simulates the HTTP APIs your app depends
 on (payments, email providers, third-party services...), so it can be

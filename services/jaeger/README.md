@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=jaeger` in `~/.config/roke/projects/<name>/project.env`, or `roke -s jaeger`.
+**Enable**: `roke service add jaeger` (or `roke -s jaeger` for one run).
 
 [Jaeger](https://www.jaegertracing.io/) collects
 [OpenTelemetry](https://opentelemetry.io/) traces from your app and shows

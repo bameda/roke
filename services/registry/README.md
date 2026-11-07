@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=registry` in `~/.config/roke/projects/<name>/project.env`, or `roke -s registry`.
+**Enable**: `roke service add registry` (or `roke -s registry` for one run).
 
 A local OCI registry ([Distribution](https://distribution.github.io/distribution/)),
 for pushing and pulling Helm charts and other OCI artifacts without

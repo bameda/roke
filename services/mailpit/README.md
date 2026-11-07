@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=mailpit` in `~/.config/roke/projects/<name>/project.env`, or `roke -s mailpit`.
+**Enable**: `roke service add mailpit` (or `roke -s mailpit` for one run).
 
 Mailpit catches every email your app sends, so nothing reaches real
 recipients, and shows it in a web inbox.

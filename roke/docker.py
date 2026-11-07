@@ -19,6 +19,13 @@ def require_docker(compose: bool = True) -> None:
         die("the 'docker compose' plugin (v2) is missing")
 
 
+def available() -> bool:
+    """Whether Docker and its compose plugin are there, without failing."""
+    if not shutil.which("docker"):
+        return False
+    return subprocess.run(["docker", "compose", "version"], capture_output=True).returncode == 0
+
+
 def running_projects() -> list[str]:
     """The compose projects of roke that are running."""
     out = subprocess.run(

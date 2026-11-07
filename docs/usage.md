@@ -2,6 +2,7 @@
 
 - [Command line](#command-line)
 - [Checking the settings](#checking-the-settings)
+- [Editing the settings](#editing-the-settings)
 - [Finding the services and ports](#finding-the-services-and-ports)
 - [Choosing the agent](#choosing-the-agent)
 - [Projects and their services](#projects-and-their-services)
@@ -37,7 +38,8 @@ remember:
 | `roke shell` | Open bash in the box |
 | `roke exec CMD...` | Run a command in the box |
 | `roke urls` | Where the app and the services are |
-| `roke settings` | Every setting of the project and where it comes from |
+| `roke settings` | The project's settings and where they come from |
+| `roke settings edit [FILE]` | Edit them in your editor; see [editing the settings](#editing-the-settings) |
 | `roke build [--no-cache]` | Build the images; `--no-cache` also updates the agents |
 | `roke down [--all]` | Stop the project's containers, or every project's; their data is kept |
 | `roke purge` | Stop them and delete all the project's data |
@@ -47,6 +49,7 @@ remember:
 | Command | Description |
 |---|---|
 | `roke agent` | The agents, and the one this project uses |
+| `roke agent show NAME` | An agent: whether it is installed and used, what it allows, and its README |
 | `roke agent use NAME` | Use `NAME` in this project; with `--global`, by default in every project |
 | `roke agent reset` | This project uses the default agent again |
 
@@ -55,6 +58,7 @@ remember:
 | Command | Description |
 |---|---|
 | `roke service` | The services, marking the ones this project uses |
+| `roke service show NAME` | A service in this project: its version, address, web UI and variables, and its README |
 | `roke service add NAME...` | Add services to this project |
 | `roke service rm NAME...` | Remove them from it; their data is kept until `roke purge` |
 | `roke service upgrade [NAME...]` | Move the project's services, or some, to roke's current versions; `--major` also for major versions of services that keep data (see [Versions](../services/README.md#versions)) |
@@ -64,6 +68,7 @@ remember:
 | Command | Description |
 |---|---|
 | `roke mcp` | The MCP servers, marking the ones this project uses |
+| `roke mcp show NAME` | An MCP server: its definition, whether its secrets are set, and its README |
 | `roke mcp add NAME...` | Give them to the agent in this project; with `--global`, in every project |
 | `roke mcp rm NAME...` | Take them away; with `--global`, from every project |
 
@@ -116,31 +121,38 @@ MCP servers, the settings files found, and the allowed network
 destinations, layer by layer.
 
 ```text
-Project   /home/me/src/shop
+Project   /home/me/src/shop (running)
 Settings  /home/me/.config/roke: roke.env secrets.env projects/shop/project.env
 Agent     claude (default agent, roke.env)
-Network   restricted (built-in default)
-Services  postgres, mailpit
+Network   restricted (built-in default): 29 destinations allowed (roke network)
+Services  postgres 18, mailpit v1.33.0
+MCPs      github
+Secrets   GITHUB_PAT (global)
 Ports     5173
-MCPs      none
 Serena    on
 .git      read-only
-
-Allowed destinations (restricted mode), by layer:
-  base       docker/gateway/allow.txt
-             adoptium.net
-             cache.ruby-lang.org
-             clojars.org
-             ...
-  agent      agents/claude/allow.txt
-             api.anthropic.com
-             claude.ai
-             platform.claude.com
-  ...
 ```
 
 `roke network` shows only the network part, and `roke agent` and
 `roke service` what is available and what the project uses.
+
+## Editing the settings
+
+`roke settings edit` opens a settings file of the current project in your
+editor, creating it from a commented template the first time:
+
+| Command | File |
+|---|---|
+| `roke settings edit` | The project's `project.env`; with `--global`, `roke.env` |
+| `roke settings edit secrets` | The project's `secrets.env` (always readable only by you); with `--global`, yours |
+| `roke settings edit compose` | The project's own `compose.yaml` |
+| `roke settings edit instructions` | The project's private `AGENTS.md`; with `--global`, yours |
+| `roke settings edit tools` | The project's `mise.toml`, in its repository (see [Languages and tools](configuration.md#languages-and-tools)) |
+
+The editor is `ROKE_EDITOR` (in `roke.env`), then `$VISUAL`, then `$EDITOR`,
+then `nano` or `vi`; `ROKE_EDITOR="code --wait"` works too. When you close
+an `.env` file, roke checks it: settings files are read by bash, and a
+syntax error, such as an unclosed quote, would stop roke until fixed.
 
 ## Finding the services and ports
 
@@ -156,22 +168,33 @@ Open from your browser
 
 Reach from inside the box
   postgres     postgres:5432
-               DATABASE_URL=postgres://dev:dev@postgres:5432/shop
-               PGDATABASE=shop
-               PGHOST=postgres
-               PGPASSWORD=dev
-               PGPORT=5432
-               PGUSER=dev
   mailpit      mailpit:1025 · mailpit:8025
-               MAILPIT_API=http://mailpit:8025/api
-               SMTP_HOST=mailpit
-               SMTP_PORT=1025
+
+The variables each service gives the box: roke service show NAME
 ```
 
-It reads the project's resolved configuration, so it needs Docker and the
-box's image (`roke build`), but not the project running. Options such as
-`-s` and `-p` apply, so `roke urls -s redis` shows what that run would
-look like.
+It reads the project's resolved configuration, so it needs Docker, but not
+the project running. Options such as `-s` and `-p` apply, so
+`roke urls -s redis` shows what that run would look like.
+
+The variables each service gives the box, with your settings applied, are
+in `roke service show NAME`, followed by the service's README:
+
+```text
+postgres: PostgreSQL · postgres:5432 · DATABASE_URL, PGHOST/PGUSER/PGPASSWORD/PGDATABASE
+
+In this project: used
+  POSTGRES_VERSION=18 (pinned)
+  inside the box: postgres:5432
+  variables in the box:
+    DATABASE_URL=postgres://dev:dev@postgres:5432/shop
+    PGDATABASE=shop
+    PGHOST=postgres
+    PGPASSWORD=dev
+    PGPORT=5432
+    PGUSER=dev
+  ...
+```
 
 ## Choosing the agent
 

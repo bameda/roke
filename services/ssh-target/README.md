@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=ssh-target` in `~/.config/roke/projects/<name>/project.env`, or `roke -s ssh-target`.
+**Enable**: `roke service add ssh-target` (or `roke -s ssh-target` for one run).
 
 A disposable Debian machine for **testing Ansible playbooks** (or any SSH
 automation) without touching real infrastructure.

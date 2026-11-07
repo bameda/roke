@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=rustfs` in `~/.config/roke/projects/<name>/project.env`, or `roke -s rustfs`.
+**Enable**: `roke service add rustfs` (or `roke -s rustfs` for one run).
 
 [RustFS](https://rustfs.com/), S3-compatible object storage with a web
 console, for uploads and files your app would store in S3. It replaces

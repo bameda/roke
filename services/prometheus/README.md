@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=prometheus` in `~/.config/roke/projects/<name>/project.env`, or `roke -s prometheus`.
+**Enable**: `roke service add prometheus` (or `roke -s prometheus` for one run).
 
 [Prometheus](https://prometheus.io/) collects your app's metrics. It gets
 them in two ways:

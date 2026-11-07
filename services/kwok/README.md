@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=kwok` in `~/.config/roke/projects/<name>/project.env`, or `roke -s kwok`.
+**Enable**: `roke service add kwok` (or `roke -s kwok` for one run).
 
 A Kubernetes API server simulated by [kwok](https://kwok.sigs.k8s.io/)
 (*Kubernetes WithOut Kubelet*). The API is real, so `kubectl` and `helm`

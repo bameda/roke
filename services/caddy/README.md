@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=caddy` in `~/.config/roke/projects/<name>/project.env`, or `roke -s caddy`.
+**Enable**: `roke service add caddy` (or `roke -s caddy` for one run).
 
 Caddy reverse proxy. You do not need it just to open your app: `ROKE_PORTS`
 already publishes the dev server. Use it to serve several backends under one

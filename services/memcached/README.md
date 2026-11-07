@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=memcached` in `~/.config/roke/projects/<name>/project.env`, or `roke -s memcached`.
+**Enable**: `roke service add memcached` (or `roke -s memcached` for one run).
 
 Memcached, a simple key-value cache.
 

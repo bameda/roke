@@ -4,7 +4,6 @@ build, down and purge."""
 import sys
 
 from roke import urls as urls_output
-from roke.commands.network import render_network
 from roke.docker import (
     container_env,
     require_docker,
@@ -64,51 +63,6 @@ def urls(req) -> int:
     return 0
 
 
-def settings(req) -> None:
-    ws = Workspace(req).open(guards=False)
-    ws.load_all()
-    p = ws.project
-    files = [
-        ws.global_env,
-        ws.config / "secrets.env",
-        p.env_file,
-        p.config / "secrets.env",
-        p.config / "compose.yaml",
-        p.config / "AGENTS.md",
-    ]
-    found = " ".join(str(f.relative_to(ws.config)) for f in files if f.is_file())
-    labels = []
-    for name in ws.selected:
-        origin = ws.services.origin(name)
-        label = f"{name} [{origin}]" if origin else name
-        if name in ws.mcp_services:
-            label += f" (for MCP {ws.mcp_services[name]})"
-        labels.append(label)
-    agent = (
-        "none chosen (roke agent use NAME --global)"
-        if ws.agent == "none"
-        else f"{ws.agent} ({ws.agent_source})"
-    )
-    print(
-        "\n".join(
-            [
-                f"Project   {p.dir}",
-                f"Settings  {ws.config}: {found or '(no files)'}",
-                f"Agent     {agent}",
-                f"Network   {ws.network} ({ws.network_source})",
-                *([f"Parallel  {', '.join(ws.parallel_agents)}"] if ws.parallel_agents else []),
-                f"Services  {', '.join(labels) or 'none'}",
-                f"Ports     {' '.join(ws.ports) or 'none'}",
-                f"MCPs      {mcp_labels(ws) or 'none'}",
-                f"Serena    {'on' if ws.serena else 'off'}",
-                f".git      {'read-write' if ws.git_rw else 'read-only'}",
-                "",
-                render_network(ws),
-            ]
-        )
-    )
-
-
 def build(req) -> int:
     ws = Workspace(req).open(docker=True)
     ws.load_all()
@@ -137,14 +91,6 @@ def _down(req, *args) -> int:
     ws = Workspace(req).open(docker=True)
     ws.load_all()
     return ws.prepare_compose(all_services=True).call("down", *args).returncode
-
-
-def mcp_labels(ws) -> str:
-    """The project's MCP servers, marking those left out for missing secrets."""
-    return ", ".join(
-        name if name in ws.resolved_mcps else f"{name} (left out: needs secrets)"
-        for name in ws.selected_mcps
-    )
 
 
 def protect_running_sessions(ws, compose) -> None:

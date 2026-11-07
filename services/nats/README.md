@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=nats` in `~/.config/roke/projects/<name>/project.env`, or `roke -s nats`.
+**Enable**: `roke service add nats` (or `roke -s nats` for one run).
 
 [NATS](https://nats.io/) messaging server, with
 [JetStream](https://docs.nats.io/nats-concepts/jetstream) enabled for

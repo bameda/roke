@@ -58,18 +58,20 @@ services and tools.
 ## Everyday use
 
 ```fish
-roke                       # start the agent in the current project
-roke continue              # resume its last session
-roke -s postgres -p 5173   # this time with a database and the dev server's port
-roke shell                 # bash inside the box
-roke exec psql             # a single command inside the box
-roke urls                  # where the app and the services are
-roke service add postgres  # add a service to the project, for good
-roke mcp add github        # give the agent an MCP server, for good
-roke agent use opencode    # use another agent in the project, for good
-roke network blocked       # what the network denied
-roke down                  # stop the project's containers (keeps data)
-roke help                  # every command
+roke                        # start the agent in the current project
+roke continue               # resume its last session
+roke -s postgres -p 5173    # this time with a database and the dev server's port
+roke shell                  # bash inside the box
+roke exec psql              # a single command inside the box
+roke urls                   # where the app and the services are
+roke service show postgres  # a service: version, address, variables, docs
+roke settings edit          # edit the project's settings in your editor
+roke service add postgres   # add a service to the project, for good
+roke mcp add github         # give the agent an MCP server, for good
+roke agent use opencode     # use another agent in the project, for good
+roke network blocked        # what the network denied
+roke down                   # stop the project's containers (keeps data)
+roke help                   # every command
 ```
 
 Each project keeps its services, ports and other options in its own

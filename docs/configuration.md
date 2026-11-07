@@ -243,6 +243,7 @@ documented in its README in [services](../services/README.md).
 |---|---|---|
 | `ROKE_AGENT` | — | The coding agent to run (`--agent`); required when several are installed |
 | `ROKE_SERVICES` | — | Services to start, comma-separated (`-s`) |
+| `ROKE_EDITOR` | `$VISUAL`, `$EDITOR` | The editor `roke settings edit` opens, such as `code --wait` |
 | `ROKE_PARALLEL_AGENTS` | — | Agents that may run at the same time in the project, comma-separated; see [several agents at once](../agents/README.md#several-agents-at-once) |
 | `ROKE_MCPS` | — | MCP servers, comma-separated; the project's add to the global ones (`roke mcp add`) |
 | `ROKE_NETWORK` | `restricted` | `restricted` or `open` (`--network`); see [Network](network.md) |

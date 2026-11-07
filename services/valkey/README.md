@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=valkey` in `~/.config/roke/projects/<name>/project.env`, or `roke -s valkey`.
+**Enable**: `roke service add valkey` (or `roke -s valkey` for one run).
 
 Valkey, the open-source fork of Redis. It speaks the same protocol, so Redis
 clients and `redis-cli` work with it unchanged.

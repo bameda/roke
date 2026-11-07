@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=redis` in `~/.config/roke/projects/<name>/project.env`, or `roke -s redis`.
+**Enable**: `roke service add redis` (or `roke -s redis` for one run).
 
 Redis in-memory store, for caches, sessions, queues and rate limiting.
 

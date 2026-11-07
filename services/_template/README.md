@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=myservice` in `~/.config/roke/projects/<name>/project.env`, or `roke -s myservice`.
+**Enable**: `roke service add myservice` (or `roke -s myservice` for one run).
 
 One or two sentences: what the service is and what a project uses it for.
 

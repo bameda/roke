@@ -2,7 +2,7 @@
 in the project or in every project."""
 
 from roke import settings
-from roke.ui import die, info
+from roke.ui import die, info, page
 from roke.workspace import Workspace, split_list
 
 
@@ -47,3 +47,39 @@ def change(req) -> None:
             info(f"{name} is not in {where}")
     settings.set_or_drop(path, "ROKE_MCPS", ",".join(current))
     info("applies from the next start")
+
+
+def show_one(req) -> None:
+    """An MCP server: its definition and whether its secrets are set, then its
+    README. Variables are shown as written, never their values."""
+    ws = Workspace(req).open(guards=False)
+    ws.load_settings()
+    name = req.values[0]
+    if not ws.mcps.exists(name):
+        die(f"unknown MCP server: '{name}' (see roke mcp)")
+    d = ws.mcps.definition(name)
+    if name in split_list(ws.project_mcps):
+        used = f"used (roke mcp rm {name} to remove it)"
+    elif name in split_list(ws.global_mcps):
+        used = f"used, in every project (roke mcp rm {name} --global)"
+    else:
+        used = f"not used (roke mcp add {name})"
+    lines = [f"{name}: {d.get('description', '')}", "", f"In this project: {used}"]
+    if "command" in d:
+        lines.append("  local: " + " ".join(d["command"]))
+    else:
+        lines.append(f"  remote: {d['url']}")
+    for var in d.get("requires", []):
+        lines.append(f"  needs {var}: {'set' if ws.env.get(var) else 'NOT SET (in secrets.env)'}")
+    if d.get("services"):
+        lines.append("  starts: " + ", ".join(d["services"]))
+    if d.get("allow"):
+        lines.append("  allows: " + ", ".join(d["allow"]))
+    page("\n".join(lines + readme_section(ws.mcps.file(name).parent / "README.md")))
+
+
+def readme_section(path) -> list[str]:
+    """A catalog entry's README, to print after its details."""
+    if not path.is_file():
+        return []
+    return ["", "─" * 78, "", path.read_text().rstrip()]

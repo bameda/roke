@@ -2,8 +2,9 @@
 
 import re
 
-from roke import settings
-from roke.ui import die, info
+from roke import docker, settings, urls
+from roke.paths import first_line
+from roke.ui import die, info, page
 from roke.workspace import Workspace
 
 
@@ -103,3 +104,50 @@ def change(req) -> None:
     if adding:
         ws.pin_versions(names)
     info(f"applies from the next start; services: {', '.join(current) or 'none'}")
+
+
+def show_one(req) -> None:
+    """A service: what applies to it in this project, then its README."""
+    ws = Workspace(req).open(guards=False)
+    ws.load_all()
+    name = req.values[0]
+    if not ws.services.exists(name):
+        die(f"unknown service: '{name}' (see roke service)")
+    path = ws.services.file(name)
+    used = name in ws.selected
+    lines = [
+        f"{name}: {first_line(path)}",
+        "",
+        "In this project: " + ("used" if used else f"not used (roke service add {name})"),
+    ]
+    for var, default in ws.services.versions(name).items():
+        pinned = settings.value_of(ws.project.env_file, var)
+        current = ws.current_version(var, default)  # what a new project would get
+        if not pinned:
+            lines.append(f"  {var}={current} (not pinned yet)")
+        elif pinned == current:
+            lines.append(f"  {var}={pinned} (pinned)")
+        else:
+            lines.append(f"  {var}={pinned} (pinned; {current} available)")
+    if docker.available():
+        compose = ws.prepare_compose()
+        own = compose.config([ws.base_files[0], path])
+        base = compose.config([ws.base_files[0]])
+        addresses, variables = urls.service_info(name, own, base, own)
+        lines.append("  inside the box: " + " · ".join(addresses))
+        lines += [
+            f"  from your browser: {url}" for label, url, _ in urls.host_urls(own) if label == name
+        ]
+        if variables:
+            lines.append("  variables in the box:")
+            lines += [f"    {k}={v}" for k, v in variables.items()]
+    else:
+        lines.append("  (without Docker, its addresses and variables cannot be shown)")
+    page("\n".join(lines + readme_section(path.parent / "README.md")))
+
+
+def readme_section(path) -> list[str]:
+    """A catalog entry's README, to print after its details."""
+    if not path.is_file():
+        return []
+    return ["", "─" * 78, "", path.read_text().rstrip()]

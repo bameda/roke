@@ -1,5 +1,9 @@
 """Messages, errors and the help text."""
 
+import os
+import shlex
+import shutil
+import subprocess
 import sys
 from typing import NoReturn
 
@@ -16,6 +20,18 @@ def die(message: str) -> NoReturn:
     raise Fail(message)
 
 
+def page(text: str) -> None:
+    """Print TEXT, through a pager ($PAGER, or less) when it does not fit in
+    the terminal."""
+    lines = text.count("\n") + 1
+    if sys.stdout.isatty() and lines > shutil.get_terminal_size().lines - 1:
+        pager = shlex.split(os.environ.get("PAGER") or "less -FRX")
+        if shutil.which(pager[0]):
+            subprocess.run(pager, input=text + "\n", text=True)
+            return
+    print(text)
+
+
 USAGE = """\
 Usage: roke [-C DIR] [COMMAND] [OPTIONS]
 
@@ -28,7 +44,10 @@ The project's box
   roke shell                 Open bash in the box
   roke exec CMD...           Run a command in the box
   roke urls                  Where the app and the services are
-  roke settings              Every setting of the project and where it comes from
+  roke settings              The project's settings and where they come from
+  roke settings edit [FILE]  Edit them in your editor (--global: yours): env
+                             (default), secrets, compose, instructions, or
+                             tools (the project's mise.toml)
   roke build [--no-cache]    Build the images
   roke down [--all]          Stop the project's containers, or every project's;
                              their data is kept
@@ -36,11 +55,14 @@ The project's box
 
 Agents
   roke agent                 The agents, and the one this project uses
+  roke agent show NAME       An agent, and its documentation
   roke agent use NAME        Use NAME in this project (--global: by default)
   roke agent reset           This project uses the default agent again
 
 Services
   roke service               The services, and the ones this project uses
+  roke service show NAME     A service in this project: version, address,
+                             variables, and its documentation
   roke service add NAME...   Add services to this project
   roke service rm NAME...    Remove them from it (their data is kept)
   roke service upgrade [NAME...]
@@ -50,6 +72,7 @@ Services
 
 MCP servers
   roke mcp                   The MCP servers, and the ones this project uses
+  roke mcp show NAME         An MCP server, its secrets, and its documentation
   roke mcp add NAME...       Give them to the agent in this project (--global:
                              in every project)
   roke mcp rm NAME...        Take them away (--global: from every project)

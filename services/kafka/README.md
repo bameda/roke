@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=kafka` in `~/.config/roke/projects/<name>/project.env`, or `roke -s kafka`.
+**Enable**: `roke service add kafka` (or `roke -s kafka` for one run).
 
 A Kafka-compatible broker, using [Redpanda](https://www.redpanda.com/): a
 single binary without ZooKeeper or a JVM, which starts in seconds. It

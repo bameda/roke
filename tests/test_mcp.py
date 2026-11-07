@@ -118,7 +118,12 @@ def test_an_mcp_starts_the_services_it_needs(env):
     assert env_value(env.project_env(), "GRAFANA_VERSION")  # pinned like any service
     servers = json.loads(mcp_file(call).read_text())["servers"]
     assert servers["grafana"]["env"] == {"GRAFANA_URL": "http://grafana:3000"}
-    assert "grafana (for MCP grafana)" in env.roke("settings", cwd=shop).out
+    services = next(
+        line
+        for line in env.roke("settings", cwd=shop).out.splitlines()
+        if line.startswith("Services")
+    )
+    assert services.startswith("Services  grafana ") and services.endswith("(for MCP grafana)")
 
 
 def test_service_mcps_follow_the_project_settings(env):
@@ -138,7 +143,8 @@ def test_a_service_already_in_the_project_is_not_marked(env):
     env.roke("service", "add", "postgres", cwd=shop)
     env.roke("mcp", "add", "postgres", cwd=shop)
     out = env.roke("settings", cwd=shop).out
-    assert "Services  postgres\n" in out
+    services = next(line for line in out.splitlines() if line.startswith("Services"))
+    assert services.startswith("Services  postgres ") and "(for MCP" not in services
 
 
 def test_an_mcp_needing_an_unknown_service(env):

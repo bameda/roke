@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=postgres` in `~/.config/roke/projects/<name>/project.env`, or `roke -s postgres`.
+**Enable**: `roke service add postgres` (or `roke -s postgres` for one run).
 
 PostgreSQL relational database. Requires PostgreSQL 18 or newer.
 

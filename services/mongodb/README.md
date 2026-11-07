@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=mongodb` in `~/.config/roke/projects/<name>/project.env`, or `roke -s mongodb`.
+**Enable**: `roke service add mongodb` (or `roke -s mongodb` for one run).
 
 MongoDB document database.
 

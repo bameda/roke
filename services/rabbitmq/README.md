@@ -4,7 +4,7 @@ Part of the [service catalog](../README.md). See
 [How services work](../README.md#how-services-work) for what is common
 to every service: enabling, data, `roke down`/`roke purge` and host access.
 
-**Enable**: `ROKE_SERVICES=rabbitmq` in `~/.config/roke/projects/<name>/project.env`, or `roke -s rabbitmq`.
+**Enable**: `roke service add rabbitmq` (or `roke -s rabbitmq` for one run).
 
 RabbitMQ message broker, for job queues and messaging between services.
 

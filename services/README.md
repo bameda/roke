@@ -48,9 +48,11 @@ details are set as environment variables in the box, so your
 app and the agent find them without configuration. Run `env` in
 `roke shell` to see them all.
 
-**`roke urls`** shows, for the current project, the address and the
-variables of each service it uses, and the URLs of their web UIs on your
-host, with your own settings applied.
+**`roke service show NAME`** shows, for the current project, the
+service's version, its address inside the box, its web UI and the
+variables it gives the box, with your settings applied, followed by its
+README. `roke urls` lists the addresses and URLs of all the project's
+services.
 
 **Credentials** default to `dev`/`dev`: everything is local and never exposed
 beyond your machine.

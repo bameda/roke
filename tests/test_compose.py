@@ -28,8 +28,9 @@ def test_urls(env, compose):
     assert r.code == 0, r.text
     assert "http://127.0.0.1:5173 (box port 5173)" in r.out
     assert "mailpit      http://127.0.0.1:18025" in r.out
-    assert "DATABASE_URL=postgres://dev:dev@postgres:5432/shop" in r.out
     assert "mailpit:1025 · mailpit:8025" in r.out
+    assert "DATABASE_URL" not in r.out  # variables are in roke service show
+    assert "roke service show NAME" in r.out
 
 
 def test_urls_does_not_need_the_image(env, compose):
@@ -46,10 +47,10 @@ def test_urls_reports_an_unreadable_configuration(env):
     assert "Traceback" not in r.err
 
 
-def test_urls_shows_one_variable_per_line(env, compose):
+def test_service_show_has_the_variables_one_per_line(env, compose):
     shop = env.project()
     env.write_project_env("ROKE_SERVICES=postgres\nPOSTGRES_DB=shop\n")
-    r = env.roke("urls", cwd=shop, env={"FAKE_REAL_COMPOSE": compose})
+    r = env.roke("service", "show", "postgres", cwd=shop, env={"FAKE_REAL_COMPOSE": compose})
     assert r.code == 0, r.text
     lines = [line.strip() for line in r.out.splitlines()]
     for var in ("PGHOST=postgres", "PGPORT=5432", "PGUSER=dev", "PGDATABASE=shop"):
@@ -63,3 +64,17 @@ def test_urls_with_service_mcps(env, compose):
     assert r.code == 0, r.text
     assert "grafana      http://127.0.0.1:3001" in r.out
     assert "postgres     postgres:5432" in r.out
+
+
+def test_service_show(env, compose):
+    shop = env.project()
+    env.write_project_env("ROKE_SERVICES=postgres\nPOSTGRES_DB=shop\nPOSTGRES_VERSION=17\n")
+    r = env.roke("service", "show", "postgres", cwd=shop, env={"FAKE_REAL_COMPOSE": compose})
+    assert r.code == 0, r.text
+    assert "In this project: used" in r.out
+    assert "POSTGRES_VERSION=17 (pinned;" in r.out and "available)" in r.out
+    assert "DATABASE_URL=postgres://dev:dev@postgres:5432/shop" in r.out
+    assert "# PostgreSQL (`postgres`)" in r.out  # its README
+    r = env.roke("service", "show", "mailpit", cwd=shop, env={"FAKE_REAL_COMPOSE": compose})
+    assert "not used (roke service add mailpit)" in r.out
+    assert "from your browser: http://127.0.0.1:8025" in r.out

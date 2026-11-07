@@ -4,17 +4,27 @@ import sys
 from dataclasses import dataclass, field
 
 from roke import commands
+from roke.commands.settings import EDITABLE
 from roke.ui import USAGE, Fail, die, help_for
 
 RUN_LIKE = ("run", "continue", "shell", "exec", "urls")
 GROUPS: dict[str, dict[str, tuple[int, int | None]]] = {
-    "agent": {"list": (0, 0), "use": (1, 1), "reset": (0, 0)},
-    "service": {"list": (0, 0), "add": (1, None), "rm": (1, None), "upgrade": (0, None)},
-    "mcp": {"list": (0, 0), "add": (1, None), "rm": (1, None)},
+    "agent": {"list": (0, 0), "show": (1, 1), "use": (1, 1), "reset": (0, 0)},
+    "service": {
+        "list": (0, 0),
+        "show": (1, 1),
+        "add": (1, None),
+        "rm": (1, None),
+        "upgrade": (0, None),
+    },
+    "mcp": {"list": (0, 0), "show": (1, 1), "add": (1, None), "rm": (1, None)},
     "network": {"list": (0, 0), "add": (1, 1), "rm": (1, 1), "blocked": (0, 0)},
 }
 USAGES = {
     "agent use": "roke agent use NAME [--global]",
+    "agent show": "roke agent show NAME",
+    "service show": "roke service show NAME",
+    "mcp show": "roke mcp show NAME",
     "service add": "roke service add NAME...",
     "service rm": "roke service rm NAME...",
     "mcp add": "roke mcp add NAME... [--global]",
@@ -128,6 +138,18 @@ def parse(argv: list) -> Request:
                 die("roke exec needs a command: roke exec psql")
             req.cmd, rest = rest, []
         _expect_no_more(req, rest)
+    elif c == "settings" and args[:1] == ["edit"]:
+        req.sub = "edit"
+        for a in args[1:]:
+            if a == "--global":
+                req.is_global = True
+            elif a in ("-h", "--help"):
+                req.help = c
+                return req
+            else:
+                req.values.append(a)
+        if len(req.values) > 1 or (req.values and req.values[0] not in EDITABLE):
+            die(f"usage: roke settings edit [{'|'.join(EDITABLE)}] [--global]")
     elif c == "settings" or c == "purge":
         _flags(req, args, {})
     elif c == "build":
