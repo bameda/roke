@@ -1,0 +1,30 @@
+name: Improvement proposal
+description: A new command or option, a change in how roke works, or better documentation.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would it solve
+      description: What you are trying to do and why it is hard or impossible today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Your proposal
+      description: How it could work, for example the command you would like to type and what it would do.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Workarounds you use today, or other ways to solve it.
+  - type: checkboxes
+    id: security
+    attributes:
+      label: Security
+      description: roke keeps the agent away from everything but the project.
+      options:
+        - label: This proposal would let the box reach something it cannot reach today (files, capabilities, network...)

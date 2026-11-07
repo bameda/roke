@@ -1,0 +1,41 @@
+name: Service or agent request
+description: Propose a new service for the catalog (a database, a queue...) or a new coding agent.
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What would you like to add
+      options:
+        - A service
+        - A coding agent
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: Name and link
+      description: The project's website or repository.
+      placeholder: Keycloak, https://www.keycloak.org
+    validations:
+      required: true
+  - type: textarea
+    id: use
+    attributes:
+      label: What you would use it for
+      description: The kind of project that needs it, and how the agent would use it.
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: |
+        For a service: its official image, whether it keeps data, its ports and web UI, and whether it needs internet at runtime (services have no route out).
+        For an agent: how it is installed, how it logs in without a browser, where it keeps its configuration and instructions, and the destinations it needs.
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contributing
+      options:
+        - label: I would like to add it myself (see CONTRIBUTING.md)

@@ -99,6 +99,12 @@ diff before running the project's scripts or committing. Read
 [Security](docs/security.md) and [Network](docs/network.md) for the
 details.
 
+## Contributing
+
+Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md). To report
+a security problem, follow [SECURITY.md](SECURITY.md) instead of opening an
+issue.
+
 ## License
 
 [MIT](LICENSE) © David Barragán Merino

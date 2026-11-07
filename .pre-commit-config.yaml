@@ -34,6 +34,21 @@ repos:
     hooks:
       - id: shellcheck
 
+  # GitHub and Renovate files, against their official schemas.
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.39.0
+    hooks:
+      - id: check-github-workflows
+      - id: check-renovate
+      - id: check-jsonschema
+        name: check GitHub issue forms
+        files: ^\.github/ISSUE_TEMPLATE/(?!config\.yml$).*\.ya?ml$
+        args: [--builtin-schema, vendor.github-issue-forms]
+      - id: check-jsonschema
+        name: check GitHub issue config
+        files: ^\.github/ISSUE_TEMPLATE/config\.yml$
+        args: [--builtin-schema, vendor.github-issue-config]
+
   # GitHub Actions workflows: security issues.
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
     rev: v1.32.0

@@ -42,6 +42,7 @@ changed files:
 | [mypy](https://mypy.readthedocs.io/) | Python: types |
 | [ShellCheck](https://www.shellcheck.net/) | The shell scripts |
 | [zizmor](https://docs.zizmor.sh/) | The GitHub Actions workflows: security issues |
+| [check-jsonschema](https://check-jsonschema.readthedocs.io/) | The GitHub workflows, issue forms and `renovate.json`, against their official schemas |
 | [pre-commit-hooks](https://github.com/pre-commit/pre-commit-hooks) | Trailing whitespace, final newlines, YAML, merge conflicts, shebangs |
 
 Nothing needs installing besides [uv](https://docs.astral.sh/uv/): pre-commit
