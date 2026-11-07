@@ -1,4 +1,10 @@
-"""Helpers to read the `docker compose` calls the fake docker records."""
+"""Helpers to read the `docker compose` calls the fake docker records, and
+the catalog's defaults."""
+
+import re
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent
 
 
 def opt_values(args, flag):
@@ -26,3 +32,12 @@ def env_value(path, key):
         if line.startswith(key + "="):
             return line.split("=", 1)[1].strip('"')
     return None
+
+
+def catalog_default(service, var):
+    """The default of VAR in the catalog's SERVICE, as in ${VAR:-default}, so
+    that tests keep passing when an update changes it."""
+    text = (REPO / "services" / service / "compose.yaml").read_text()
+    match = re.search(rf"\$\{{{var}:-([^}}]+)\}}", text)
+    assert match, f"{var} has no default in services/{service}/compose.yaml"
+    return match.group(1)

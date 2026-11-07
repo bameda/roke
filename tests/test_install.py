@@ -12,13 +12,15 @@ INSTALLER = (REPO / "install.sh").read_text()
 
 @pytest.fixture
 def origin(tmp_path):
+    """A bare repository standing in for GitHub, with the current commit on a
+    branch of its own. It works whether the checkout is on a branch or on a
+    detached commit, as in GitHub Actions' pull requests."""
     bare = tmp_path / "roke.git"
-    subprocess.run(["git", "clone", "-q", "--bare", str(REPO), str(bare)], check=True)
-    branch = (
-        subprocess.run(
-            ["git", "-C", str(REPO), "branch", "--show-current"], capture_output=True, text=True
-        ).stdout.strip()
-        or "main"
+    branch = "roke-test"
+    subprocess.run(["git", "init", "-q", "--bare", str(bare)], check=True)
+    subprocess.run(
+        ["git", "-C", str(REPO), "push", "-q", str(bare), f"HEAD:refs/heads/{branch}"],
+        check=True,
     )
     return bare, branch
 

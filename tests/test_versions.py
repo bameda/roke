@@ -1,7 +1,7 @@
 """Service versions are pinned in each project, so updating roke never
 changes them; roke service upgrade moves them on explicitly."""
 
-from helpers import env_value
+from helpers import catalog_default, env_value
 
 OWN_SERVICE = """# Thing
 services:
@@ -21,8 +21,9 @@ def own_service(env, default, keeps_data=False):
 def test_add_pins_the_version(env):
     shop = env.project()
     r = env.roke("service", "add", "postgres", cwd=shop)
-    assert "pinned for shop: POSTGRES_VERSION=18" in r.err
-    assert env_value(env.project_env(), "POSTGRES_VERSION") == "18"
+    default = catalog_default("postgres", "POSTGRES_VERSION")
+    assert f"pinned for shop: POSTGRES_VERSION={default}" in r.err
+    assert env_value(env.project_env(), "POSTGRES_VERSION") == default
 
 
 def test_existing_versions_are_respected(env):
@@ -43,8 +44,12 @@ def test_run_pins_the_services_it_starts(env):
     shop = env.project()
     r = env.roke("-s", "redis,mailpit", cwd=shop)
     assert r.code == 0, r.text
-    assert env_value(env.project_env(), "REDIS_VERSION") == "7"
-    assert env_value(env.project_env(), "MAILPIT_VERSION") == "v1.33.0"
+    assert env_value(env.project_env(), "REDIS_VERSION") == catalog_default(
+        "redis", "REDIS_VERSION"
+    )
+    assert env_value(env.project_env(), "MAILPIT_VERSION") == catalog_default(
+        "mailpit", "MAILPIT_VERSION"
+    )
     assert "pinned" not in env.roke("-s", "redis", cwd=shop).err  # already pinned
 
 
@@ -68,7 +73,8 @@ def test_list_shows_available_versions(env):
     out = env.roke("service", cwd=shop).out
     assert "Versions pinned in this project" in out
     assert "THING_VERSION=1.0" in out and "1.1 available" in out
-    assert "POSTGRES_VERSION=18" in out and "up to date" in out
+    postgres = catalog_default("postgres", "POSTGRES_VERSION")
+    assert f"POSTGRES_VERSION={postgres}" in out and "up to date" in out
 
 
 def test_upgrade_one_or_all(env):
