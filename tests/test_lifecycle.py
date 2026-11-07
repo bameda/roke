@@ -30,9 +30,14 @@ def test_down_all(env):
 
 def test_settings(env):
     shop = env.project()
-    env.write_project_env("ROKE_SERVICES=postgres\nROKE_PORTS=\"5173\"\n")
+    env.write_project_env('ROKE_SERVICES=postgres\nROKE_PORTS="5173"\n')
     out = env.roke("settings", cwd=shop).out
-    for part in (f"Project   {shop}", "Agent     claude (default agent, roke.env)",
-                 "Network   restricted (built-in default)", "Services  postgres",
-                 "Ports     5173", "Allowed destinations"):
+    for part in (
+        f"Project   {shop}",
+        "Agent     claude (default agent, roke.env)",
+        "Network   restricted (built-in default)",
+        "Services  postgres",
+        "Ports     5173",
+        "Allowed destinations",
+    ):
         assert part in out

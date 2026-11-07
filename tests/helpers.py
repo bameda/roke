@@ -17,7 +17,7 @@ def project_name(call):
 def after(call, word):
     """The arguments after the first occurrence of WORD (e.g. "box")."""
     args = call["args"]
-    return args[args.index(word) + 1:]
+    return args[args.index(word) + 1 :]
 
 
 def env_value(path, key):

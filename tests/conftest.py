@@ -1,5 +1,6 @@
 """Shared fixtures: every test gets an isolated home, roke configuration and
 projects, and runs the real `roke` command against a fake `docker`."""
+
 import json
 import os
 import shutil
@@ -18,9 +19,11 @@ def real_compose():
     found = shutil.which("docker-compose")
     if found:
         return found
-    for candidate in ("/usr/libexec/docker/cli-plugins/docker-compose",
-                      "/usr/lib/docker/cli-plugins/docker-compose",
-                      os.path.expanduser("~/.docker/cli-plugins/docker-compose")):
+    for candidate in (
+        "/usr/libexec/docker/cli-plugins/docker-compose",
+        "/usr/lib/docker/cli-plugins/docker-compose",
+        os.path.expanduser("~/.docker/cli-plugins/docker-compose"),
+    ):
         if os.access(candidate, os.X_OK):
             return candidate
     return None
@@ -95,9 +98,15 @@ class Env:
         }
         environ.update(self.extra_env)
         environ.update(env or {})
-        proc = subprocess.run([str(ROKE), *args], cwd=cwd or self.src,
-                              env=environ, capture_output=True, text=True,
-                              stdin=subprocess.DEVNULL, timeout=60)
+        proc = subprocess.run(
+            [str(ROKE), *args],
+            cwd=cwd or self.src,
+            env=environ,
+            capture_output=True,
+            text=True,
+            stdin=subprocess.DEVNULL,
+            timeout=60,
+        )
         calls = []
         if self.log.exists():
             calls = [json.loads(line) for line in self.log.read_text().splitlines()]

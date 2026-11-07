@@ -31,6 +31,39 @@ The scripts that run inside the containers stay in bash: the box's
 entrypoint (`docker/entrypoint.sh`), the gateway (`docker/gateway/gateway.sh`)
 and each agent's `install.sh` and `setup.sh`.
 
+## Development tools
+
+Before each commit, [pre-commit](https://pre-commit.com/) checks the
+changed files:
+
+| Tool | Checks |
+|---|---|
+| [ruff](https://docs.astral.sh/ruff/) | Python: lint (fixing what it can) and format |
+| [mypy](https://mypy.readthedocs.io/) | Python: types |
+| [ShellCheck](https://www.shellcheck.net/) | The shell scripts |
+| [zizmor](https://docs.zizmor.sh/) | The GitHub Actions workflows: security issues |
+| [pre-commit-hooks](https://github.com/pre-commit/pre-commit-hooks) | Trailing whitespace, final newlines, YAML, merge conflicts, shebangs |
+
+Nothing needs installing besides [uv](https://docs.astral.sh/uv/): pre-commit
+installs each tool in its own environment. Set it up once in your clone:
+
+```fish
+uvx pre-commit install
+```
+
+From then on, `git commit` runs the checks on the files it commits and
+stops if one fails; ruff fixes and formats what it can, so add its changes
+and commit again. To check everything:
+
+```fish
+uvx pre-commit run --all-files
+```
+
+The tools' settings live in `pyproject.toml` (ruff, mypy) and
+`.pre-commit-config.yaml` (versions). The tools need Python 3.11 or newer;
+roke itself only needs 3.10. GitHub Actions runs the same checks, then the
+tests, on each push.
+
 ## Tests
 
 The tests run the real `roke` command against a fake `docker`
@@ -45,8 +78,8 @@ python3 -m pytest          # or with pytest installed
 
 The tests that check the resolved configurations of the example projects,
 and `roke urls`, also need a real Docker Compose binary; they are skipped
-when there is none. GitHub Actions runs every test, plus ShellCheck on the
-scripts, on each push (`.github/workflows/test.yml`).
+when there is none. GitHub Actions runs every test on each push, after the
+checks above (`.github/workflows/test.yml`).
 
 The tests describe what roke does from the outside, so they do not depend on
 how it is written: any change to roke must keep them passing.

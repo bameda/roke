@@ -1,5 +1,4 @@
 import pytest
-
 from helpers import env_value
 
 
@@ -7,7 +6,10 @@ def test_add_and_rm_in_the_project(env):
     shop = env.project()
     assert env.roke("network", "add", "db.example.com:5432", cwd=shop).code == 0
     assert env.roke("network", "add", "*.corp.example.com", cwd=shop).code == 0
-    assert env_value(env.project_env(), "ROKE_NETWORK_ALLOW") == "db.example.com:5432 *.corp.example.com"
+    assert (
+        env_value(env.project_env(), "ROKE_NETWORK_ALLOW")
+        == "db.example.com:5432 *.corp.example.com"
+    )
     assert "already allowed" in env.roke("network", "add", "db.example.com:5432", cwd=shop).text
     assert env.roke("network", "rm", "db.example.com:5432", cwd=shop).code == 0
     assert env_value(env.project_env(), "ROKE_NETWORK_ALLOW") == "*.corp.example.com"
@@ -34,7 +36,9 @@ def test_allowed_destinations_are_combined_in_layers(env):
     for dest in ("github.com", "api.anthropic.com", "global.example.com", "project.example.com"):
         assert dest in allowed
     assert "api.openai.com" not in allowed
-    allowed = env.roke("--agent", "codex", cwd=shop).last("run")["env"]["ROKE_NETWORK_ALLOW_ALL"].split()
+    allowed = (
+        env.roke("--agent", "codex", cwd=shop).last("run")["env"]["ROKE_NETWORK_ALLOW_ALL"].split()
+    )
     assert "api.openai.com" in allowed
 
 
@@ -53,7 +57,14 @@ def test_network_lists_the_layers(env):
     env.roke("network", "add", "project.example.com", cwd=shop)
     out = env.roke("network", cwd=shop).out
     assert "Network mode: restricted (built-in default)" in out
-    for part in ("base", "agent", "agents/claude/allow.txt", "global", "project", "project.example.com"):
+    for part in (
+        "base",
+        "agent",
+        "agents/claude/allow.txt",
+        "global",
+        "project",
+        "project.example.com",
+    ):
         assert part in out
 
 

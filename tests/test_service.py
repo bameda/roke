@@ -31,8 +31,8 @@ def test_list_marks_the_project_services(env):
     shop = env.project()
     env.roke("service", "add", "postgres", cwd=shop)
     lines = env.roke("service", cwd=shop).out.splitlines()
-    assert any(l.startswith("* postgres") for l in lines)
-    assert any(l.startswith("  redis") for l in lines)
+    assert any(line.startswith("* postgres") for line in lines)
+    assert any(line.startswith("  redis") for line in lines)
 
 
 def test_run_loads_the_services(env):
@@ -68,7 +68,7 @@ def test_own_services_precedence(env):
     (env.config / "services" / "keycloak").mkdir()
     (env.config / "services" / "keycloak" / "compose.yaml").write_text("# Keycloak\nservices: {}\n")
     out = env.roke("service", cwd=shop).out
-    assert "[project]" in [l for l in out.splitlines() if " mailpit " in l][0]
-    assert "[yours]" in [l for l in out.splitlines() if " keycloak " in l][0]
+    assert "[project]" in [line for line in out.splitlines() if " mailpit " in line][0]
+    assert "[yours]" in [line for line in out.splitlines() if " keycloak " in line][0]
     files = compose_files(env.roke("-s", "mailpit", cwd=shop).last("run"))
     assert any("projects/shop/services/mailpit/" in f for f in files)

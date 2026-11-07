@@ -4,20 +4,19 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
-      - uses: astral-sh/setup-uv@v6
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
+      - name: Checks (pre-commit)
+        run: uvx pre-commit run --all-files --show-diff-on-failure
       - name: Tests
         run: uvx pytest
-      - name: Pyflakes
-        run: uvx pyflakes roke
-      - name: ShellCheck
-        run: |
-          shellcheck bin/roke install.sh docker/entrypoint.sh docker/gateway/gateway.sh \
-            services/ssh-target/entrypoint.sh agents/*/install.sh
-          shellcheck -s bash agents/*/setup.sh

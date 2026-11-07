@@ -1,15 +1,17 @@
 import pytest
-
 from conftest import REPO
 
 
-@pytest.mark.parametrize("where,message", [
-    ("home", "your whole $HOME"),
-    ("root", "the whole /"),
-    ("config_parent", "contains your roke configuration"),
-    ("inside_config", "inside your roke configuration"),
-    ("inside_repo", "inside the roke repo"),
-])
+@pytest.mark.parametrize(
+    "where,message",
+    [
+        ("home", "your whole $HOME"),
+        ("root", "the whole /"),
+        ("config_parent", "contains your roke configuration"),
+        ("inside_config", "inside your roke configuration"),
+        ("inside_repo", "inside the roke repo"),
+    ],
+)
 def test_refuses_dangerous_project_directories(env, where, message):
     cwd = {
         "home": env.home,

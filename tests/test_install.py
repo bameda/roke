@@ -1,10 +1,10 @@
 """The installer, run as `curl ... | bash` would run it, against a local
 clone of this repository standing in for GitHub."""
+
 import os
 import subprocess
 
 import pytest
-
 from conftest import REPO
 
 INSTALLER = (REPO / "install.sh").read_text()
@@ -14,17 +14,33 @@ INSTALLER = (REPO / "install.sh").read_text()
 def origin(tmp_path):
     bare = tmp_path / "roke.git"
     subprocess.run(["git", "clone", "-q", "--bare", str(REPO), str(bare)], check=True)
-    branch = subprocess.run(["git", "-C", str(REPO), "branch", "--show-current"],
-                            capture_output=True, text=True).stdout.strip() or "main"
+    branch = (
+        subprocess.run(
+            ["git", "-C", str(REPO), "branch", "--show-current"], capture_output=True, text=True
+        ).stdout.strip()
+        or "main"
+    )
     return bare, branch
 
 
 def pipe_install(home, origin, cwd=None, script=INSTALLER, **extra):
     bare, branch = origin
-    env = {"PATH": os.environ["PATH"], "HOME": str(home), "ROKE_REPO": str(bare),
-           "ROKE_VERSION": branch, **extra}
-    return subprocess.run(["bash"], input=script, env=env, cwd=cwd or home,
-                          capture_output=True, text=True, timeout=120)
+    env = {
+        "PATH": os.environ["PATH"],
+        "HOME": str(home),
+        "ROKE_REPO": str(bare),
+        "ROKE_VERSION": branch,
+        **extra,
+    }
+    return subprocess.run(
+        ["bash"],
+        input=script,
+        env=env,
+        cwd=cwd or home,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
 
 
 def test_fresh_install(tmp_path, origin):

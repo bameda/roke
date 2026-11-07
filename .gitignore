@@ -4,6 +4,8 @@
 /projects/
 /config/
 
-# Python and pytest caches
+# Python caches: pytest, ruff, mypy
 __pycache__/
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
