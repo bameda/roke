@@ -5,6 +5,7 @@ agents and code are all welcome.
 
 - [Before you start](#before-you-start)
 - [Setting up](#setting-up)
+- [Working on roke with roke](#working-on-roke-with-roke)
 - [Guidelines](#guidelines)
 - [Adding a service or an agent](#adding-a-service-or-an-agent)
 - [Pull requests](#pull-requests)
@@ -25,15 +26,40 @@ the development tools; roke itself needs 3.10), git and
 [uv](https://docs.astral.sh/uv/).
 
 ```fish
-git clone https://github.com/bameda/roke.git
-cd roke
-./install.sh                 # links roke to this clone: your changes apply at once
+git clone https://github.com/bameda/roke.git ~/src/roke-dev
+cd ~/src/roke-dev
 uvx pre-commit install       # checks every commit
 uvx pytest                   # runs the tests
 ```
 
-[Development](docs/development.md) explains how roke is built, the
-development tools, dependency updates and the tests.
+To try your changes, run your clone's `roke` by its path, in a test
+project: `~/src/roke-dev/bin/roke`. [Development](docs/development.md)
+explains how roke is built, the development tools, dependency updates and
+the tests.
+
+## Working on roke with roke
+
+You can work on roke with a coding agent, inside a roke box like any other
+project. [AGENTS.md](AGENTS.md) gives agents what they need to know about
+this repository; Codex, OpenCode and Claude Code read it (Claude Code
+through `CLAUDE.md`).
+
+roke refuses to run in its own installation, so that an agent cannot change
+the tool that isolates it. Keep two copies:
+
+- **the roke that isolates you**, installed with the
+  [installer](docs/installation.md#install-roke), in `~/.local/share/roke`;
+- **your development clone**, which is just a project for that roke.
+
+```fish
+cd ~/src/roke-dev
+roke                         # the installed roke, with your development clone as the project
+```
+
+Inside the box, the agent can run the tests and pre-commit; there is no
+Docker, so the tests that need a real Docker Compose skip themselves. The
+installer's `ROKE_DIR` and `ROKE_VERSION` let you keep the installed copy on
+a released version while you develop.
 
 ## Guidelines
 

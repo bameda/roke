@@ -116,8 +116,11 @@ how it is written: any change to roke must keep them passing.
 
 ## Trying a change
 
-Run `./install.sh` from your clone: it links `roke` to that clone, so your
-changes apply at once. The scripts that run inside the containers
+Run your clone's `roke` by its path, in a test project
+(`~/src/roke-dev/bin/roke`), so the `roke` you work with every day stays
+the installed one; see [working on roke with roke](../CONTRIBUTING.md#working-on-roke-with-roke).
+Both use the same images (`roke:latest`), so a `roke build` from either
+rebuilds them for both. The scripts that run inside the containers
 (`docker/entrypoint.sh`, `docker/gateway/gateway.sh`, the agents'
 `setup.sh`) are mounted from the repository, so they apply on the next
 start too; the `Dockerfile`s and the agents' `install.sh` need
