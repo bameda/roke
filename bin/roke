@@ -8,4 +8,14 @@ if ! python3 -c 'import sys; sys.exit(sys.version_info < (3, 10))' 2>/dev/null; 
   echo "roke: needs Python 3.10 or newer (python3)" >&2
   exit 1
 fi
-PYTHONPATH="$repo${PYTHONPATH:+:$PYTHONPATH}" exec python3 -m roke "$@"
+
+# Isolated mode (-I): Python adds neither the current directory nor
+# PYTHONPATH to the import path. roke usually runs in a project the agent can
+# write to, and a roke/ directory there must never be imported instead of
+# this installation's: that would run the agent's code on the host.
+exec python3 -I -c '
+import sys
+sys.path.insert(0, sys.argv.pop(1))
+from roke.cli import main
+sys.exit(main(sys.argv[1:]))
+' "$repo" "$@"
