@@ -31,6 +31,13 @@ def test_urls(env, compose):
     assert "mailpit:1025 · mailpit:8025" in r.out
 
 
-def test_urls_needs_the_image(env):
-    r = env.roke("urls", cwd=env.project(), env={"FAKE_NO_IMAGE": "1"})
-    assert r.code != 0 and "roke build" in r.err
+def test_urls_does_not_need_the_image(env, compose):
+    r = env.roke("urls", cwd=env.project(), env={"FAKE_NO_IMAGE": "1", "FAKE_REAL_COMPOSE": compose})
+    assert r.code == 0, r.text
+
+
+def test_urls_reports_an_unreadable_configuration(env):
+    r = env.roke("urls", cwd=env.project())   # the fake docker answers with YAML
+    assert r.code != 0
+    assert "could not read the project's compose configuration" in r.err
+    assert "Traceback" not in r.err

@@ -31,6 +31,8 @@ roke_install() {
   die()  { printf '\033[1;31m[roke]\033[0m %s\n' "$*" >&2; exit 1; }
 
   command -v git >/dev/null || die "git is required: install it and try again"
+  python3 -c 'import sys; sys.exit(sys.version_info < (3, 10))' 2>/dev/null \
+    || die "roke needs Python 3.10 or newer (python3): install it and try again"
 
   # Run from a clone (./install.sh)? Then use it as it is. Piped from curl,
   # there is no script file, so it never picks up the current directory.

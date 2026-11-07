@@ -10,11 +10,12 @@
 ## Requirements
 
 - Linux with **Docker Engine** and the **Docker Compose plugin ≥ 2.24**.
-- **git**.
+- **Python 3.10** or newer and **git**, which every current distribution
+  ships (on Arch, `pacman -S python git`).
 - Your user in the `docker` group, or [rootless Docker](#rootless-docker).
 
-All scripts are bash with a shebang, so they work the same from fish, zsh or
-any other shell.
+roke and its scripts are started through their shebang, so they work the
+same from fish, zsh or any other shell.
 
 ## Install Docker
 
