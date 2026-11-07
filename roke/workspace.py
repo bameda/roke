@@ -15,11 +15,11 @@ import sys
 from pathlib import Path
 
 from roke import settings
-from roke.agents import DEFAULT_INSTALLED, Agents
+from roke.catalog.agents import DEFAULT_INSTALLED, Agents
+from roke.catalog.services import Services
 from roke.docker import Compose, require_docker
 from roke.paths import BOX_DIR, config_dir
 from roke.project import check_guards, resolve
-from roke.services import Services
 from roke.ui import die, info
 
 SERENA_DASHBOARD = "24282"

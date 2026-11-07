@@ -11,8 +11,7 @@ standard library, so it only needs Python 3.10 or newer on the host.
 | `roke/cli.py` | Parses the arguments into a request and runs it |
 | `roke/commands/` | The commands, one module per group of `roke help`: `box.py` (run, continue, shell, exec, urls, settings, build, down, purge), `agent.py`, `service.py`, `network.py` and `setup.py` (init, update) |
 | `roke/workspace.py` | A `Workspace`: the project, your configuration and what follows from them for a command. Its steps, in order: open (configuration, project, guards), settings, agent, services, network, docker compose |
-| `roke/agents.py` | The coding agents in `agents/` |
-| `roke/services.py` | The services, and where each one is defined: the project's, yours or the catalog's |
+| `roke/catalog/` | roke's catalogs: `agents.py` (the coding agents in `agents/`) and `services.py` (the services, and where each one is defined: the project's, yours or the catalog's) |
 | `roke/settings.py` | Reads and edits `roke.env`, `project.env` and `secrets.env` |
 | `roke/project.py` | The project, its compose name and the guards against mounting too much |
 | `roke/docker.py` | Everything that talks to Docker: checking it is there, the running projects, docker compose |
