@@ -38,6 +38,8 @@ def test_settings(env):
         "Network   restricted (built-in default)",
         "Services  postgres",
         "Ports     5173",
+        "Serena    off",
+        ".git      read-only",
         "Allowed destinations",
     ):
         assert part in out

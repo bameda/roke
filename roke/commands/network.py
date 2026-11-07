@@ -2,7 +2,6 @@
 destinations, and what was blocked."""
 
 import re
-import textwrap
 
 from roke import settings
 from roke.ui import die, info
@@ -22,8 +21,7 @@ def render_network(ws) -> str:
         lines = ["Allowed destinations (restricted mode), by layer:"]
     for label, source, entries in ws.allow_layers():
         lines.append(f"  {label:<10} {source}")
-        wrapped = textwrap.wrap(" ".join(entries), width=66, break_on_hyphens=False)
-        lines += [f"             {line}" for line in wrapped] or ["             (none)"]
+        lines += [f"             {entry}" for entry in entries] or ["             (none)"]
     return "\n".join(lines)
 
 

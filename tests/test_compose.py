@@ -44,3 +44,13 @@ def test_urls_reports_an_unreadable_configuration(env):
     assert r.code != 0
     assert "could not read the project's compose configuration" in r.err
     assert "Traceback" not in r.err
+
+
+def test_urls_shows_one_variable_per_line(env, compose):
+    shop = env.project()
+    env.write_project_env("ROKE_SERVICES=postgres\nPOSTGRES_DB=shop\n")
+    r = env.roke("urls", cwd=shop, env={"FAKE_REAL_COMPOSE": compose})
+    assert r.code == 0, r.text
+    lines = [line.strip() for line in r.out.splitlines()]
+    for var in ("PGHOST=postgres", "PGPORT=5432", "PGUSER=dev", "PGDATABASE=shop"):
+        assert var in lines

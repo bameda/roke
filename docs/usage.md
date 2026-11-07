@@ -113,14 +113,19 @@ Agent     claude (default agent, roke.env)
 Network   restricted (built-in default)
 Services  postgres, mailpit
 Ports     5173
-Serena    on  ·  .git: read-only
+Serena    on
+.git      read-only
 
 Allowed destinations (restricted mode), by layer:
   base       docker/gateway/allow.txt
-             github.com githubusercontent.com ghcr.io jdx.dev nodejs.org
-             static.rust-lang.org go.dev dl.google.com golang.org
-             proxy.golang.org sum.golang.org adoptium.net cache.ruby-lang.org
-             python.org registry.npmjs.org yarnpkg.com pypi.org
+             github.com
+             githubusercontent.com
+             ghcr.io
+             ...
+  agent      agents/claude/allow.txt
+             api.anthropic.com
+             claude.ai
+             platform.claude.com
   ...
 ```
 
@@ -142,10 +147,14 @@ Open from your browser
 Reach from inside the box
   postgres     postgres:5432
                DATABASE_URL=postgres://dev:dev@postgres:5432/shop
-               PGDATABASE=shop PGHOST=postgres PGPASSWORD=dev PGPORT=5432
+               PGDATABASE=shop
+               PGHOST=postgres
+               PGPASSWORD=dev
+               PGPORT=5432
                PGUSER=dev
   mailpit      mailpit:1025 · mailpit:8025
-               MAILPIT_API=http://mailpit:8025/api SMTP_HOST=mailpit
+               MAILPIT_API=http://mailpit:8025/api
+               SMTP_HOST=mailpit
                SMTP_PORT=1025
 ```
 

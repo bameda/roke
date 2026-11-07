@@ -74,3 +74,13 @@ def test_blocked(env):
     assert r.code != 0 and "not running" in r.err
     r = env.roke("network", "blocked", cwd=shop, env={"FAKE_RUNNING": "1"})
     assert r.code == 0 and "blocked.example.com" in r.out
+
+
+def test_one_destination_per_line(env):
+    shop = env.project()
+    env.roke("network", "add", "one.example.com", cwd=shop)
+    env.roke("network", "add", "two.example.com", cwd=shop)
+    lines = env.roke("network", cwd=shop).out.splitlines()
+    assert "             one.example.com" in lines
+    assert "             two.example.com" in lines
+    assert "             github.com" in lines

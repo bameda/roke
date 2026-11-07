@@ -85,8 +85,8 @@ def settings(req) -> None:
                 f"Network   {ws.network} ({ws.network_source})",
                 f"Services  {', '.join(labels) or 'none'}",
                 f"Ports     {' '.join(ws.ports) or 'none'}",
-                f"Serena    {'on' if ws.serena else 'off'}  ·  .git: "
-                f"{'read-write' if ws.git_rw else 'read-only'}",
+                f"Serena    {'on' if ws.serena else 'off'}",
+                f".git      {'read-write' if ws.git_rw else 'read-only'}",
                 "",
                 render_network(ws),
             ]

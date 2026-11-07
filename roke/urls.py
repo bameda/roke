@@ -5,19 +5,6 @@ the configuration with and without it."""
 import re
 
 
-def _wrap(items, indent, width=78):
-    lines, line = [], ""
-    for item in items:
-        if line and indent + len(line) + 1 + len(item) > width:
-            lines.append(" " * indent + line)
-            line = item
-        else:
-            line = f"{line} {item}".strip()
-    if line:
-        lines.append(" " * indent + line)
-    return lines
-
-
 def render(project: str, running: bool, full: dict, base: dict, services: dict) -> str:
     full_services = full.get("services", {})
     box_env = full_services.get("box", {}).get("environment") or {}
@@ -73,7 +60,7 @@ def render(project: str, running: bool, full: dict, base: dict, services: dict) 
                 if port.isdigit():
                     ports.add(int(port))
         out.append(f"  {name:<{col}}" + (" · ".join(f"{name}:{p}" for p in sorted(ports)) or name))
-        out += _wrap([f"{k}={value(k)}" for k in own], indent=2 + col)
+        out += [" " * (2 + col) + f"{k}={value(k)}" for k in own]
 
     others = sorted(n for n in full_services if n not in ("box", "gateway") and n not in services)
     if others:
