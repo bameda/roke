@@ -57,6 +57,7 @@ remember:
 | `roke service` | The services, marking the ones this project uses |
 | `roke service add NAME...` | Add services to this project |
 | `roke service rm NAME...` | Remove them from it; their data is kept until `roke purge` |
+| `roke service upgrade [NAME...]` | Move the project's services, or some, to roke's current versions; `--major` also for major versions of services that keep data (see [Versions](../services/README.md#versions)) |
 
 **Network** (see [Network](network.md))
 

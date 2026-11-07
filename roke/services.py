@@ -1,9 +1,12 @@
 """The services: in the project's configuration, in yours and in roke's
 catalog, looked up in that order."""
 
+import re
 from pathlib import Path
 
 from roke.paths import entries, first_line, valid_name
+
+VERSION_DEFAULT = re.compile(r"\$\{([A-Z][A-Z0-9_]*_VERSION):-([^}]+)\}")
 
 
 class Services:
@@ -51,3 +54,16 @@ class Services:
             lines.append(f"{'*' if name in used else ' '} {name:<12} {desc}")
         lines += ["", "How to use each one: services/<name>/README.md (index: services/README.md)"]
         return "\n".join(lines)
+
+    def versions(self, name: str) -> dict[str, str]:
+        """The service's version variables and their defaults, from its
+        compose file: ${POSTGRES_VERSION:-18} gives {"POSTGRES_VERSION": "18"}."""
+        path = self.file(name)
+        text = path.read_text() if path.is_file() else ""
+        return dict(VERSION_DEFAULT.findall(text))
+
+    def keeps_data(self, name: str) -> bool:
+        """Whether the service keeps data in volumes, whose format a major
+        version may change."""
+        path = self.file(name)
+        return path.is_file() and re.search(r"^volumes:", path.read_text(), re.M) is not None

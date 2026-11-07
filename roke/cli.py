@@ -9,7 +9,7 @@ from roke.ui import USAGE, Fail, die, help_for
 RUN_LIKE = ("run", "continue", "shell", "exec", "urls")
 GROUPS: dict[str, dict[str, tuple[int, int | None]]] = {
     "agent": {"list": (0, 0), "use": (1, 1), "reset": (0, 0)},
-    "service": {"list": (0, 0), "add": (1, None), "rm": (1, None)},
+    "service": {"list": (0, 0), "add": (1, None), "rm": (1, None), "upgrade": (0, None)},
     "network": {"list": (0, 0), "add": (1, 1), "rm": (1, 1), "blocked": (0, 0)},
 }
 USAGES = {
@@ -35,6 +35,7 @@ class Request:
     cmd: list = field(default_factory=list)  # shell and exec
     values: list = field(default_factory=list)  # names or destinations
     is_global: bool = False
+    major: bool = False  # service upgrade --major
     no_cache: bool = False
     all: bool = False
     help: str | None = None  # set when only the help is wanted
@@ -140,6 +141,8 @@ def parse(argv: list) -> Request:
         for a in args:
             if a == "--global":
                 req.is_global = True
+            elif a == "--major" and c == "service":
+                req.major = True
             elif a in ("-h", "--help"):
                 req.help = c
                 return req
@@ -153,6 +156,8 @@ def parse(argv: list) -> Request:
             if usage:
                 die(f"usage: {usage}")
             _expect_no_more(req, values)
+        if req.major and req.sub != "upgrade":
+            die("--major only applies to roke service upgrade")
         if c == "agent" and req.sub == "reset" and req.is_global:
             die(
                 "roke agent reset applies to the project; the default agent is set "

@@ -76,6 +76,27 @@ through the project's gateway (see each service's README). Databases are not
 published by default; to connect a desktop tool (DBeaver, TablePlus,
 RedisInsight...), publish the port as shown below.
 
+### Versions
+
+Each project keeps the versions of its services: updating roke never
+changes them. The first time a project uses a service (`roke service add`,
+or starting it), roke writes its version in the project's `project.env`,
+for example `POSTGRES_VERSION=18`. A version you set yourself, there or in
+`roke.env`, is kept as it is.
+
+When roke's default moves on, `roke service` shows it next to the project's
+version, and you move the project on when you choose:
+
+```fish
+roke service upgrade postgres      # one service
+roke service upgrade               # every service of the project
+```
+
+A major version of a service that keeps data (PostgreSQL 18 to 19,
+MongoDB, MariaDB...) may change the format of that data, so `upgrade`
+skips it with a warning unless you add `--major`. Back the data up and read
+the service's README first.
+
 ### Publishing a service's port
 
 The project's network is internal, so a service cannot publish ports
@@ -121,6 +142,10 @@ The rules are few:
    [publishing a service's port](#publishing-a-services-port), with the host
    port in a variable so it can be changed.
 5. The first comment line is the description shown by `roke service`.
+6. The image's version goes in a variable ending in `_VERSION`, with a
+   default: `image: example/thing:${THING_VERSION:-1.2.3}`. roke pins it in
+   each project (see [Versions](#versions)), and a fixed version rather than
+   `latest` is what makes that useful.
 6. Relative paths resolve against the roke repository. To refer to
    files in your configuration, use `${ROKE_CONFIG_DIR}` or, for the
    project's directory, `${ROKE_PROJECT_CONFIG}`.

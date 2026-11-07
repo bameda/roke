@@ -172,7 +172,10 @@ roke build          # in each project, to rebuild its images
 ```
 
 `roke update` pulls the latest version of roke; running the installer
-again does the same. Your configuration is not touched. Releases with
+again does the same. Your configuration is not touched, and neither are the
+versions of your projects' services, which each project keeps: `roke service`
+shows which ones have a newer version, and `roke service upgrade` moves a
+project on (see [Versions](../services/README.md#versions)). Releases with
 incompatible changes are marked with `!` in the commit history (for example
 `feat(postgres)!: ...`): read their description, which explains what to
 change.

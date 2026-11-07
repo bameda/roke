@@ -21,7 +21,9 @@ args = sys.argv[1:]
 exported = {
     k: v
     for k, v in os.environ.items()
-    if k.startswith(("ROKE_", "HOST_", "POSTGRES_", "MAILPIT_")) or k == "PROJECT_DIR"
+    if k.startswith(("ROKE_", "HOST_", "POSTGRES_", "MAILPIT_"))
+    or k.endswith("_VERSION")
+    or k == "PROJECT_DIR"
 }
 with open(os.environ["FAKE_DOCKER_LOG"], "a") as log:
     log.write(json.dumps({"args": args, "env": exported}) + "\n")

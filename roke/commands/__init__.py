@@ -18,6 +18,7 @@ HANDLERS = {
     ("service", "list"): service.show,
     ("service", "add"): service.change,
     ("service", "rm"): service.change,
+    ("service", "upgrade"): service.upgrade,
     ("network", "list"): network.show,
     ("network", "add"): network.change,
     ("network", "rm"): network.change,

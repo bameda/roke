@@ -20,7 +20,7 @@ from roke.docker import Compose, require_docker
 from roke.paths import BOX_DIR, config_dir
 from roke.project import check_guards, resolve
 from roke.services import Services
-from roke.ui import die
+from roke.ui import die, info
 
 SERENA_DASHBOARD = "24282"
 
@@ -114,6 +114,31 @@ class Workspace:
                 die(f"unknown service: '{name}'")
             if name not in self.selected:
                 self.selected.append(name)
+
+    # --- versions ----------------------------------------------------------------------
+    def current_version(self, var: str, default: str, env=None) -> str:
+        """The version a project gets when it does not pin VAR: roke.env's,
+        or the service's default."""
+        if env is None:
+            env = settings.load([self.global_env, self.config / "secrets.env"], os.environ.copy())
+        return env.get(var) or default
+
+    def pin_versions(self, names: list[str]) -> None:
+        """Pin, in the project's settings, the version of each service that
+        is not pinned yet, so that updating roke does not change it."""
+        p = self.project
+        global_env = None
+        for name in names:
+            for var, default in self.services.versions(name).items():
+                if settings.defines(p.env_file, var):
+                    continue
+                if global_env is None:
+                    global_env = settings.load(
+                        [self.global_env, self.config / "secrets.env"], os.environ.copy()
+                    )
+                value = self.current_version(var, default, global_env)
+                settings.set_value(p.env_file, var, value)
+                info(f"pinned for {p.name}: {var}={value}")
 
     # --- the network -------------------------------------------------------------------
     def choose_network(self) -> None:

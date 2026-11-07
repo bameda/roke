@@ -1,24 +1,89 @@
 """roke service: list the services, add them to the project or remove them."""
 
+import re
+
 from roke import settings
 from roke.ui import die, info
 from roke.workspace import Workspace
+
+
+def project_services(ws) -> list[str]:
+    """The project's services: its own list, or the global one."""
+    p = ws.project
+    source = p.env_file if settings.defines(p.env_file, "ROKE_SERVICES") else ws.global_env
+    return [s for s in settings.value_of(source, "ROKE_SERVICES").replace(" ", "").split(",") if s]
 
 
 def show(req) -> None:
     ws = Workspace(req).open(guards=False)
     ws.load_settings()
     print(ws.services.render(ws.services_text))
+    rows = []
+    for name in project_services(ws):
+        if not ws.services.exists(name):
+            continue
+        for var, default in ws.services.versions(name).items():
+            current = ws.current_version(var, default)
+            pinned = settings.value_of(ws.project.env_file, var)
+            if not pinned:
+                state = f"not pinned yet: gets {current}"
+            elif pinned == current:
+                state = "up to date"
+            else:
+                state = f"{current} available"
+            rows.append(f"  {name:<12} {var}={pinned or '-':<12} {state}")
+    if rows:
+        print("\nVersions pinned in this project (roke service upgrade [NAME...]):")
+        print("\n".join(rows))
+
+
+def _major(version: str) -> str:
+    """The first number of a version: "v3.16.0" and "3" give "3"."""
+    digits = re.match(r"v?(\d+)", version)
+    return digits.group(1) if digits else version
+
+
+def upgrade(req) -> None:
+    ws = Workspace(req).open()
+    p, used = ws.project, project_services(ws)
+    names = req.values or used
+    for name in names:
+        if not ws.services.exists(name):
+            die(f"unknown service: '{name}' (see roke service)")
+        if name not in used:
+            die(f"{name} is not in {p.name}; add it with roke service add {name}")
+    if not names:
+        info(f"{p.name} has no services")
+        return
+    changed = False
+    for name in names:
+        for var, default in ws.services.versions(name).items():
+            target = ws.current_version(var, default)
+            pinned = settings.value_of(p.env_file, var)
+            if pinned == target:
+                continue
+            if (
+                pinned
+                and _major(pinned) != _major(target)
+                and ws.services.keeps_data(name)
+                and not req.major
+            ):
+                info(
+                    f"{name}: {pinned} → {target} is a major version and {name} keeps data, "
+                    "whose format may change. Back up, see "
+                    f"services/{name}/README.md, then: roke service upgrade {name} --major"
+                )
+                continue
+            settings.set_value(p.env_file, var, target)
+            info(f"{name}: {var} {pinned or '(not pinned)'} → {target}")
+            changed = True
+    info("applies from the next start of the project" if changed else f"{p.name} is up to date")
 
 
 def change(req) -> None:
     ws = Workspace(req).open()
     p, names, adding = ws.project, req.values, req.sub == "add"
-    # Start from the project's list, or from the global one if it has none.
-    source = p.env_file if settings.defines(p.env_file, "ROKE_SERVICES") else ws.global_env
-    current = [
-        s for s in settings.value_of(source, "ROKE_SERVICES").replace(" ", "").split(",") if s
-    ]
+    current = project_services(ws)
     if adding:
         for name in names:
             if not ws.services.exists(name):
@@ -35,4 +100,6 @@ def change(req) -> None:
             current.remove(name)
             info(f"removed from {p.name}: {name} (its data is kept until roke purge)")
     settings.set_or_drop(p.env_file, "ROKE_SERVICES", ",".join(current))
+    if adding:
+        ws.pin_versions(names)
     info(f"applies from the next start; services: {', '.join(current) or 'none'}")

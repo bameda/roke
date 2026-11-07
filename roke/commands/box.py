@@ -13,6 +13,7 @@ from roke.workspace import Workspace
 def run(req) -> int:
     ws = Workspace(req).open(docker=True)
     ws.load_all(required_agent=True)
+    ws.pin_versions(ws.selected)
     compose = ws.prepare_compose(publish=True)
     p = ws.project
     args = ["--rm"]

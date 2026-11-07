@@ -43,6 +43,10 @@ Services
   roke service               The services, and the ones this project uses
   roke service add NAME...   Add services to this project
   roke service rm NAME...    Remove them from it (their data is kept)
+  roke service upgrade [NAME...]
+                             Move this project's services, or some, to the
+                             current versions (--major: also major versions of
+                             services that keep data)
 
 Network
   roke network               The network mode and the allowed destinations
