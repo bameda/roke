@@ -7,7 +7,9 @@ welcome.
 ## Reporting a vulnerability
 
 **Do not open a public issue.** Report it privately through GitHub: on the
-repository, go to **Security → Report a vulnerability**. Please include:
+repository, go to **Security → Report a vulnerability**. If you cannot use
+it, email [bameda+roke@gmail.com](mailto:bameda+roke@gmail.com) instead.
+Please include:
 
 - what the agent (or anything running in the box) can reach or do that it
   should not;

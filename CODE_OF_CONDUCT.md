@@ -11,8 +11,8 @@ its behalf.
 ## Reporting an incident
 
 Contact the maintainer, [@bameda](https://github.com/bameda), privately,
-through the email address on his GitHub profile. Describe what happened,
-where and when, with links if you have them. Reports are handled
+at [bameda+roke@gmail.com](mailto:bameda+roke@gmail.com). Describe what
+happened, where and when, with links if you have them. Reports are handled
 confidentially, and you will get an answer as soon as possible.
 
 If the incident involves the maintainer, say so in your report, and it will
