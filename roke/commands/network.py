@@ -10,6 +10,11 @@ from roke.workspace import Workspace
 DESTINATION = re.compile(r"(\*\.)?[A-Za-z0-9.-]+(/[0-9]{1,2})?(:[0-9]{1,5})?")
 
 
+def _sort_key(entry: str) -> str:
+    """Alphabetical, with *.example.com next to example.com."""
+    return entry.removeprefix("*.").lower()
+
+
 def render_network(ws) -> str:
     """The allowed destinations by layer, as roke settings and roke network show them."""
     if ws.network == "open":
@@ -21,7 +26,9 @@ def render_network(ws) -> str:
         lines = ["Allowed destinations (restricted mode), by layer:"]
     for label, source, entries in ws.allow_layers():
         lines.append(f"  {label:<10} {source}")
-        lines += [f"             {entry}" for entry in entries] or ["             (none)"]
+        lines += [f"             {entry}" for entry in sorted(entries, key=_sort_key)] or [
+            "             (none)"
+        ]
     return "\n".join(lines)
 
 

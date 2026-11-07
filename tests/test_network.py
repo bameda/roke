@@ -84,3 +84,19 @@ def test_one_destination_per_line(env):
     assert "             one.example.com" in lines
     assert "             two.example.com" in lines
     assert "             github.com" in lines
+
+
+def test_destinations_are_sorted(env):
+    shop = env.project()
+    for dest in ("zeta.example.com", "*.beta.example.com", "alpha.example.com"):
+        env.roke("network", "add", dest, cwd=shop)
+    out = env.roke("network", cwd=shop).out
+    project = out.split("  project")[1].splitlines()[1:]
+    assert [line.strip() for line in project] == [
+        "alpha.example.com",
+        "*.beta.example.com",
+        "zeta.example.com",
+    ]
+    base = out.split("  base")[1].split("  agent")[0].splitlines()[1:]
+    entries = [line.strip() for line in base]
+    assert entries == sorted(entries, key=lambda e: e.removeprefix("*.").lower())

@@ -118,9 +118,9 @@ Serena    on
 
 Allowed destinations (restricted mode), by layer:
   base       docker/gateway/allow.txt
-             github.com
-             githubusercontent.com
-             ghcr.io
+             adoptium.net
+             cache.ruby-lang.org
+             clojars.org
              ...
   agent      agents/claude/allow.txt
              api.anthropic.com
