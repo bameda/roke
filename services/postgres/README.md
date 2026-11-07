@@ -36,8 +36,8 @@ dropdb --force "$PGDATABASE" && createdb "$PGDATABASE"  # empty the DB
 
 | Variable | Default |
 |---|---|
-| `POSTGRES_VERSION` | `18` |
-| `POSTGRES_CLIENT_VERSION` | `18` (client tools in the image; rebuild after changing) |
+| `POSTGRES_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `POSTGRES_CLIENT_VERSION` | psql and pg_dump in the image: the [`Dockerfile`](../../Dockerfile)'s by default; set it in `roke.env` and rebuild to change it |
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` | `dev` / `dev` |
 | `POSTGRES_DB` | `app` |
 

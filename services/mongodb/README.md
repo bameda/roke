@@ -31,5 +31,5 @@ npx -y mongosh "$MONGODB_URL" --quiet --eval 'db.adminCommand({ listDatabases: 1
 
 | Variable | Default |
 |---|---|
-| `MONGO_VERSION` | `8` |
+| `MONGO_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
 | `MONGO_USER` / `MONGO_PASSWORD` | `dev` / `dev` |

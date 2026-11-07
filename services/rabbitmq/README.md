@@ -31,6 +31,6 @@ curl -s -u dev:dev http://rabbitmq:15672/api/queues | jq '.[] | {name, messages}
 
 | Variable | Default |
 |---|---|
-| `RABBITMQ_VERSION` | `4` |
+| `RABBITMQ_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
 | `RABBITMQ_USER` / `RABBITMQ_PASSWORD` | `dev` / `dev` |
 | `RABBITMQ_UI_PORT` | `15672` |

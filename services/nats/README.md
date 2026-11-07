@@ -38,4 +38,4 @@ volume. Plain messages are not stored.
 
 | Variable | Default |
 |---|---|
-| `NATS_VERSION` | `2.15` |
+| `NATS_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

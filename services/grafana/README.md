@@ -43,4 +43,4 @@ files, mount a provisioning directory in the project's `compose.yaml`; see
 | Variable | Default |
 |---|---|
 | `GRAFANA_UI_PORT` | `3001` |
-| `GRAFANA_VERSION` | `13.3.0` |
+| `GRAFANA_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

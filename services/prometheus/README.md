@@ -57,4 +57,4 @@ Targets are reachable by name: `box:<port>` for the app, or any service.
 | Variable | Default |
 |---|---|
 | `PROMETHEUS_UI_PORT` | `9090` |
-| `PROMETHEUS_VERSION` | `v3.16.0` |
+| `PROMETHEUS_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

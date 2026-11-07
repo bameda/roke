@@ -45,4 +45,4 @@ smtplib.SMTP('mailpit', 1025).send_message(m)"
 | Variable | Default |
 |---|---|
 | `MAILPIT_UI_PORT` | `8025` (change it if another project uses mailpit at the same time) |
-| `MAILPIT_VERSION` | `v1.33.0` |
+| `MAILPIT_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

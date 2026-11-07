@@ -21,6 +21,7 @@ ARG POSTGRES_CLIENT_VERSION=18
 
 # Serena (semantic code navigation/editing MCP). INSTALL_SERENA=0 skips it.
 ARG INSTALL_SERENA=1
+# renovate: datasource=pypi depName=serena-agent
 ARG SERENA_VERSION=2.1.0
 ARG SERENA_PYTHON=3.13
 

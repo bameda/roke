@@ -25,14 +25,16 @@ services:
     image: roke:latest
     build:
       context: .
+      # Passed only when set (in roke.env, for example); otherwise the
+      # Dockerfile's defaults apply, so each version lives in one place.
       args:
-        HOST_UID: ${HOST_UID:-1000}
-        HOST_GID: ${HOST_GID:-1000}
-        ROKE_AGENTS: ${ROKE_AGENTS:-claude codex opencode}
-        ROKE_AGENT_VERSIONS: ${ROKE_AGENT_VERSIONS:-}
-        POSTGRES_CLIENT_VERSION: ${POSTGRES_CLIENT_VERSION:-18}
-        INSTALL_SERENA: ${INSTALL_SERENA:-1}
-        SERENA_VERSION: ${SERENA_VERSION:-2.1.0}
+        - HOST_UID
+        - HOST_GID
+        - ROKE_AGENTS
+        - ROKE_AGENT_VERSIONS
+        - POSTGRES_CLIENT_VERSION
+        - INSTALL_SERENA
+        - SERENA_VERSION
     init: true
     stdin_open: true
     tty: true

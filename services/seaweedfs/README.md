@@ -43,4 +43,4 @@ uvx --from awscli aws s3 cp README.md s3://uploads/
 |---|---|
 | `SEAWEEDFS_ACCESS_KEY` / `SEAWEEDFS_SECRET_KEY` | `dev` / `devdevdev` |
 | `SEAWEEDFS_UI_PORT` | `8888` |
-| `SEAWEEDFS_VERSION` | `4.52` |
+| `SEAWEEDFS_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

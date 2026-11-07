@@ -21,4 +21,4 @@ curl -s "$ELASTICSEARCH_URL/_cat/indices?v"
 
 | Variable | Default |
 |---|---|
-| `ELASTICSEARCH_VERSION` | `8.15.0` |
+| `ELASTICSEARCH_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

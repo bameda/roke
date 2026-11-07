@@ -32,4 +32,4 @@ persisted.
 
 | Variable | Default |
 |---|---|
-| `MYSERVICE_VERSION` | `latest` |
+| `MYSERVICE_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

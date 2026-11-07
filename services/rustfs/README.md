@@ -44,4 +44,4 @@ password `devdevdev`.
 |---|---|
 | `RUSTFS_ACCESS_KEY` / `RUSTFS_SECRET_KEY` | `dev` / `devdevdev` |
 | `RUSTFS_CONSOLE_PORT` | `9001` |
-| `RUSTFS_VERSION` | `1.0.4` |
+| `RUSTFS_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

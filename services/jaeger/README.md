@@ -41,4 +41,4 @@ curl -s "$JAEGER_QUERY_URL/api/traces?service=my-app&limit=5" | jq '.data[].span
 | Variable | Default |
 |---|---|
 | `JAEGER_UI_PORT` | `16686` |
-| `JAEGER_VERSION` | `2.23.0` |
+| `JAEGER_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

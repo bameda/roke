@@ -29,5 +29,5 @@ Send `flush_all` instead of `stats` to empty it.
 
 | Variable | Default |
 |---|---|
-| `MEMCACHED_VERSION` | `1` |
+| `MEMCACHED_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
 | `MEMCACHED_MEMORY_MB` | `128` |

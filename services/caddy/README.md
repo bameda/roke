@@ -54,4 +54,4 @@ Any service is reachable by name as an upstream (`mailpit:8025`,
 |---|---|
 | `CADDY_PORT` | `8080` |
 | `PROXY_UPSTREAM` | `box:3000` |
-| `CADDY_VERSION` | `2` |
+| `CADDY_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

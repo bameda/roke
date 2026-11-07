@@ -64,6 +64,36 @@ The tools' settings live in `pyproject.toml` (ruff, mypy) and
 roke itself only needs 3.10. GitHub Actions runs the same checks, then the
 tests, on each push.
 
+## Dependency updates
+
+[Renovate](https://docs.renovatebot.com/) keeps roke's dependencies up to
+date, configured in `renovate.json`:
+
+| What | Where |
+|---|---|
+| Service images | The defaults in each `compose.yaml`: `${POSTGRES_VERSION:-18}` |
+| Base images | The `FROM` of each `Dockerfile` |
+| Versions in the `Dockerfile`'s `ARG`s | The ones with a `# renovate:` comment above, such as Serena |
+| Development tools | `.pre-commit-config.yaml` |
+| GitHub Actions | The workflows, pinned by commit SHA |
+
+It opens pull requests on Monday mornings, and nothing is merged
+automatically: review each one. Minor and patch updates of the development
+tools and actions come together in one pull request. Major versions of
+service images are labelled `major`: projects keep the version they pinned
+(see [Versions](../services/README.md#versions)), but check the release
+notes for changes to the data format, and update the service's README if
+it needs migration steps. The Dependency Dashboard issue lists what is
+pending.
+
+Each version lives in one place, so an update changes everything: the
+services' READMEs point to their `compose.yaml` instead of repeating the
+default, and `compose.yaml` passes the `Dockerfile`'s build arguments only
+when they are set.
+
+Renovate runs as the [Mend Renovate app](https://github.com/apps/renovate),
+installed on the repository.
+
 ## Tests
 
 The tests run the real `roke` command against a fake `docker`

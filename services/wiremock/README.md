@@ -49,4 +49,4 @@ services:
 
 | Variable | Default |
 |---|---|
-| `WIREMOCK_VERSION` | `3.13.2` |
+| `WIREMOCK_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

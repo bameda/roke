@@ -1,0 +1,99 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Keeps roke's dependencies up to date: images, tools and actions. Every update is a pull request to review by hand; nothing is merged automatically. Projects keep the service versions they pinned, so updating a default only affects new projects until `roke service upgrade`.",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":dependencyDashboard",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "timezone": "Europe/Madrid",
+  "labels": [
+    "dependencies"
+  ],
+  "automerge": false,
+  "ignorePaths": [
+    "services/_template/**",
+    "**/node_modules/**"
+  ],
+  "pre-commit": {
+    "enabled": true
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Service images in compose files: image: name:${X_VERSION:-tag}",
+      "managerFilePatterns": [
+        "/(^|/)compose\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "image:\\s*\"?(?<depName>[a-z0-9][a-z0-9./_-]*):\\$\\{[A-Z0-9_]+_VERSION:-(?<currentValue>[^}]+)\\}"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Service images whose name is a setting too: image: ${X_IMAGE:-name}:${X_VERSION:-tag}",
+      "managerFilePatterns": [
+        "/(^|/)compose\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "image:\\s*\"?\\$\\{[A-Z0-9_]+_IMAGE:-(?<depName>[^}]+)\\}:\\$\\{[A-Z0-9_]+_VERSION:-(?<currentValue>[^}]+)\\}"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Versions annotated with a renovate comment, such as the Dockerfile's ARGs",
+      "managerFilePatterns": [
+        "/(^|/)Dockerfile$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+ARG [A-Z0-9_]+=\"?(?<currentValue>[^\"\\s]+)\"?"
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Tools and actions: one pull request a week for minor and patch updates",
+      "matchManagers": [
+        "github-actions",
+        "pre-commit"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
+      "groupName": "development tools"
+    },
+    {
+      "description": "Major versions of service images: projects keep theirs, but a new major may change a data format, so flag them",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "addLabels": [
+        "major"
+      ],
+      "prBodyNotes": [
+        "A major version: projects keep the one they pinned until `roke service upgrade NAME --major`. Check the service's README and release notes for changes to its data format, and update the README if migration steps are needed."
+      ]
+    },
+    {
+      "description": "kwok's tags carry the Kubernetes version they simulate: v0.8.0-k8s.v1.36.1",
+      "matchDepNames": [
+        "registry.k8s.io/kwok/cluster"
+      ],
+      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-k8s\\.v[0-9.]+$"
+    }
+  ]
+}

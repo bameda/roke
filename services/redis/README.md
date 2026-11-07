@@ -31,4 +31,4 @@ cache.
 
 | Variable | Default |
 |---|---|
-| `REDIS_VERSION` | `7` |
+| `REDIS_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

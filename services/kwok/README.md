@@ -51,7 +51,7 @@ forever. `helm test` is not meaningful either, since test Pods never run.
 
 | Variable | Default |
 |---|---|
-| `KWOK_VERSION` | `v0.8.0-k8s.v1.36.1` (kwok version and Kubernetes version) |
+| `KWOK_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
 
 Other Kubernetes versions use the same kwok version with another suffix,
 for example `v0.8.0-k8s.v1.34.8`.

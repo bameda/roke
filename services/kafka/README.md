@@ -38,5 +38,5 @@ its container. Run it from your host: find the container with
 
 | Variable | Default |
 |---|---|
-| `REDPANDA_VERSION` | `v26.2.2` |
+| `REDPANDA_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
 | `KAFKA_MEMORY` | `1G` |

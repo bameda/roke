@@ -42,4 +42,4 @@ oci://127.0.0.1:5000/charts/mychart --plain-http`). Docker trusts
 | Variable | Default |
 |---|---|
 | `REGISTRY_PORT` | `5000` (host port) |
-| `REGISTRY_VERSION` | `3` |
+| `REGISTRY_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

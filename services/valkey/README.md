@@ -32,4 +32,4 @@ services:
 
 | Variable | Default |
 |---|---|
-| `VALKEY_VERSION` | `8` |
+| `VALKEY_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |

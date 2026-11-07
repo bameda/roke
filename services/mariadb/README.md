@@ -41,7 +41,7 @@ mariadb -u root -proot -e "CREATE DATABASE app_test; GRANT ALL ON app_test.* TO 
 
 | Variable | Default |
 |---|---|
-| `MARIADB_VERSION` | `11` |
+| `MARIADB_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
 | `MARIADB_USER` / `MARIADB_PASSWORD` | `dev` / `dev` |
 | `MARIADB_DATABASE` | `app` |
 | `MARIADB_ROOT_PASSWORD` | `root` |
