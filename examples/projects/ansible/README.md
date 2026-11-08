@@ -45,5 +45,5 @@ ansible-playbook -i inventories/test site.yml
 ```
 
 Once a playbook works, run it from your host against the real inventory,
-first with `--check --diff`. See [ssh-target](../../../services/ssh-target/README.md)
+first with `--check --diff`. See [ssh-target](../../../catalog/services/ssh-target/README.md)
 for its limitations (no systemd).

@@ -1,0 +1,25 @@
+# Kubernetes API (simulated, kwok) · http://kwok:8080 · KUBECONFIG preset for kubectl and helm
+#
+# A real Kubernetes API server without nodes running containers: kubectl
+# and helm work against it, and Pods are simulated. It needs no privileges,
+# unlike kind or k3s, which would give the agent a way out of the box.
+services:
+  box:
+    environment:
+      KUBECONFIG: /run/roke/kwok/kubeconfig
+    volumes:
+      - ./catalog/services/kwok/kubeconfig:/run/roke/kwok/kubeconfig:ro
+      - ./catalog/services/kwok/fake-node.yaml:/run/roke/kwok/fake-node.yaml:ro
+    depends_on:
+      kwok:
+        condition: service_healthy
+
+  kwok:
+    image: registry.k8s.io/kwok/cluster:${KWOK_VERSION:-v0.8.0-k8s.v1.36.1}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/readyz"]
+      interval: 2s
+      timeout: 3s
+      retries: 60
+    security_opt:
+      - no-new-privileges:true

@@ -89,17 +89,17 @@ workflows.
 
 ## Adding a service or an agent
 
-- **A service**: follow [Adding your own service](services/README.md#adding-your-own-service).
-  In short: copy `services/_template/`, keep the version in a `*_VERSION`
+- **A service**: follow [Adding your own service](catalog/services/README.md#adding-your-own-service).
+  In short: copy `catalog/services/_template/`, keep the version in a `*_VERSION`
   variable with a fixed default, publish web UIs through the gateway, and
-  add the service to the [catalog](services/README.md) and its README.
-- **An agent**: follow [Adding an agent](agents/README.md#adding-an-agent).
-  In short: copy `agents/_template/`, fill in `install.sh`, `setup.sh`,
+  add the service to the [catalog](catalog/services/README.md) and its README.
+- **An agent**: follow [Adding an agent](catalog/agents/README.md#adding-an-agent).
+  In short: copy `catalog/agents/_template/`, fill in `install.sh`, `setup.sh`,
   `allow.txt` (the destinations it needs) and its README, and add it to the
   agents' table.
 
-- **An MCP server**: follow [Adding your own MCP](mcps/README.md#adding-your-own-mcp):
-  copy `mcps/_template/`, fill in its `mcp.json` and README, and add it to
+- **An MCP server**: follow [Adding your own MCP](catalog/mcps/README.md#adding-your-own-mcp):
+  copy `catalog/mcps/_template/`, fill in its `mcp.json` and README, and add it to
   the MCP catalog.
 
 If you are not sure a service or an agent belongs in roke, open an issue

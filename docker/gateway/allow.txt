@@ -1,8 +1,8 @@
 # Destinations every project may reach in restricted mode: what mise, the
 # package managers and Serena need to download tools and dependencies.
 # One entry per line: domain (subdomains included), IP or CIDR, each with an
-# optional :port. Agents add their own in agents/<agent>/allow.txt, services
-# in services/<name>/allow.txt, and you in ROKE_NETWORK_ALLOW.
+# optional :port. Agents add their own in catalog/agents/<agent>/allow.txt,
+# services in catalog/services/<name>/allow.txt, and you in ROKE_NETWORK_ALLOW.
 
 # GitHub (releases and sources used by mise, uv, Serena...)
 github.com

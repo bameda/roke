@@ -37,7 +37,7 @@ def env_value(path, key):
 def catalog_default(service, var):
     """The default of VAR in the catalog's SERVICE, as in ${VAR:-default}, so
     that tests keep passing when an update changes it."""
-    text = (REPO / "services" / service / "compose.yaml").read_text()
+    text = (REPO / "catalog" / "services" / service / "compose.yaml").read_text()
     match = re.search(rf"\$\{{{var}:-([^}}]+)\}}", text)
-    assert match, f"{var} has no default in services/{service}/compose.yaml"
+    assert match, f"{var} has no default in catalog/services/{service}/compose.yaml"
     return match.group(1)

@@ -81,7 +81,7 @@ It opens pull requests on Monday mornings, and nothing is merged
 automatically: review each one. Minor and patch updates of the development
 tools and actions come together in one pull request. Major versions of
 service images are labelled `major`: projects keep the version they pinned
-(see [Versions](../services/README.md#versions)), but check the release
+(see [Versions](../catalog/services/README.md#versions)), but check the release
 notes for changes to the data format, and update the service's README if
 it needs migration steps. The Dependency Dashboard issue lists what is
 pending.

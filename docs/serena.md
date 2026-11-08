@@ -23,7 +23,7 @@ To enable it for good, add `ROKE_SERENA=1` to the project's settings,
 When enabled, the box registers Serena as an MCP server for the selected
 agent, pinned to the current project and with the Serena context that suits
 that agent. It is done on every start, so there is nothing to add to your
-agent's configuration. Each [agent's README](../agents/README.md) explains
+agent's configuration. Each [agent's README](../catalog/agents/README.md) explains
 how it is registered there.
 
 ## Details

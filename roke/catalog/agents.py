@@ -1,4 +1,4 @@
-"""The coding agents: one directory per agent in agents/, with an
+"""The coding agents: one directory per agent in catalog/agents/, with an
 install.sh and a setup.sh."""
 
 from pathlib import Path
@@ -10,7 +10,7 @@ DEFAULT_INSTALLED = "claude codex opencode"
 
 class Agents:
     def __init__(self, box_dir: Path):
-        self.dir = box_dir / "agents"
+        self.dir = box_dir / "catalog" / "agents"
 
     def names(self) -> list[str]:
         return entries(self.dir, "setup.sh")

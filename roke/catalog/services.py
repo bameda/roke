@@ -11,7 +11,7 @@ VERSION_DEFAULT = re.compile(r"\$\{([A-Z][A-Z0-9_]*_VERSION):-([^}]+)\}")
 
 class Services:
     def __init__(self, box_dir: Path, user_dir: Path, project_dir: Path | None = None):
-        self.catalog_dir = box_dir / "services"
+        self.catalog_dir = box_dir / "catalog" / "services"
         self.user_dir = user_dir
         self.project_dir = project_dir
 

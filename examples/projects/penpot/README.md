@@ -55,7 +55,7 @@ connect its plugin. Without `--agentic`, remove it from `ROKE_MCPS` in
 `project.env`.
 
 For Penpot's hosted server instead, use the catalog's
-[`penpot`](../../../mcps/penpot/README.md) MCP.
+[`penpot`](../../../catalog/mcps/penpot/README.md) MCP.
 
 ## Notes
 
@@ -65,5 +65,5 @@ For Penpot's hosted server instead, use the catalog's
 - Serena is roke's (`ROKE_SERENA=1`); the devenv's, started with
   `--agentic`, is not used.
 - To run an LDAP or other service of your own in the box instead, the
-  catalog has [`ldap`](../../../services/ldap/README.md), the same test
+  catalog has [`ldap`](../../../catalog/services/ldap/README.md), the same test
   directory the devenv uses.

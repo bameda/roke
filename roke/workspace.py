@@ -234,7 +234,7 @@ class Workspace:
             entries: list[str] = []
             for name in agents:
                 entries += settings.file_entries(self.agents.file(name, "allow.txt"))
-            source = " ".join(f"agents/{name}/allow.txt" for name in agents)
+            source = " ".join(f"catalog/agents/{name}/allow.txt" for name in agents)
             layers.append(("agents" if len(agents) > 1 else "agent", source, entries))
         service_allow = []
         for name in self.selected:
@@ -243,8 +243,8 @@ class Workspace:
         for name in getattr(self, "resolved_mcps", {}):
             mcp_allow += [str(d) for d in self.mcps.definition(name).get("allow", [])]
         return layers + [
-            ("services", "services/<name>/allow.txt", service_allow),
-            ("mcps", "mcps/<name>/mcp.json", mcp_allow),
+            ("services", "catalog/services/<name>/allow.txt", service_allow),
+            ("mcps", "catalog/mcps/<name>/mcp.json", mcp_allow),
             (
                 "global",
                 "ROKE_NETWORK_ALLOW in roke.env (roke network add --global)",

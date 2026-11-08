@@ -60,7 +60,7 @@ def test_network_lists_the_layers(env):
     for part in (
         "base",
         "agent",
-        "agents/claude/allow.txt",
+        "catalog/agents/claude/allow.txt",
         "global",
         "project",
         "project.example.com",

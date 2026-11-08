@@ -74,7 +74,7 @@ def upgrade(req) -> None:
                 info(
                     f"{name}: {pinned} → {target} is a major version and {name} keeps data, "
                     "whose format may change. Back up, see "
-                    f"services/{name}/README.md, then: roke service upgrade {name} --major"
+                    f"roke service show {name}, then: roke service upgrade {name} --major"
                 )
                 continue
             settings.set_value(p.env_file, var, target)

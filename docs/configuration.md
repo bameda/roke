@@ -137,7 +137,7 @@ projects/my-app/
   it belongs to your team or a client. They are added after the box's
   instructions and your personal ones.
 - **`services/`**: services only this project needs, with the same layout as
-  the [catalog](../services/README.md). See
+  the [catalog](../catalog/services/README.md). See
   [your own services](#your-own-services).
 
 The settings files are loaded in this order, and the last one wins:
@@ -176,14 +176,14 @@ Services are looked up in three places, and the first one found wins:
 
 1. the project's `services/` (`projects/<name>/services/<service>/`);
 2. your `services/` (`~/.config/roke/services/<service>/`);
-3. the roke [catalog](../services/README.md).
+3. the roke [catalog](../catalog/services/README.md).
 
 Your services work exactly like the catalog's: `roke -s <name>` and
 `ROKE_SERVICES` find them, and `roke service` marks them as `[project]` or
 `[yours]`. Put a service in the project when only that project needs it,
 and in yours when you use it in several projects. A service with the same
 name as one further down the list replaces it. See
-[adding your own service](../services/README.md#adding-your-own-service).
+[adding your own service](../catalog/services/README.md#adding-your-own-service).
 
 ## Agent configuration
 
@@ -192,7 +192,7 @@ Two pieces of your configuration go to the agent:
 - **`AGENTS.md`**, at the top of the configuration directory: your
   instructions for every agent. On every start they are added after the
   box's own instructions and before the project's private ones; see
-  [instructions for the agent](../agents/README.md#instructions-for-the-agent).
+  [instructions for the agent](../catalog/agents/README.md#instructions-for-the-agent).
 - **`agents/<agent>/`**: each agent's own configuration (settings, custom
   agents, commands, skills...). Only the selected agent's directory is
   mounted, read-only, and linked where that agent reads it, so edit it on
@@ -200,8 +200,8 @@ Two pieces of your configuration go to the agent:
   (login, sessions, UI state) stay in the project's home volume.
 
 What goes in each agent's directory, and how it logs in, is explained in
-its README: [Claude Code](../agents/claude/README.md),
-[Codex](../agents/codex/README.md), [OpenCode](../agents/opencode/README.md).
+its README: [Claude Code](../catalog/agents/claude/README.md),
+[Codex](../catalog/agents/codex/README.md), [OpenCode](../catalog/agents/opencode/README.md).
 
 ## Languages and tools
 
@@ -237,7 +237,7 @@ If you always need something that mise does not provide, add it to the
 
 The variables roke itself reads. Set them in `roke.env` (every project) or
 `projects/<name>/project.env` (one project). Each service has its own variables,
-documented in its README in [services](../services/README.md).
+documented in its README in [services](../catalog/services/README.md).
 
 | Variable | Default | Description |
 |---|---|---|
@@ -245,7 +245,7 @@ documented in its README in [services](../services/README.md).
 | `ROKE_SERVICES` | — | Services to start, comma-separated (`-s`) |
 | `ROKE_COLOR` | `auto` | Colours in `roke ... show`: `auto` colours a terminal unless `NO_COLOR` is set or `TERM` is `dumb`; `always`; `never` |
 | `ROKE_EDITOR` | `$VISUAL`, `$EDITOR` | The editor `roke settings edit` opens, such as `code --wait` |
-| `ROKE_PARALLEL_AGENTS` | — | Agents that may run at the same time in the project, comma-separated; see [several agents at once](../agents/README.md#several-agents-at-once) |
+| `ROKE_PARALLEL_AGENTS` | — | Agents that may run at the same time in the project, comma-separated; see [several agents at once](../catalog/agents/README.md#several-agents-at-once) |
 | `ROKE_MCPS` | — | MCP servers, comma-separated; the project's add to the global ones (`roke mcp add`) |
 | `ROKE_NETWORK` | `restricted` | `restricted` or `open` (`--network`); see [Network](network.md) |
 | `ROKE_NETWORK_ALLOW` | — | Allowed destinations, space-separated; the project's add to the global ones (`roke network add`) |

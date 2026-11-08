@@ -53,7 +53,7 @@ remember:
 | `roke agent use NAME` | Use `NAME` in this project; with `--global`, by default in every project |
 | `roke agent reset` | This project uses the default agent again |
 
-**Services** (see [Services](../services/README.md))
+**Services** (see [Services](../catalog/services/README.md))
 
 | Command | Description |
 |---|---|
@@ -61,9 +61,9 @@ remember:
 | `roke service show NAME` | A service in this project: its version, address, web UI and variables, and its README |
 | `roke service add NAME...` | Add services to this project |
 | `roke service rm NAME...` | Remove them from it; their data is kept until `roke purge` |
-| `roke service upgrade [NAME...]` | Move the project's services, or some, to roke's current versions; `--major` also for major versions of services that keep data (see [Versions](../services/README.md#versions)) |
+| `roke service upgrade [NAME...]` | Move the project's services, or some, to roke's current versions; `--major` also for major versions of services that keep data (see [Versions](../catalog/services/README.md#versions)) |
 
-**MCP servers** (see [MCP servers](../mcps/README.md))
+**MCP servers** (see [MCP servers](../catalog/mcps/README.md))
 
 | Command | Description |
 |---|---|
@@ -233,7 +233,7 @@ roke agent reset                # this project uses the default again
 
 All the agents of a project share its home volume, so you can switch
 between them freely: each keeps its own login and sessions there. See
-[switching between agents](../agents/README.md#switching-between-agents) for
+[switching between agents](../catalog/agents/README.md#switching-between-agents) for
 what carries over and what does not.
 
 ## Projects and their services
@@ -257,7 +257,7 @@ sessions and the tools installed with mise, so after `roke purge` you log in
 again and tools are downloaded again.
 
 Some services do not keep data at all (Redis, Mailpit...); each
-[service's README](../services/README.md) says what it keeps.
+[service's README](../catalog/services/README.md) says what it keeps.
 
 ## Opening the app in your browser
 
@@ -274,7 +274,7 @@ Then open `http://127.0.0.1:5173`. The server must listen on `0.0.0.0`, not
 already tell the agent so.
 
 Services with a web UI (Mailpit, RustFS, Grafana...) publish it themselves;
-do not add their ports to `-p`. See the [service catalog](../services/README.md).
+do not add their ports to `-p`. See the [service catalog](../catalog/services/README.md).
 
 ## Running other commands
 

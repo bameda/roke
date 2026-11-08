@@ -25,7 +25,7 @@ def test_parallel_agents_share_the_same_network(env):
     # An agent outside the list keeps only its own destinations.
     assert "platform.claude.com" not in allowed(env, shop, "--agent", "opencode").split()
     assert (
-        "agents     agents/claude/allow.txt agents/codex/allow.txt"
+        "agents     catalog/agents/claude/allow.txt catalog/agents/codex/allow.txt"
         in env.roke("network", cwd=shop).out
     )
 

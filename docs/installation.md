@@ -127,11 +127,11 @@ To work on roke itself, clone the repository wherever you want and run
 Then choose your default agent:
 
 ```fish
-roke agent use claude --global      # or codex, or opencode; see agents/README.md
+roke agent use claude --global      # or codex, or opencode; see catalog/agents/README.md
 ```
 
 The image installs every agent by default. To make it smaller, keep only
-the ones you use in `ROKE_AGENTS` (see [Agents](../agents/README.md)).
+the ones you use in `ROKE_AGENTS` (see [Agents](../catalog/agents/README.md)).
 
 Then build the image and start the agent in a project:
 
@@ -141,9 +141,9 @@ roke build
 ```
 
 The first time, log in from inside the agent, as its README explains
-([Claude Code](../agents/claude/README.md#log-in),
-[Codex](../agents/codex/README.md#log-in),
-[OpenCode](../agents/opencode/README.md#log-in)). The login is stored in the
+([Claude Code](../catalog/agents/claude/README.md#log-in),
+[Codex](../catalog/agents/codex/README.md#log-in),
+[OpenCode](../catalog/agents/opencode/README.md#log-in)). The login is stored in the
 project's own home volume, not in your real `$HOME`, so you log in once
 per project. An API key in `~/.config/roke/secrets.env` works for every
 project instead.
@@ -175,7 +175,7 @@ roke build          # in each project, to rebuild its images
 again does the same. Your configuration is not touched, and neither are the
 versions of your projects' services, which each project keeps: `roke service`
 shows which ones have a newer version, and `roke service upgrade` moves a
-project on (see [Versions](../services/README.md#versions)). Releases with
+project on (see [Versions](../catalog/services/README.md#versions)). Releases with
 incompatible changes are marked with `!` in the commit history (for example
 `feat(postgres)!: ...`): read their description, which explains what to
 change.
@@ -184,7 +184,7 @@ change.
 installed from a channel (`latest`, `stable`) are not updated by it, since
 Docker reuses the cached layer: run `roke build --no-cache` to fetch their newest
 release, or pin versions with `ROKE_AGENT_VERSIONS` in `roke.env` and run
-`roke build` after changing them. See [Agents](../agents/README.md).
+`roke build` after changing them. See [Agents](../catalog/agents/README.md).
 
 ## Rootless Docker
 

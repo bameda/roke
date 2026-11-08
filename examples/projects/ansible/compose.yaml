@@ -9,7 +9,7 @@ services:
 
   ssh-target-db:
     build:
-      context: ./services/ssh-target
+      context: ./catalog/services/ssh-target
       args:
         BASE_IMAGE: ${SSH_TARGET_BASE_IMAGE:-debian:trixie-slim}
     environment:

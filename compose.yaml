@@ -1,5 +1,5 @@
 # Base: just the box where the coding agent runs. Services (databases, caches, mail,
-# proxy...) are added from services/<name>/compose.yaml with "roke -s".
+# proxy...) are added from catalog/services/<name>/compose.yaml with "roke -s".
 # Don't run this directly: use bin/roke.
 
 services:
@@ -76,7 +76,7 @@ services:
       - ${ROKE_CONFIG_DIR}/agents/${ROKE_AGENT}:/run/roke/agent-config:ro
       # The agents' install and setup scripts and the box's instructions,
       # mounted so that updates arrive with git pull, without a rebuild.
-      - ./agents:/opt/roke/agents:ro
+      - ./catalog/agents:/opt/roke/agents:ro
     # No network of its own: it shares the gateway's, so all its traffic goes
     # through the gateway's firewall, which it has no capabilities to change.
     network_mode: service:gateway

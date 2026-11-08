@@ -79,7 +79,7 @@ def test_mcp_destinations_are_allowed(env):
     allowed = env.roke(cwd=shop).last("run")["env"]["ROKE_NETWORK_ALLOW_ALL"].split()
     assert "api.githubcopilot.com" in allowed
     out = env.roke("network", cwd=shop).out
-    assert "  mcps       mcps/<name>/mcp.json" in out and "api.githubcopilot.com" in out
+    assert "  mcps       catalog/mcps/<name>/mcp.json" in out and "api.githubcopilot.com" in out
 
 
 def test_own_mcps(env):

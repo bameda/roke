@@ -45,5 +45,5 @@ kubectl get all -n demo
 helm package charts/mychart && helm push mychart-*.tgz "oci://$OCI_REGISTRY/charts" --plain-http
 ```
 
-See [kwok](../../../services/kwok/README.md) for what a simulated cluster
+See [kwok](../../../catalog/services/kwok/README.md) for what a simulated cluster
 can and cannot do.

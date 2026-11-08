@@ -16,8 +16,8 @@
   ],
   "automerge": false,
   "ignorePaths": [
-    "services/_template/**",
-    "mcps/_template/**",
+    "catalog/services/_template/**",
+    "catalog/mcps/_template/**",
     "**/node_modules/**"
   ],
   "pre-commit": {
@@ -58,9 +58,9 @@
     },
     {
       "customType": "regex",
-      "description": "Local MCP servers' Python packages in mcps/*/mcp.json: uvx package==version",
+      "description": "Local MCP servers' Python packages in catalog/mcps/*/mcp.json: uvx package==version",
       "managerFilePatterns": [
-        "/(^|/)mcps/[^/]+/mcp\\.json$/"
+        "/(^|/)catalog/mcps/[^/]+/mcp\\.json$/"
       ],
       "matchStrings": [
         "\"(?<depName>[A-Za-z0-9_.-]+)==(?<currentValue>[0-9][^\"]*)\""
@@ -69,9 +69,9 @@
     },
     {
       "customType": "regex",
-      "description": "Local MCP servers' npm packages in mcps/*/mcp.json: npx package@version",
+      "description": "Local MCP servers' npm packages in catalog/mcps/*/mcp.json: npx package@version",
       "managerFilePatterns": [
-        "/(^|/)mcps/[^/]+/mcp\\.json$/"
+        "/(^|/)catalog/mcps/[^/]+/mcp\\.json$/"
       ],
       "matchStrings": [
         "\"(?<depName>@?[a-z0-9][a-z0-9._/-]*)@(?<currentValue>[0-9][^\"]*)\""

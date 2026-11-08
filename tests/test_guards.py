@@ -18,7 +18,7 @@ def test_refuses_dangerous_project_directories(env, where, message):
         "root": "/",
         "config_parent": env.home / ".config",
         "inside_config": env.config / "projects",
-        "inside_repo": REPO / "services",
+        "inside_repo": REPO / "catalog",
     }[where]
     r = env.roke(cwd=cwd)
     assert r.code != 0

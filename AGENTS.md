@@ -11,9 +11,9 @@ does, `docs/` how, and [CONTRIBUTING.md](CONTRIBUTING.md) how to contribute.
 |---|---|
 | `bin/roke` | Launcher: checks Python 3.10 or newer and runs the `roke` package |
 | `roke/` | The `roke` command. `cli.py` parses the arguments, `commands/` has one module per group of `roke help`, `workspace.py` the steps every command shares, `catalog/` the agents, services and MCP servers |
-| `agents/<agent>/` | Each coding agent: `install.sh` (at image build), `setup.sh` (on every start, in the box), `allow.txt` and a README. `agents/AGENTS.md` holds the box's instructions to the agents, and `agents/mcp.py` translates MCP servers into each agent's format |
-| `services/<name>/` | The service catalog: a compose fragment and a README each |
-| `mcps/<name>/` | The MCP catalog: an `mcp.json` and a README each |
+| `catalog/agents/<agent>/` | Each coding agent: `install.sh` (at image build), `setup.sh` (on every start, in the box), `allow.txt` and a README. `catalog/agents/AGENTS.md` holds the box's instructions to the agents, and `catalog/agents/mcp.py` translates MCP servers into each agent's format |
+| `catalog/services/<name>/` | The service catalog: a compose fragment and a README each |
+| `catalog/mcps/<name>/` | The MCP catalog: an `mcp.json` and a README each |
 | `docker/` | The box's `Dockerfile` and entrypoint, and the gateway (the project's network policy) |
 | `examples/` | The configuration template (`roke init`) and example projects |
 | `tests/` | Black-box tests of the `roke` command, against a fake `docker` |
@@ -59,9 +59,9 @@ Docker Compose skip themselves when there is none, as inside roke's box.
 
 ## Adding a service, an agent or an MCP server
 
-Follow [Adding your own service](services/README.md#adding-your-own-service),
-[Adding an agent](agents/README.md#adding-an-agent) or
-[Adding your own MCP](mcps/README.md#adding-your-own-mcp): each starts from
+Follow [Adding your own service](catalog/services/README.md#adding-your-own-service),
+[Adding an agent](catalog/agents/README.md#adding-an-agent) or
+[Adding your own MCP](catalog/mcps/README.md#adding-your-own-mcp): each starts from
 a `_template/` directory. Add the new entry to its catalog's table too.
 
 ## Working on roke inside roke

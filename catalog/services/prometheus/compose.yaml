@@ -1,0 +1,39 @@
+# Prometheus (metrics) · prometheus:9090 · PROMETHEUS_URL, OTLP metrics preset · UI http://127.0.0.1:9090
+services:
+  # The project's network is internal: the gateway publishes the UI.
+  gateway:
+    environment:
+      ROKE_FORWARD_PROMETHEUS: "49090 prometheus:9090"
+    ports:
+      - "127.0.0.1:${PROMETHEUS_UI_PORT:-9090}:49090"
+
+  box:
+    environment:
+      PROMETHEUS_URL: http://prometheus:9090
+      # OpenTelemetry SDKs push metrics to Prometheus's OTLP receiver.
+      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://prometheus:9090/api/v1/otlp/v1/metrics
+      OTEL_EXPORTER_OTLP_METRICS_PROTOCOL: http/protobuf
+    depends_on:
+      prometheus:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:${PROMETHEUS_VERSION:-v3.16.0}
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-otlp-receiver
+      - --web.enable-remote-write-receiver
+    volumes:
+      - ./catalog/services/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9090/-/ready"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  prometheus-data:

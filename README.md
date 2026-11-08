@@ -4,8 +4,8 @@
 > where power is learned and kept, guarded by a wind that lets no one in
 > uninvited.*
 
-Run coding agents, such as [Claude Code](agents/claude/README.md),
-[Codex](agents/codex/README.md) or [OpenCode](agents/opencode/README.md),
+Run coding agents, such as [Claude Code](catalog/agents/claude/README.md),
+[Codex](catalog/agents/codex/README.md) or [OpenCode](catalog/agents/opencode/README.md),
 inside a Docker container that **only sees the project you are working on**.
 Your `$HOME`, SSH keys, dotfiles and every other project stay out of the
 agent's reach.
@@ -50,7 +50,7 @@ agent's reach.
    ```
 
    The first time, log in from inside the agent; see its
-   [README](agents/README.md).
+   [README](catalog/agents/README.md).
 
 Then follow [First steps](docs/first-steps.md) to set up a project with its
 services and tools.
@@ -85,10 +85,10 @@ usually enough.
 | [Installation](docs/installation.md) | Docker on each distribution, installing and updating roke, rootless Docker |
 | [First steps](docs/first-steps.md) | Step-by-step tutorial: adding a project |
 | [Usage](docs/usage.md) | Every `roke` option, ports, git workflow, stopping and resetting |
-| [Agents](agents/README.md) | The available agents, choosing one, how each logs in and is configured, adding another |
+| [Agents](catalog/agents/README.md) | The available agents, choosing one, how each logs in and is configured, adding another |
 | [Configuration](docs/configuration.md) | `~/.config/roke`, keeping it in a private repo, per-project settings, tools, settings reference |
-| [Services](services/README.md) | The service catalog, how to use each one and how to add your own |
-| [MCP servers](mcps/README.md) | The MCP catalog, how they reach each agent and how to add your own |
+| [Services](catalog/services/README.md) | The service catalog, how to use each one and how to add your own |
+| [MCP servers](catalog/mcps/README.md) | The MCP catalog, how they reach each agent and how to add your own |
 | [Example projects](examples/projects/README.md) | Ready-made configurations: Ansible, Helm, Python, Node.js, Go, Rust, Rails, Spring Boot, Clojure |
 | [Serena](docs/serena.md) | Semantic code navigation and editing |
 | [Network](docs/network.md) | How the pieces fit, restricted and open mode, allowing destinations |

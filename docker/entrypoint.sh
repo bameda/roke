@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Prepares the box on every start and runs the coding agent (or the command
-# given). The agent-specific part lives in agents/<agent>/setup.sh.
+# given). The agent-specific part lives in catalog/agents/<agent>/setup.sh.
 set -euo pipefail
 
 log() { printf '[roke] %s\n' "$*" >&2; }
@@ -82,7 +82,7 @@ if ((SERENA_ENABLED)); then
   log "Serena enabled for $PWD"
 fi
 
-# --- Helpers for agents/<agent>/setup.sh --------------------------------------
+# --- Helpers for catalog/agents/<agent>/setup.sh --------------------------------------
 
 # serena_command CONTEXT: sets SERENA_CMD to the command that starts Serena's
 # MCP server for the current project, with the given Serena context.
@@ -143,7 +143,7 @@ AGENT_ARGS=()
 AGENT_CONTINUE=()
 # shellcheck source=/dev/null
 source "$agent_dir/setup.sh"
-((${#AGENT_COMMAND[@]})) || die "agents/$agent/setup.sh did not set AGENT_COMMAND"
+((${#AGENT_COMMAND[@]})) || die "catalog/agents/$agent/setup.sh did not set AGENT_COMMAND"
 
 # No command: run the agent. When the agent is run explicitly (for example
 # "roke exec claude --print ..."), its extra arguments are added too.
@@ -152,7 +152,7 @@ if (($# == 0)); then
   set -- "${AGENT_COMMAND[@]}"
   if [[ "${ROKE_CONTINUE:-0}" == "1" ]]; then
     ((${#AGENT_CONTINUE[@]})) \
-      || die "agents/$agent does not say how to resume a session (AGENT_CONTINUE in its setup.sh)"
+      || die "catalog/agents/$agent does not say how to resume a session (AGENT_CONTINUE in its setup.sh)"
     set -- "$@" "${AGENT_CONTINUE[@]}"
   fi
 fi

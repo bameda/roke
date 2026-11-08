@@ -30,7 +30,7 @@ shows every setting of the project and where it comes from.
 Another session of the same project is open, and starting this one would
 recreate a container it uses, leaving it without network or services. To
 run two agents at once, list them in `ROKE_PARALLEL_AGENTS` in the project's
-`project.env` (see [several agents at once](../agents/README.md#several-agents-at-once));
+`project.env` (see [several agents at once](../catalog/agents/README.md#several-agents-at-once));
 otherwise use the same agent and options as the open session, or finish it
 first (or run `roke down`).
 
@@ -57,7 +57,7 @@ service UIs, change their port in the project's settings (for example
 Several agents are installed in the image and none is selected. Choose the
 default one with `roke agent use NAME --global` (or a project's own with
 `roke agent use NAME`), or pass `--agent` for a single run. See
-[Agents](../agents/README.md).
+[Agents](../catalog/agents/README.md).
 
 ### `the agent '<name>' is not in ROKE_AGENTS` / `is not installed in the image`
 
@@ -85,7 +85,7 @@ with `docker volume ls | grep _home` and remove it with `docker volume rm`.
   there.
 - **No SSH keys in the box**: `git push` and `git pull` happen on the host.
 - **Agent-specific limitations** are listed in each
-  [agent's README](../agents/README.md), for example the lack of language
+  [agent's README](../catalog/agents/README.md), for example the lack of language
   servers in OpenCode 2.
 - **No systemd** in the box or in `ssh-target`.
 

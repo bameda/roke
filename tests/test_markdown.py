@@ -137,13 +137,13 @@ def test_link_resolver_for_roke_s_repository(monkeypatch, tmp_path):
     from roke.commands import common
 
     monkeypatch.setattr(common, "repo_web_url", lambda: "https://github.com/owner/roke")
-    resolve = common.link_resolver(REPO / "services" / "postgres" / "README.md")
+    resolve = common.link_resolver(REPO / "catalog" / "services" / "postgres" / "README.md")
     base = "https://github.com/owner/roke"
     assert resolve("../README.md#how-services-work") == (
-        f"{base}/blob/main/services/README.md#how-services-work"
+        f"{base}/blob/main/catalog/services/README.md#how-services-work"
     )
-    assert resolve("../../examples/projects/") == f"{base}/tree/main/examples/projects"
-    assert resolve("../../../elsewhere.md") is None
+    assert resolve("../../../examples/projects/") == f"{base}/tree/main/examples/projects"
+    assert resolve("../../../../elsewhere.md") is None
     own = tmp_path / "README.md"
     own.write_text("x")
     assert common.link_resolver(own)("other.md") is None  # your own services

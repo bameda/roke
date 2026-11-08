@@ -30,7 +30,7 @@ VARIABLE = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)(?::-([^}]*))?\}")
 
 class Mcps:
     def __init__(self, box_dir: Path, user_dir: Path, project_dir: Path | None = None):
-        self.catalog_dir = box_dir / "mcps"
+        self.catalog_dir = box_dir / "catalog" / "mcps"
         self.user_dir = user_dir
         self.project_dir = project_dir
 

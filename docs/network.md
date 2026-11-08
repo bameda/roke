@@ -85,9 +85,9 @@ add what is specific to you:
 | Layer | Where | What it covers |
 |---|---|---|
 | Base | `docker/gateway/allow.txt` in this repository | What mise, the package managers and Serena need: GitHub, npm, PyPI, crates.io, Maven Central... |
-| Agent | `agents/<agent>/allow.txt` | The agent's API and login, and those of the agents in `ROKE_PARALLEL_AGENTS` (see [several agents at once](../agents/README.md#several-agents-at-once)) |
-| Services | `services/<name>/allow.txt` | Rarely needed: services have no route out anyway |
-| MCP servers | `allow` in `mcps/<name>/mcp.json` | What the project's [MCP servers](../mcps/README.md) need |
+| Agent | `catalog/agents/<agent>/allow.txt` | The agent's API and login, and those of the agents in `ROKE_PARALLEL_AGENTS` (see [several agents at once](../catalog/agents/README.md#several-agents-at-once)) |
+| Services | `catalog/services/<name>/allow.txt` | Rarely needed: services have no route out anyway |
+| MCP servers | `allow` in `catalog/mcps/<name>/mcp.json` | What the project's [MCP servers](../catalog/mcps/README.md) need |
 | Yours | `ROKE_NETWORK_ALLOW` in `roke.env` | Every project |
 | The project's | `ROKE_NETWORK_ALLOW` in `project.env` | This project; adds to yours |
 
@@ -160,7 +160,7 @@ publishes them on `127.0.0.1`:
   gateway's network namespace, so `roke -p 5173` works as before.
 - **The services' web UIs** (Mailpit, RustFS, Grafana, Jaeger...): each
   service's compose file asks the gateway to forward a port to it. See
-  [publishing a service's port](../services/README.md#publishing-a-services-port).
+  [publishing a service's port](../catalog/services/README.md#publishing-a-services-port).
 
 ## Limitations
 

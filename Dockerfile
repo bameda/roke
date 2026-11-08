@@ -9,7 +9,7 @@ FROM debian:trixie-slim
 ARG HOST_UID=1000
 ARG HOST_GID=1000
 
-# Coding agents to install (directories in agents/), space-separated, and
+# Coding agents to install (directories in catalog/agents/), space-separated, and
 # optional versions as agent=version pairs ("opencode=2.2.5 claude=latest");
 # agents without one get their install.sh's default.
 ARG ROKE_AGENTS="claude codex opencode"
@@ -100,9 +100,9 @@ RUN set -eux; \
       /home/dev/.local/bin /home/dev/.local/share /home/dev/.local/state \
       /home/dev/.cache /home/dev/.serena
 
-# Coding agents: each agents/<agent>/install.sh runs as root, after the user
+# Coding agents: each catalog/agents/<agent>/install.sh runs as root, after the user
 # exists so it can prepare directories the agent's setup.sh writes at start.
-COPY agents/ /tmp/roke-agents/
+COPY catalog/agents/ /tmp/roke-agents/
 RUN set -eu; \
     install -d /etc/roke; \
     : > /etc/roke/installed-agents; \

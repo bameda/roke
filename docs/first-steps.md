@@ -18,7 +18,7 @@ Before configuring anything, answer these questions:
 - **Which agent?** The one in `roke.env` applies to every project; set
   `ROKE_AGENT` in the project's settings to use another one there.
 - **Which services does it use?** Check the catalog with `roke service`.
-  The [service catalog](../services/README.md) links to a guide for each one
+  The [service catalog](../catalog/services/README.md) links to a guide for each one
   explaining how your app connects to it.
 - **Is there a port you want to open in your browser?** For example, the dev
   server's.
