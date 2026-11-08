@@ -52,7 +52,6 @@ class Services:
             if origin:
                 desc = f"[{origin}] {desc}"
             lines.append(f"{'*' if name in used else ' '} {name:<12} {desc}")
-        lines += ["", "How to use each one: services/<name>/README.md (index: services/README.md)"]
         return "\n".join(lines)
 
     def versions(self, name: str) -> dict[str, str]:

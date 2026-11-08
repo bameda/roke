@@ -17,6 +17,7 @@ def show(req) -> None:
         if name == ws.agent:
             desc += f"  <- used here ({ws.agent_source})"
         lines.append(f"  {name:<12} {desc}")
+    lines += ["", "More about each one: roke agent show NAME"]
     print("\n".join(lines))
 
 

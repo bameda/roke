@@ -36,6 +36,7 @@ def show(req) -> None:
     if rows:
         print("\nVersions pinned in this project (roke service upgrade [NAME...]):")
         print("\n".join(rows))
+    print("\nMore about each one: roke service show NAME")
 
 
 def _major(version: str) -> str:

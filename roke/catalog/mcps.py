@@ -76,7 +76,7 @@ class Mcps:
             if origin:
                 desc = f"[{origin}] {desc}"
             lines.append(f"{'*' if name in used else ' '} {name:<12} {desc}")
-        lines += ["", "How to use each one: mcps/<name>/README.md (index: mcps/README.md)"]
+        lines += ["", "More about each one: roke mcp show NAME"]
         return "\n".join(lines)
 
 

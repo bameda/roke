@@ -133,3 +133,11 @@ def test_agent_show(env):
 def test_show_unknown(env, group):
     r = env.roke(group, "show", "nope", cwd=env.project())
     assert r.code != 0 and "unknown" in r.err
+
+
+@pytest.mark.parametrize("group", ["service", "mcp", "agent"])
+def test_lists_point_to_show(env, group):
+    shop = env.project()
+    env.write_project_env("ROKE_SERVICES=postgres\n")  # adds the versions table
+    out = env.roke(group, cwd=shop).out
+    assert out.rstrip().endswith(f"More about each one: roke {group} show NAME")
