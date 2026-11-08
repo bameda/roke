@@ -108,3 +108,28 @@ def test_ldap_service(env, compose):
     assert r.code == 0, r.text
     assert "LDAP_URL=ldap://ldap:10389" in r.out
     assert "LDAP_BIND_DN=cn=admin,dc=planetexpress,dc=com" in r.out
+
+
+def test_the_box_knows_its_network_policy(env, compose):
+    """The agent's instructions rely on ROKE_NETWORK and the allowed list."""
+    shop = env.project()
+    env.roke("network", "add", "ui.example.com", cwd=shop)
+    r = env.roke("urls", cwd=shop, env={"FAKE_REAL_COMPOSE": compose})
+    assert r.code == 0, r.text
+    out = subprocess.run(
+        [compose, "-f", str(REPO / "compose.yaml"), "config", "--format", "json"],
+        env={
+            "ROKE_AGENT": "claude",
+            "ROKE_CONFIG_DIR": str(env.config),
+            "PROJECT_DIR": str(shop),
+            "ROKE_PROJECT_CONFIG": str(env.config),
+            "ROKE_NETWORK_ALLOW_ALL": "github.com ui.example.com",
+            "PATH": os.environ["PATH"],
+        },
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    box = json.loads(out)["services"]["box"]["environment"]
+    assert box["ROKE_NETWORK"] == "restricted"
+    assert box["ROKE_NETWORK_ALLOW_ALL"] == "github.com ui.example.com"

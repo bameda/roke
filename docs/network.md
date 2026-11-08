@@ -149,6 +149,12 @@ Addresses the project tried to connect to and were not allowed (last hour):
 
 Then allow what you need with `roke network add`, and start the project again.
 
+The agent knows the policy: the box tells it the network mode and the
+allowed destinations, and its instructions say that a domain that does not
+resolve is most likely blocked. Instead of reporting a DNS error or looking
+for a workaround, it should tell you which domain it needs, so you can
+decide.
+
 Some tools look up destinations on their own, which roke blocks on purpose,
 such as Serena's dashboard news. `roke network blocked` marks them with the
 reason, so you can tell them from what you need. They are listed in

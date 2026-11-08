@@ -54,6 +54,9 @@ services:
       - path: ${ROKE_PROJECT_CONFIG}/secrets.env
         required: false
     environment:
+      # The network policy, for the agent's instructions (catalog/agents/AGENTS.md).
+      ROKE_NETWORK: ${ROKE_NETWORK:-restricted}
+      ROKE_NETWORK_ALLOW_ALL: ${ROKE_NETWORK_ALLOW_ALL:-}
       # The coding agent to run; chosen by bin/roke.
       ROKE_AGENT: ${ROKE_AGENT:?Start the container with bin/roke}
       TERM: ${TERM:-xterm-256color}
