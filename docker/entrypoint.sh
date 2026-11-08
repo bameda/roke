@@ -87,8 +87,14 @@ fi
 # serena_command CONTEXT: sets SERENA_CMD to the command that starts Serena's
 # MCP server for the current project, with the given Serena context.
 serena_command() {
+  # Serena's usage statistics are off unless ROKE_SERENA_USAGE_REPORTING=1.
+  # They go in the command itself: not every agent passes the environment
+  # on to the MCP servers it starts.
+  local reporting=false
+  [[ "${ROKE_SERENA_USAGE_REPORTING:-0}" == 1 ]] && reporting=true
   # shellcheck disable=SC2034  # read by the agent's setup.sh
-  SERENA_CMD=(serena start-mcp-server --context "$1" --project "$PWD"
+  SERENA_CMD=(env "SERENA_USAGE_REPORTING=$reporting"
+              serena start-mcp-server --context "$1" --project "$PWD"
               --open-web-dashboard false)
 }
 

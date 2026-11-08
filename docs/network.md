@@ -148,6 +148,12 @@ Addresses the project tried to connect to and were not allowed (last hour):
 ```
 
 Then allow what you need with `roke network add`, and start the project again.
+
+Some tools look up destinations on their own, which roke blocks on purpose,
+such as Serena's dashboard news. `roke network blocked` marks them with the
+reason, so you can tell them from what you need. They are listed in
+`docker/gateway/expected.txt`, for the tools in the box, and in an agent's
+`catalog/agents/<agent>/expected.txt`.
 If a project needs to reach many changing destinations, consider
 `ROKE_NETWORK=open` in its `project.env`.
 

@@ -26,6 +26,18 @@ that agent. It is done on every start, so there is nothing to add to your
 agent's configuration. Each [agent's README](../catalog/agents/README.md) explains
 how it is registered there.
 
+## Usage statistics
+
+On every start, Serena sends its developers, Oraios, a few anonymous usage
+statistics: the operating system, Serena's version, its code backend and
+context, and whether its dashboard is on. roke turns them off, and the
+restricted network would block them anyway. To send them, set
+`ROKE_SERENA_USAGE_REPORTING=1` and allow `oraios-software.de`.
+
+Serena's dashboard also downloads news from the same domain, which cannot
+be turned off: `roke network blocked` lists it, marked as blocked on
+purpose. Blocking it changes nothing in how Serena works.
+
 ## Details
 
 - **Language servers.** Serena downloads many of them by itself and keeps

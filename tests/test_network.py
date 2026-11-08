@@ -109,3 +109,26 @@ def test_a_port_of_the_host(env):
     assert env.roke("network", "add", "host:4401", cwd=shop).code == 0
     allowed = env.roke(cwd=shop).last("run")["env"]["ROKE_NETWORK_ALLOW_ALL"].split()
     assert "host:4401" in allowed
+
+
+def test_blocked_marks_the_known_ones(env):
+    r = env.roke("network", "blocked", cwd=env.project(), env={"FAKE_RUNNING": "1"})
+    lines = r.out.splitlines()
+    oraios = next(line for line in lines if "oraios-software.de" in line)
+    assert "Serena's dashboard news" in oraios and "harmless" in oraios
+    unknown = next(line for line in lines if "blocked.example.com" in line)
+    assert unknown.rstrip().endswith("1 lookups")  # not annotated
+
+
+def test_annotate_matches_domains_and_subdomains():
+    import sys
+
+    from conftest import REPO
+
+    sys.path.insert(0, str(REPO))
+    from roke.commands.network import annotate
+
+    report = "  example.com   1 lookups\n  a.example.com   2 lookups\n  notexample.com   1 lookups"
+    out = annotate(report, {"example.com": "why"}).splitlines()
+    assert out[0].endswith("(why)") and out[1].endswith("(why)")
+    assert out[2].endswith("1 lookups")

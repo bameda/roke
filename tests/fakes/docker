@@ -65,6 +65,7 @@ if args[:1] == ["compose"]:
     if "exec" in rest and "blocked" in rest:
         print("Domains the project looked up and were not allowed:")
         print("  blocked.example.com                                1 lookups")
+        print("  news.oraios-software.de                            2 lookups")
         sys.exit(0)
     if "config" in rest:
         real = os.environ.get("FAKE_REAL_COMPOSE")

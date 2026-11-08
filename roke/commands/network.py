@@ -4,6 +4,7 @@ destinations, and what was blocked."""
 import re
 
 from roke import settings
+from roke.paths import BOX_DIR
 from roke.ui import die, info
 from roke.workspace import Workspace
 
@@ -75,8 +76,42 @@ def blocked(req) -> None:
             "the project is not running; start it with roke, reproduce the problem, "
             "then run roke network blocked"
         )
-    compose.call("exec", "-T", "gateway", "roke-gateway", "blocked")
+    report = compose.call("exec", "-T", "gateway", "roke-gateway", "blocked", capture=True).stdout
+    print(annotate(report, expected_blocks(ws)))
     print()
     print(
         "To allow one: roke network add DEST (in this project), or roke network add DEST --global"
     )
+
+
+def expected_blocks(ws) -> dict[str, str]:
+    """Destinations blocked on purpose, and why: those of the tools in the
+    image, and those of the project's agent."""
+    files = [BOX_DIR / "docker" / "gateway" / "expected.txt"]
+    if ws.agent != "none":
+        files.append(ws.agents.file(ws.agent, "expected.txt"))
+    known = {}
+    for path in files:
+        if path.is_file():
+            for line in path.read_text().splitlines():
+                parts = line.split(None, 1)
+                if parts and not parts[0].startswith("#"):
+                    known[parts[0].lower()] = parts[1].strip() if len(parts) > 1 else ""
+    return known
+
+
+def annotate(report: str, known: dict[str, str]) -> str:
+    """The gateway's report, with the reason next to each known domain."""
+    lines = []
+    for line in report.rstrip("\n").splitlines():
+        m = re.match(r"^  (\S+)\s+\d+ lookups?$", line)
+        if m:
+            domain = m.group(1).lower().rstrip(".")
+            reason = next(
+                (why for d, why in known.items() if domain == d or domain.endswith("." + d)),
+                None,
+            )
+            if reason is not None:
+                line += f"  ({reason})" if reason else "  (blocked on purpose)"
+        lines.append(line)
+    return "\n".join(lines)

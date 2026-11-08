@@ -65,6 +65,7 @@ services:
       ROKE_SERENA: ${ROKE_SERENA:-0}
       ROKE_SERENA_DASHBOARD: ${ROKE_SERENA_DASHBOARD:-0}
       ROKE_SERENA_CODEMODE: ${ROKE_SERENA_CODEMODE:-0}
+      ROKE_SERENA_USAGE_REPORTING: ${ROKE_SERENA_USAGE_REPORTING:-0}
     volumes:
       # The only writable host path: the project (at the same path).
       - ${PROJECT_DIR}:${PROJECT_DIR}

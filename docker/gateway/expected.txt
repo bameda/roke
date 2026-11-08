@@ -1,0 +1,5 @@
+# Destinations the tools in the box look up on their own, which roke blocks
+# on purpose: roke network blocked marks them as harmless. One per line: a
+# domain (its subdomains match too), then why it is blocked. Each agent can
+# add its own in catalog/agents/<agent>/expected.txt.
+oraios-software.de  Serena's dashboard news, and its usage statistics if ROKE_SERENA_USAGE_REPORTING=1: harmless, blocked on purpose

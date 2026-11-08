@@ -133,6 +133,7 @@ Copy [`_template/`](_template/) to `catalog/agents/<name>/` and fill in its file
 | `setup.sh` | on every start, as the box's user, sourced by the entrypoint | Links your configuration, places the instructions, registers Serena, and sets `AGENT_COMMAND` |
 | `AGENTS.md` | — | Optional: instructions for this agent only |
 | `allow.txt` | — | Destinations the agent needs in restricted network mode: its API, its login (see [Network](../../docs/network.md)) |
+| `expected.txt` | — | Optional: destinations the agent looks up but does not need, such as telemetry, as `DOMAIN  REASON` lines; `roke network blocked` marks them as blocked on purpose |
 | `README.md` | — | How to use it; its first line is shown by `roke agent` |
 
 `setup.sh` receives these variables and helpers:
