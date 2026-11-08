@@ -41,6 +41,13 @@ described here hold whether they work or not. Everything that keeps the
 agent away from your machine is enforced by Docker, from outside the
 container, with files the agent cannot modify.
 
+That is why roke turns off Codex's sandbox (`sandbox_mode =
+"danger-full-access"`): it could not run inside the box, which denies the
+Linux namespaces it needs, and making it work would weaken the box. Inside
+the box, "full access" means the project and the network destinations it
+allows. Codex's approvals do not change: it still asks before running
+commands. See [Codex](../catalog/agents/codex/README.md).
+
 ## How it is locked down
 
 - The container runs with **your UID/GID** (files it creates are yours),

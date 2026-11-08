@@ -19,11 +19,32 @@ toml_string() {
   printf '"%s"' "${v//\"/\\\"}"
 }
 
-# System configuration (/etc/codex/config.toml, the lowest layer, under
-# yours), rebuilt on every start: no update checks, since the image decides
-# the version, and Serena when enabled.
+# System configuration (/etc/codex/config.toml, the lowest layer: yours, in
+# ~/.codex/config.toml, wins over every value here), rebuilt on every start.
 {
+  # No update checks: the image decides the version.
   echo "check_for_update_on_startup = false"
+
+  # Codex's own sandbox is off, and that is safe here. Do not be alarmed by
+  # the name: "danger-full-access" means full access to what Codex can
+  # reach, and inside roke's box that is only the project (and the network
+  # destinations the project allows). The box is the security boundary: no
+  # $HOME, no SSH keys, no other projects, no Docker socket, no Linux
+  # capabilities. Codex's sandbox, built on bubblewrap, could not run in the
+  # box anyway, since it needs Linux namespaces the box denies on purpose;
+  # making it work would mean weakening the box. Codex's approvals are a
+  # different setting and do not change: it still asks before running
+  # commands, as your approval_policy says.
+  # See catalog/agents/codex/README.md and docs/security.md.
+  echo 'sandbox_mode = "danger-full-access"'
+
+  # The project is trusted, so Codex does not ask about it on every new
+  # home volume: whatever its own settings run, they run in the box too.
+  # To treat a project as untrusted, set its trust_level in your config.
+  echo
+  echo "[projects.$(toml_string "$PWD")]"
+  echo 'trust_level = "trusted"'
+
   if ((SERENA_ENABLED)); then
     serena_command codex
     echo

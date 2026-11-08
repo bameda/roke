@@ -47,12 +47,18 @@ holds instructions for Codex only, added to the combined instructions.
 
 ## Notes
 
-- **Sandboxing.** Codex runs the commands it executes in its own sandbox.
-  Inside the box it may work or not, depending on what the container
-  allows; either way roke does not rely on it, since the box is the
-  boundary (see [Security](../../../docs/security.md#the-agent-is-not-trusted)).
-  If Codex reports that its sandbox cannot start, set
-  `sandbox_mode = "danger-full-access"` in your `config.toml`: inside the box,
-  that means full access to the project only.
+- **Codex's sandbox is off, and that is safe.** roke sets
+  `sandbox_mode = "danger-full-access"` in Codex's system configuration.
+  The name sounds alarming, but inside roke's box "full access" means the
+  project and the network destinations it allows, and nothing else: the box
+  is the security boundary (see [Security](../../../docs/security.md#the-agent-is-not-trusted)).
+  Codex's sandbox could not run in the box anyway: it uses bubblewrap, which
+  needs Linux namespaces the box denies on purpose, and making it work would
+  weaken the box. Your approvals do not change: Codex still asks before
+  running commands, as your `approval_policy` says. To use another mode, set
+  `sandbox_mode` in your own `config.toml`, which wins.
+- **The project is trusted**, so Codex does not ask "Trust this folder?":
+  whatever the project's own Codex settings run, they run in the box too. To
+  treat a project as untrusted, set its `trust_level` in your `config.toml`.
 - Resume the last session with `roke continue`, which runs
   `codex resume --last`.
