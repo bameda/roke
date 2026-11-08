@@ -1,7 +1,10 @@
 """Tests that need a real Docker Compose binary: the resolved configurations
 of the example projects, and roke urls."""
 
+import json
+import os
 import shutil
+import subprocess
 
 import pytest
 from conftest import REPO
@@ -78,3 +81,11 @@ def test_service_show(env, compose):
     r = env.roke("service", "show", "mailpit", cwd=shop, env={"FAKE_REAL_COMPOSE": compose})
     assert "not used (roke service add mailpit)" in r.out
     assert "from your browser: http://127.0.0.1:8025" in r.out
+
+
+def test_ldap_service(env, compose):
+    shop = env.project()
+    r = env.roke("service", "show", "ldap", cwd=shop, env={"FAKE_REAL_COMPOSE": compose})
+    assert r.code == 0, r.text
+    assert "LDAP_URL=ldap://ldap:10389" in r.out
+    assert "LDAP_BIND_DN=cn=admin,dc=planetexpress,dc=com" in r.out

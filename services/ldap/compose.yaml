@@ -1,0 +1,24 @@
+# OpenLDAP for tests · ldap:10389 · LDAP_URL, LDAP_BASE_DN, LDAP_BIND_DN/LDAP_BIND_PASSWORD
+services:
+  box:
+    environment:
+      LDAP_URL: ldap://ldap:10389
+      LDAP_BASE_DN: dc=planetexpress,dc=com
+      LDAP_USERS_DN: ou=people,dc=planetexpress,dc=com
+      LDAP_BIND_DN: cn=admin,dc=planetexpress,dc=com
+      LDAP_BIND_PASSWORD: GoodNewsEveryone
+    depends_on:
+      ldap:
+        condition: service_healthy
+
+  ldap:
+    image: ghcr.io/rroemhild/docker-test-openldap:${LDAP_VERSION:-v2.5.0}
+    healthcheck:
+      test: ["CMD", "ldapsearch", "-x", "-H", "ldap://localhost:10389",
+             "-D", "cn=admin,dc=planetexpress,dc=com", "-w", "GoodNewsEveryone",
+             "-b", "dc=planetexpress,dc=com", "-s", "base"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    security_opt:
+      - no-new-privileges:true

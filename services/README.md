@@ -15,6 +15,7 @@ explains how to use it. `roke service` shows what is available.
 | [`redis`](redis/README.md) | Cache, sessions, queues | `redis:6379`, `REDIS_URL` | |
 | [`valkey`](valkey/README.md) | Open-source Redis fork | `valkey:6379`, `VALKEY_URL` | |
 | [`memcached`](memcached/README.md) | Key-value cache | `memcached:11211`, `MEMCACHED_SERVERS` | |
+| [`ldap`](ldap/README.md) | OpenLDAP for tests, with example users | `ldap:10389`, `LDAP_URL`, `LDAP_BIND_DN` | — |
 | [`mailpit`](mailpit/README.md) | Catches outgoing email | `mailpit:1025`, `SMTP_HOST`, `SMTP_PORT` | inbox at `127.0.0.1:8025` |
 | [`rustfs`](rustfs/README.md) | S3-compatible storage | `rustfs:9000`, `S3_ENDPOINT`, `AWS_*` | console at `127.0.0.1:9001` |
 | [`seaweedfs`](seaweedfs/README.md) | S3-compatible storage (alternative to `rustfs`) | `seaweedfs:8333`, `S3_ENDPOINT`, `AWS_*` | file browser at `127.0.0.1:8888` |
