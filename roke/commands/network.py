@@ -102,7 +102,8 @@ def blocked(req) -> None:
     print(annotate(report, expected_blocks(ws)))
     print()
     print(
-        "To allow one: roke network add DEST (in this project), or roke network add DEST --global"
+        "To allow one: roke network add DEST --note 'what it is for' (in this project),\n"
+        "or with --global (in every project)"
     )
 
 

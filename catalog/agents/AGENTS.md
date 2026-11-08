@@ -34,11 +34,13 @@ You are running inside an isolated Docker container, not on the user's machine.
   addresses refuse the connection. That is the user's network policy, not
   an outage: do not retry, switch mirrors, or work around it with another
   source. Stop, and tell the user which domain the command needed and why,
-  so they can allow it with `roke network add DOMAIN` (then restart the
-  session); `roke network blocked` lists everything that was blocked.
-  Before running a command that downloads from a site that is not in the
-  list (a component registry, an installer script...), tell the user it
-  will need it.
+  with the command to allow it, including a short note that says what it is
+  for, which they will see later in `roke network`:
+  `roke network add cdn.example.com --note "Example's browser downloads"`
+  (then restart the session). `roke network blocked` lists everything that
+  was blocked. Before running a command that downloads from a site that is
+  not in the list (a component registry, an installer script...), tell the
+  user it will need it, the same way.
 - If `ROKE_SERENA=1`, you have the tools of Serena's MCP server to navigate
   and edit code at the symbol level using language servers. To locate
   definitions, find references, inspect a file's structure or rewrite a
