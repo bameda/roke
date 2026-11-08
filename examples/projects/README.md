@@ -24,6 +24,7 @@ can delete it too.
 | [`rails-app`](rails-app/) | Ruby on Rails app | `postgres`, `redis`, `mailpit` | Keeping tests away from the development database |
 | [`java-spring`](java-spring/) | Spring Boot service | `postgres`, `kafka` | Spring properties from the environment, what to do with Testcontainers |
 | [`clojure-app`](clojure-app/) | Clojure app with a REPL | `postgres`, `valkey` | Connecting your editor to the REPL in the box, Serena |
+| [`penpot`](penpot/) | Penpot, with its own devenv | — | Leaving the build to another environment, a project-only MCP server on a port of your machine |
 | [`reference`](reference/) | — | `postgres`, `valkey`, `mailpit`, `elasticsearch` | Every piece: secrets, compose override, a project-only service |
 
 See [per-project settings](../../docs/configuration.md#per-project-settings)

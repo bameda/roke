@@ -1,0 +1,5 @@
+{
+  "description": "Penpot (devenv): the MCP server of Penpot's development environment, on this machine",
+  "url": "http://host.docker.internal:4401/mcp",
+  "allow": ["host:4401"]
+}
