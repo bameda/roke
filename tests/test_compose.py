@@ -8,6 +8,7 @@ import subprocess
 
 import pytest
 from conftest import REPO
+from helpers import catalog_default
 
 EXAMPLES = sorted(p.name for p in (REPO / "examples" / "projects").iterdir() if p.is_dir())
 
@@ -133,3 +134,40 @@ def test_the_box_knows_its_network_policy(env, compose):
     box = json.loads(out)["services"]["box"]["environment"]
     assert box["ROKE_NETWORK"] == "restricted"
     assert box["ROKE_NETWORK_ALLOW_ALL"] == "github.com ui.example.com"
+
+
+def test_playwright_service(env, compose):
+    shop = env.project()
+    env.roke("service", "add", "playwright", cwd=shop)
+    r = env.roke("service", "show", "playwright", cwd=shop, env={"FAKE_REAL_COMPOSE": compose})
+    assert r.code == 0, r.text
+    assert "PW_TEST_CONNECT_WS_ENDPOINT=ws://playwright:3000/" in r.out
+    version = catalog_default("playwright", "PLAYWRIGHT_VERSION")
+    assert f"PLAYWRIGHT_VERSION={version} (pinned)" in r.out
+    out = subprocess.run(
+        [
+            compose,
+            "-f",
+            str(REPO / "compose.yaml"),
+            "-f",
+            str(REPO / "catalog" / "services" / "playwright" / "compose.yaml"),
+            "config",
+            "--format",
+            "json",
+        ],
+        env={
+            "ROKE_AGENT": "claude",
+            "ROKE_CONFIG_DIR": str(env.config),
+            "PROJECT_DIR": str(shop),
+            "ROKE_PROJECT_CONFIG": str(env.config),
+            "PLAYWRIGHT_VERSION": "1.2.3",
+            "PATH": os.environ["PATH"],
+        },
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    service = json.loads(out)["services"]["playwright"]
+    # The image and the package it installs are the same version.
+    assert service["image"] == "roke-playwright:1.2.3"
+    assert service["build"]["args"]["PLAYWRIGHT_VERSION"] == "1.2.3"

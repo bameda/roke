@@ -1,0 +1,23 @@
+# Playwright's browsers · ws://playwright:3000/ · PW_TEST_CONNECT_WS_ENDPOINT
+services:
+  box:
+    environment:
+      # @playwright/test connects to the service's browsers on its own.
+      PW_TEST_CONNECT_WS_ENDPOINT: ws://playwright:3000/
+    depends_on:
+      playwright:
+        condition: service_started
+
+  playwright:
+    # renovate: datasource=npm depName=playwright
+    image: roke-playwright:${PLAYWRIGHT_VERSION:-1.65.0}
+    build:
+      context: ./catalog/services/playwright
+      args:
+        # renovate: datasource=npm depName=playwright
+        PLAYWRIGHT_VERSION: ${PLAYWRIGHT_VERSION:-1.65.0}
+    init: true
+    # Chromium needs more shared memory than Docker's default 64 MB.
+    shm_size: 1gb
+    security_opt:
+      - no-new-privileges:true

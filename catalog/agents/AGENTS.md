@@ -54,6 +54,14 @@ You are running inside an isolated Docker container, not on the user's machine.
   no changes). Never run playbooks against any other host: real
   infrastructure is the user's job, from outside the box. The target has no
   systemd, so tasks that manage services through it will fail there.
+- If `playwright` is in `ROKE_SERVICES`, Playwright's browsers run in that
+  service: `npx playwright test` connects to them through
+  `PW_TEST_CONNECT_WS_ENDPOINT`. Do not install browsers
+  (`npx playwright install`); they cannot run in the box. The browsers reach
+  a dev server in the box at `http://box:PORT`, not `localhost`, and the
+  project's `@playwright/test` must be the service's version, in
+  `PLAYWRIGHT_VERSION`. If you need Playwright and the service is not there,
+  ask the user to add it with `roke service add playwright`.
 - If you start a dev server the user should open in their browser, listen on
   `0.0.0.0` (not `localhost`) and on the port they tell you.
 - There is no browser in the box. If a command needs one (a login, an OAuth

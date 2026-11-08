@@ -9,6 +9,7 @@ explains how to use it. `roke service` shows what is available.
 
 | Service | What for | Inside the box | On your host |
 |---|---|---|---|
+| [`playwright`](playwright/README.md) | Browsers for Playwright tests, which the box cannot run | `PW_TEST_CONNECT_WS_ENDPOINT` | — |
 | [`postgres`](postgres/README.md) | PostgreSQL database | `postgres:5432`, `DATABASE_URL`, `PG*` | |
 | [`mariadb`](mariadb/README.md) | MySQL-compatible database | `mariadb:3306`, `MYSQL_URL`, `MYSQL_*` | |
 | [`mongodb`](mongodb/README.md) | Document database | `mongodb:27017`, `MONGODB_URL` | |

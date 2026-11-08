@@ -77,6 +77,16 @@
         "\"(?<depName>@?[a-z0-9][a-z0-9._/-]*)@(?<currentValue>[0-9][^\"]*)\""
       ],
       "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "description": "Versions in compose files marked with a renovate comment, such as a service built from a package",
+      "managerFilePatterns": [
+        "/(^|/)compose\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+[^\\n]*\\$\\{[A-Z0-9_]+_VERSION:-(?<currentValue>[^}]+)\\}"
+      ]
     }
   ],
   "packageRules": [
@@ -117,6 +127,16 @@
         "registry.k8s.io/kwok/cluster"
       ],
       "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-k8s\\.v[0-9.]+$"
+    },
+    {
+      "description": "Images roke builds itself (roke-*) are not on any registry: their versions come from what they install, marked with renovate comments",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchDepNames": [
+        "/^roke-/"
+      ],
+      "enabled": false
     }
   ]
 }
