@@ -20,6 +20,20 @@ def die(message: str) -> NoReturn:
     raise Fail(message)
 
 
+def use_color(setting: str | None) -> bool:
+    """Whether to colour the output. SETTING is ROKE_COLOR: "always" and
+    "never" decide; "auto", the default, colours a terminal unless NO_COLOR
+    is set or the terminal is dumb."""
+    mode = (setting or "auto").lower()
+    if mode not in ("auto", "always", "never"):
+        die(f"ROKE_COLOR must be auto, always or never, not '{setting}'")
+    if mode != "auto":
+        return mode == "always"
+    if os.environ.get("NO_COLOR") or os.environ.get("TERM") == "dumb":
+        return False
+    return sys.stdout.isatty()
+
+
 def page(text: str) -> None:
     """Print TEXT, through a pager ($PAGER, or less) when it does not fit in
     the terminal."""

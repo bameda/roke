@@ -196,6 +196,20 @@ In this project: used
   ...
 ```
 
+### Colours
+
+`roke service show`, `roke mcp show` and `roke agent show` print each entry's
+README rendered for the terminal: headings, emphasis, code, links, lists
+and tables in colour, through your pager when it does not fit. Colours
+follow `ROKE_COLOR` (in `roke.env`, or for one command): `auto`, the default,
+colours a terminal unless `NO_COLOR` is set or `TERM` is `dumb`; `always`
+colours even when piped (for example to `less -R`); `never` prints plain
+Markdown.
+
+```fish
+ROKE_COLOR=never roke service show postgres
+```
+
 ## Choosing the agent
 
 No agent is the default. The one that runs comes from, in order of

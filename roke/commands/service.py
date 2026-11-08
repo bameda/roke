@@ -3,6 +3,7 @@
 import re
 
 from roke import docker, settings, urls
+from roke.commands.common import readme_section
 from roke.paths import first_line
 from roke.ui import die, info, page
 from roke.workspace import Workspace
@@ -144,11 +145,4 @@ def show_one(req) -> None:
             lines += [f"    {k}={v}" for k, v in variables.items()]
     else:
         lines.append("  (without Docker, its addresses and variables cannot be shown)")
-    page("\n".join(lines + readme_section(path.parent / "README.md")))
-
-
-def readme_section(path) -> list[str]:
-    """A catalog entry's README, to print after its details."""
-    if not path.is_file():
-        return []
-    return ["", "─" * 78, "", path.read_text().rstrip()]
+    page("\n".join(lines + readme_section(path.parent / "README.md", ws)))

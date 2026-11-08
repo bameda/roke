@@ -2,6 +2,7 @@
 in the project or in every project."""
 
 from roke import settings
+from roke.commands.common import readme_section
 from roke.ui import die, info, page
 from roke.workspace import Workspace, split_list
 
@@ -75,11 +76,4 @@ def show_one(req) -> None:
         lines.append("  starts: " + ", ".join(d["services"]))
     if d.get("allow"):
         lines.append("  allows: " + ", ".join(d["allow"]))
-    page("\n".join(lines + readme_section(ws.mcps.file(name).parent / "README.md")))
-
-
-def readme_section(path) -> list[str]:
-    """A catalog entry's README, to print after its details."""
-    if not path.is_file():
-        return []
-    return ["", "─" * 78, "", path.read_text().rstrip()]
+    page("\n".join(lines + readme_section(ws.mcps.file(name).parent / "README.md", ws)))

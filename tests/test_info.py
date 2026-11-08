@@ -141,3 +141,28 @@ def test_lists_point_to_show(env, group):
     env.write_project_env("ROKE_SERVICES=postgres\n")  # adds the versions table
     out = env.roke(group, cwd=shop).out
     assert out.rstrip().endswith(f"More about each one: roke {group} show NAME")
+
+
+@pytest.mark.parametrize(
+    "env_vars,coloured",
+    [
+        ({}, False),  # not a terminal
+        ({"ROKE_COLOR": "always"}, True),
+        ({"ROKE_COLOR": "never"}, False),
+        ({"ROKE_COLOR": "always", "NO_COLOR": "1"}, True),  # an explicit setting wins
+    ],
+)
+def test_readmes_in_colour(env, env_vars, coloured):
+    r = env.roke("agent", "show", "codex", cwd=env.project(), env=env_vars)
+    assert r.code == 0, r.text
+    assert ("\033[" in r.out) is coloured
+    assert "Codex CLI" in r.out
+
+
+def test_roke_color_from_settings_and_invalid(env):
+    shop = env.project()
+    env.append(env.config / "roke.env", "ROKE_COLOR=always\n")
+    assert "\033[" in env.roke("agent", "show", "codex", cwd=shop).out
+    env.write_project_env("ROKE_COLOR=sometimes\n")
+    r = env.roke("agent", "show", "codex", cwd=shop)
+    assert r.code != 0 and "ROKE_COLOR must be auto, always or never" in r.err

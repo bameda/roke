@@ -2,6 +2,8 @@
 small helpers to read the catalog directories."""
 
 import os
+import re
+import subprocess
 from pathlib import Path
 
 BOX_DIR = Path(__file__).resolve().parent.parent
@@ -34,3 +36,22 @@ def entries(directory: Path, marker: str) -> list[str]:
 
 def valid_name(name: str) -> bool:
     return bool(name) and not name.startswith("_") and "/" not in name
+
+
+def repo_web_url() -> str | None:
+    """roke's repository on GitHub, from its installation's origin
+    (https://github.com/OWNER/REPO), or None when it is not on GitHub."""
+    try:
+        origin = subprocess.run(
+            ["git", "-C", str(BOX_DIR), "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        ).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return None
+    m = re.match(
+        r"(?:https://github\.com/|git@github\.com:|ssh://git@github\.com/)([^/]+/[^/]+?)(?:\.git)?/?$",
+        origin,
+    )
+    return f"https://github.com/{m.group(1)}" if m else None

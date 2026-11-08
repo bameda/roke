@@ -1,6 +1,7 @@
 """roke agent: list the agents, use one in the project or by default, reset."""
 
 from roke import settings
+from roke.commands.common import readme_section
 from roke.ui import die, info, page
 from roke.workspace import Workspace
 
@@ -67,11 +68,4 @@ def show_one(req) -> None:
         f"  in the image: {installed}",
         "  allows: " + (", ".join(allow) or "nothing"),
     ]
-    page("\n".join(lines + readme_section(ws.agents.file(name, "README.md"))))
-
-
-def readme_section(path) -> list[str]:
-    """A catalog entry's README, to print after its details."""
-    if not path.is_file():
-        return []
-    return ["", "─" * 78, "", path.read_text().rstrip()]
+    page("\n".join(lines + readme_section(ws.agents.file(name, "README.md"), ws)))
