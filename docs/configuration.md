@@ -249,7 +249,7 @@ documented in its README in [services](../catalog/services/README.md).
 | `ROKE_PARALLEL_AGENTS` | — | Agents that may run at the same time in the project, comma-separated; see [several agents at once](../catalog/agents/README.md#several-agents-at-once) |
 | `ROKE_MCPS` | — | MCP servers, comma-separated; the project's add to the global ones (`roke mcp add`) |
 | `ROKE_NETWORK` | `restricted` | `restricted` or `open` (`--network`); see [Network](network.md) |
-| `ROKE_NETWORK_ALLOW` | — | Allowed destinations, space-separated; the project's add to the global ones (`roke network add`) |
+| `ROKE_NETWORK_ALLOW` | — | Allowed destinations, one per line with a `# note`, or space-separated; the project's add to the global ones (`roke network add`, see [Network](network.md#allowing-destinations)) |
 | `ROKE_PORTS` | — | Ports to publish on 127.0.0.1, space-separated (`-p`) |
 | `ROKE_GIT_RW` | `0` | `1` mounts `.git` read-write (`--git-rw`) |
 | `ROKE_SERENA` | `0` | `1` enables Serena (`--serena`) |

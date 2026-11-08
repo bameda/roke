@@ -77,7 +77,7 @@ remember:
 | Command | Description |
 |---|---|
 | `roke network` | The network mode and the allowed destinations, by layer |
-| `roke network add DEST` | Allow a destination in this project; with `--global`, in every project |
+| `roke network add DEST` | Allow a destination in this project; with `--global`, in every project; `--note TEXT` says what it is for |
 | `roke network rm DEST` | Stop allowing it; with `--global`, in every project |
 | `roke network blocked` | What the project tried to reach and was denied |
 

@@ -41,3 +41,15 @@ def catalog_default(service, var):
     match = re.search(rf"\$\{{{var}:-([^}}]+)\}}", text)
     assert match, f"{var} has no default in catalog/services/{service}/compose.yaml"
     return match.group(1)
+
+
+def allowed_in(path):
+    """The destinations in a settings file's ROKE_NETWORK_ALLOW, without their
+    notes, whether on one line or one per line."""
+    if not path.is_file():
+        return []
+    text = path.read_text()
+    m = re.search(r'^ROKE_NETWORK_ALLOW="([^"]*)"', text, re.M)
+    if not m:
+        return []
+    return [w for line in m.group(1).splitlines() for w in line.split("#", 1)[0].split()]

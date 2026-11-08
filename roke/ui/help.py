@@ -51,7 +51,8 @@ Network
   roke network               The network mode and the allowed destinations
   roke network add DEST      Allow a destination in this project (--global: in
                              every project): a domain, IP or CIDR, with an
-                             optional :port, such as db.example.com:5432
+                             optional :port, such as db.example.com:5432;
+                             --note TEXT says what it is for
   roke network rm DEST       Stop allowing it (--global: in every project)
   roke network blocked       What the project tried to reach and was denied
 

@@ -25,11 +25,15 @@ def render_network(ws) -> str:
         ]
     else:
         lines = ["Allowed destinations (restricted mode), by layer:"]
-    for label, source, entries in ws.allow_layers():
+    layers = ws.allow_layers()
+    width = max((len(e) for _, _, entries in layers for e in entries), default=0)
+    for label, source, entries in layers:
         lines.append(f"  {label:<10} {source}")
-        lines += [f"             {entry}" for entry in sorted(entries, key=_sort_key)] or [
-            "             (none)"
-        ]
+        for entry in sorted(entries, key=_sort_key):
+            note = ws.allow_notes.get((label, entry), "")
+            lines.append(f"             {entry:<{width}}  {note}".rstrip())
+        if not entries:
+            lines.append("             (none)")
     return "\n".join(lines)
 
 
@@ -51,20 +55,38 @@ def change(req) -> None:
         die(f"not a destination: '{dest}' (use a domain, IP or CIDR, with an optional :port)")
     if adding and dest == "host":
         die("allow a port of the host, never the whole host: host:PORT, such as host:4401")
-    current = settings.value_of(path, "ROKE_NETWORK_ALLOW").split()
+    note = (req.note or "").strip()
+    if note and re.search(r'["$`\\]', note):
+        die('a note cannot contain " $ ` or \\ (the settings files are read by bash)')
+    current = settings.noted_entries(settings.value_of(path, "ROKE_NETWORK_ALLOW"))
+    entries = [entry for entry, _ in current]
     if adding:
-        if dest in current:
-            info(f"{dest} is already allowed in {where}")
-            return
-        current.append(dest)
-        verb = "allowed"
+        if dest in entries:
+            old = dict(current)[dest]
+            if not note or note == old:
+                info(f"{dest} is already allowed in {where}")
+                return
+            current = [(e, note if e == dest else n) for e, n in current]
+            verb = "note updated"
+        else:
+            current.append((dest, note))
+            verb = "allowed"
     else:
-        if dest not in current:
+        if dest not in entries:
             die(f"{dest} is not allowed in {where} (see roke network)")
-        current.remove(dest)
+        current = [(e, n) for e, n in current if e != dest]
         verb = "no longer allowed"
-    settings.set_or_drop(path, "ROKE_NETWORK_ALLOW", f'"{" ".join(current)}"' if current else "")
+    settings.set_or_drop(path, "ROKE_NETWORK_ALLOW", allow_value(current))
     info(f"{verb} in {where}: {dest} (from the next start; in {path})")
+
+
+def allow_value(entries: list[tuple[str, str]]) -> str:
+    """ROKE_NETWORK_ALLOW's value: one destination per line, with its note."""
+    if not entries:
+        return ""
+    width = max(len(e) for e, _ in entries)
+    lines = [f"{e:<{width}}  # {n}" if n else e for e, n in entries]
+    return '"\n' + "\n".join(lines) + '\n"'
 
 
 def blocked(req) -> None:

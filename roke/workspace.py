@@ -218,12 +218,25 @@ class Workspace:
         )
 
     def allow_layers(self) -> list:
-        """The allowed destinations by layer: (label, source, entries)."""
+        """The allowed destinations by layer: (label, source, entries). Their
+        notes, from the comments next to them, go to self.allow_notes, by
+        (label, entry)."""
+        self.allow_notes: dict[tuple[str, str], str] = {}
+
+        def noted(label: str, pairs: list[tuple[str, str]]) -> list[str]:
+            for entry, note in pairs:
+                if note:
+                    self.allow_notes[(label, entry)] = note
+            return [entry for entry, _ in pairs]
+
         layers = [
             (
                 "base",
                 "docker/gateway/allow.txt",
-                settings.file_entries(BOX_DIR / "docker" / "gateway" / "allow.txt"),
+                noted(
+                    "base",
+                    settings.file_noted_entries(BOX_DIR / "docker" / "gateway" / "allow.txt"),
+                ),
             )
         ]
         # The agent's destinations, and those of the agents allowed to run in
@@ -231,29 +244,35 @@ class Workspace:
         # of them and starting one does not recreate it under another.
         agents = network_agents(self.agent, self.parallel_agents)
         if agents:
+            label = "agents" if len(agents) > 1 else "agent"
             entries: list[str] = []
             for name in agents:
-                entries += settings.file_entries(self.agents.file(name, "allow.txt"))
+                pairs = settings.file_noted_entries(self.agents.file(name, "allow.txt"))
+                if len(agents) > 1:
+                    pairs = [(e, f"{name}: {n}" if n else name) for e, n in pairs]
+                entries += noted(label, pairs)
             source = " ".join(f"catalog/agents/{name}/allow.txt" for name in agents)
-            layers.append(("agents" if len(agents) > 1 else "agent", source, entries))
+            layers.append((label, source, entries))
         service_allow = []
         for name in self.selected:
-            service_allow += settings.file_entries(self.services.file(name).parent / "allow.txt")
+            pairs = settings.file_noted_entries(self.services.file(name).parent / "allow.txt")
+            service_allow += noted("services", [(e, n or f"service {name}") for e, n in pairs])
         mcp_allow: list[str] = []
         for name in getattr(self, "resolved_mcps", {}):
-            mcp_allow += [str(d) for d in self.mcps.definition(name).get("allow", [])]
+            pairs = [(str(d), f"MCP {name}") for d in self.mcps.definition(name).get("allow", [])]
+            mcp_allow += noted("mcps", pairs)
         return layers + [
             ("services", "catalog/services/<name>/allow.txt", service_allow),
             ("mcps", "catalog/mcps/<name>/mcp.json", mcp_allow),
             (
                 "global",
                 "ROKE_NETWORK_ALLOW in roke.env (roke network add --global)",
-                settings.entries(self.global_allow),
+                noted("global", settings.noted_entries(self.global_allow)),
             ),
             (
                 "project",
                 "ROKE_NETWORK_ALLOW in project.env (roke network add)",
-                settings.entries(self.project_allow),
+                noted("project", settings.noted_entries(self.project_allow)),
             ),
         ]
 

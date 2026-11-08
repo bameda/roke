@@ -30,7 +30,7 @@ USAGES = {
     "service rm": "roke service rm NAME...",
     "mcp add": "roke mcp add NAME... [--global]",
     "mcp rm": "roke mcp rm NAME... [--global]",
-    "network add": "roke network add DEST [--global]",
+    "network add": "roke network add DEST [--global] [--note TEXT]",
     "network rm": "roke network rm DEST [--global]",
 }
 
@@ -50,6 +50,7 @@ class Request:
     values: list = field(default_factory=list)  # names or destinations
     is_global: bool = False
     major: bool = False  # service upgrade --major
+    note: str | None = None  # network add --note
     no_cache: bool = False
     all: bool = False
     help: str | None = None  # set when only the help is wanted
@@ -164,11 +165,17 @@ def parse(argv: list) -> Request:
             req.help = c
             return req
         values = []
-        for a in args:
+        arg_iter = iter(args)
+        for a in arg_iter:
             if a == "--global":
                 req.is_global = True
             elif a == "--major" and c == "service":
                 req.major = True
+            elif a == "--note" or a.startswith("--note="):
+                note = a.partition("=")[2] if "=" in a else next(arg_iter, None)
+                if note is None:
+                    die("--note needs a text, such as --note 'why it is allowed'")
+                req.note = note
             elif a in ("-h", "--help"):
                 req.help = c
                 return req
@@ -184,6 +191,8 @@ def parse(argv: list) -> Request:
             _expect_no_more(req, values)
         if req.major and req.sub != "upgrade":
             die("--major only applies to roke service upgrade")
+        if req.note is not None and (c, req.sub) != ("network", "add"):
+            die("--note only applies to roke network add")
         if c == "agent" and req.sub == "reset" and req.is_global:
             die(
                 "roke agent reset applies to the project; the default agent is set "

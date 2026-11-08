@@ -108,17 +108,32 @@ by layer, so you can see where each entry comes from.
 The quickest way to add one to the current project:
 
 ```fish
-roke network add db.staging.example.com:5432
-roke network add api.example.com
+roke network add db.staging.example.com:5432 --note "staging database"
+roke network add ui.shadcn.com --note "shadcn/ui component registry"
 ```
 
-`roke network add` writes `ROKE_NETWORK_ALLOW` in the project's `project.env`. It
-applies from the next start of the project. For every project, edit
-`ROKE_NETWORK_ALLOW` in `roke.env`:
+`--note` says what a destination is for, and `roke network` shows it next to
+it, as it does for the destinations roke allows by default. Adding a
+destination again with another note changes it.
+
+`roke network add` writes `ROKE_NETWORK_ALLOW` in the project's
+`project.env`, one destination per line, each with its note; `--global`
+writes it in `roke.env`, for every project. It applies from the next start
+of the project. To edit it by hand, use `roke settings edit` (or
+`--global`):
 
 ```dotenv
-ROKE_NETWORK_ALLOW="api.example.com git.corp.example.com:22"
+ROKE_NETWORK_ALLOW="
+db.staging.example.com:5432  # staging database
+ui.shadcn.com                # shadcn/ui component registry
+# Corporate services
+git.corp.example.com:22
+"
 ```
+
+A comment on a line of its own describes the destinations below it, until
+a blank line. Notes cannot contain `"`, `$`, `` ` `` or `\`, since the
+settings files are read by bash.
 
 ## A port of your machine
 

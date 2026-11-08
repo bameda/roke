@@ -1,25 +1,22 @@
 import pytest
-from helpers import env_value
+from helpers import allowed_in
 
 
 def test_add_and_rm_in_the_project(env):
     shop = env.project()
     assert env.roke("network", "add", "db.example.com:5432", cwd=shop).code == 0
     assert env.roke("network", "add", "*.corp.example.com", cwd=shop).code == 0
-    assert (
-        env_value(env.project_env(), "ROKE_NETWORK_ALLOW")
-        == "db.example.com:5432 *.corp.example.com"
-    )
+    assert allowed_in(env.project_env()) == ["db.example.com:5432", "*.corp.example.com"]
     assert "already allowed" in env.roke("network", "add", "db.example.com:5432", cwd=shop).text
     assert env.roke("network", "rm", "db.example.com:5432", cwd=shop).code == 0
-    assert env_value(env.project_env(), "ROKE_NETWORK_ALLOW") == "*.corp.example.com"
+    assert allowed_in(env.project_env()) == ["*.corp.example.com"]
     r = env.roke("network", "rm", "nothere.example.com", cwd=shop)
     assert r.code != 0 and "is not allowed" in r.err
 
 
 def test_add_global(env):
     assert env.roke("network", "add", "api.example.com", "--global", cwd=env.project()).code == 0
-    assert env_value(env.config / "roke.env", "ROKE_NETWORK_ALLOW") == "api.example.com"
+    assert allowed_in(env.config / "roke.env") == ["api.example.com"]
 
 
 @pytest.mark.parametrize("dest", ["bad value!", "http://x.com", "a b"])
@@ -83,7 +80,7 @@ def test_one_destination_per_line(env):
     lines = env.roke("network", cwd=shop).out.splitlines()
     assert "             one.example.com" in lines
     assert "             two.example.com" in lines
-    assert "             github.com" in lines
+    assert any(line.startswith("             github.com ") for line in lines)
 
 
 def test_destinations_are_sorted(env):
@@ -140,3 +137,61 @@ def test_base_allows_what_mise_needs_to_verify_tools(env):
     allowed = env.roke(cwd=env.project()).last("run")["env"]["ROKE_NETWORK_ALLOW_ALL"].split()
     assert "tuf-repo-cdn.sigstore.dev" in allowed
     assert "github.com" in allowed  # and tuf-repo.github.com, GitHub's root, with it
+
+
+def test_notes_on_your_destinations(env):
+    shop = env.project()
+    env.roke("network", "add", "ui.shadcn.com", "--note", "shadcn/ui component registry", cwd=shop)
+    env.roke("network", "add", "db.example.com:5432", cwd=shop)
+    env.roke("network", "add", "db.example.com:5432", "--note=staging database", cwd=shop)
+    text = env.project_env().read_text()
+    assert "ui.shadcn.com        # shadcn/ui component registry" in text
+    assert "db.example.com:5432  # staging database" in text
+    lines = env.roke("network", cwd=shop).out.splitlines()
+    shadcn = [line for line in lines if "ui.shadcn.com" in line]
+    assert len(shadcn) == 1 and shadcn[0].endswith("shadcn/ui component registry")
+    # The gateway gets the destinations only.
+    allowed = env.roke(cwd=shop).last("run")["env"]["ROKE_NETWORK_ALLOW_ALL"].split()
+    assert "ui.shadcn.com" in allowed and "shadcn/ui" not in " ".join(allowed)
+    env.roke("network", "rm", "ui.shadcn.com", cwd=shop)
+    assert "ui.shadcn.com" not in env.project_env().read_text()
+    assert "staging database" in env.project_env().read_text()
+
+
+def test_old_single_line_lists_still_work(env):
+    shop = env.project()
+    env.write_project_env('ROKE_NETWORK_ALLOW="a.example.com b.example.com"\nOTHER=1\n')
+    env.roke("network", "add", "c.example.com", "--note", "new one", cwd=shop)
+    text = env.project_env().read_text()
+    assert "a.example.com\nb.example.com\nc.example.com  # new one" in text
+    assert "OTHER=1" in text
+    allowed = env.roke(cwd=shop).last("run")["env"]["ROKE_NETWORK_ALLOW_ALL"].split()
+    assert {"a.example.com", "b.example.com", "c.example.com"} <= set(allowed)
+
+
+def test_notes_never_become_code(env):
+    shop = env.project()
+    for note in ["x $(touch /tmp/pwned)", "x `id`", 'say "hi"', "back\\slash"]:
+        r = env.roke("network", "add", "evil.example.com", "--note", note, cwd=shop)
+        assert r.code != 0 and "a note cannot contain" in r.err
+    r = env.roke("service", "add", "postgres", "--note", "x", cwd=shop)
+    assert r.code != 0 and "--note only applies to roke network add" in r.err
+
+
+def test_default_destinations_explain_themselves(env):
+    out = env.roke("network", cwd=env.project()).out
+    crates = next(line for line in out.splitlines() if line.strip().startswith("crates.io"))
+    assert crates.endswith("Rust crates")
+    anthropic = next(line for line in out.splitlines() if "api.anthropic.com" in line)
+    assert anthropic.endswith("Claude API")
+
+
+def test_group_comments_are_notes_too(env):
+    """A list written by hand: a comment line names the entries below it."""
+    shop = env.project()
+    env.write_project_env(
+        'ROKE_NETWORK_ALLOW="\n# Staging\napi.staging.example.com\ncdn.staging.example.com\n"\n'
+    )
+    lines = env.roke("network", cwd=shop).out.splitlines()
+    for host in ("api.staging.example.com", "cdn.staging.example.com"):
+        assert next(line for line in lines if host in line).endswith("Staging")

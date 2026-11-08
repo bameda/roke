@@ -1,8 +1,8 @@
-# OpenCode: its own services and model catalog, plus the APIs of common
+# OpenCode: its own services and model catalog, and the APIs of common
 # providers. Add your provider's API to ROKE_NETWORK_ALLOW if it is not here.
-opencode.ai
-models.dev
-api.anthropic.com
-api.openai.com
-openrouter.ai
-generativelanguage.googleapis.com
+opencode.ai                        # OpenCode services
+models.dev                         # OpenCode's model catalog
+api.anthropic.com                  # Anthropic API
+api.openai.com                     # OpenAI API
+openrouter.ai                      # OpenRouter API
+generativelanguage.googleapis.com  # Google Gemini API

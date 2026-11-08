@@ -1,5 +1,5 @@
-# Claude Code: the API, and the login and token refresh (claude.ai,
-# platform.claude.com). With an API key only, the last two are not needed.
-api.anthropic.com
-claude.ai
-platform.claude.com
+# Claude Code. With an API key only, the login and token refresh are not
+# needed.
+api.anthropic.com    # Claude API
+claude.ai            # Claude login
+platform.claude.com  # Claude login and token refresh

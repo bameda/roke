@@ -1,40 +1,40 @@
 # Destinations every project may reach in restricted mode: what mise, the
 # package managers and Serena need to download tools and dependencies.
 # One entry per line: domain (subdomains included), IP or CIDR, each with an
-# optional :port. Agents add their own in catalog/agents/<agent>/allow.txt,
-# services in catalog/services/<name>/allow.txt, and you in ROKE_NETWORK_ALLOW.
+# optional :port, and a # note saying what it is for, which roke network
+# shows. Agents add their own in catalog/agents/<agent>/allow.txt, services
+# in catalog/services/<name>/allow.txt, and you in ROKE_NETWORK_ALLOW.
 
-# GitHub (releases and sources used by mise, uv, Serena...)
-github.com
-githubusercontent.com
-ghcr.io
+# GitHub
+github.com                 # GitHub: sources, releases and API; also GitHub's trust root (tuf-repo.github.com)
+githubusercontent.com      # GitHub: raw files and release downloads
+ghcr.io                    # GitHub's container and package registry
+
 # mise and language runtimes
-jdx.dev
-nodejs.org
-static.rust-lang.org
-go.dev
-dl.google.com
-golang.org
-proxy.golang.org
-sum.golang.org
-adoptium.net
-cache.ruby-lang.org
-python.org
-# Sigstore's trust root, which mise downloads to verify the signatures and
-# attestations of the tools it installs (pnpm, uv...); without it mise
-# refuses to install them. GitHub's own trust root, tuf-repo.github.com, is
-# already covered by github.com above.
-tuf-repo-cdn.sigstore.dev
+jdx.dev                    # mise: tool versions and its own updates
+nodejs.org                 # Node.js runtimes
+static.rust-lang.org       # Rust toolchains
+go.dev                     # Go runtimes
+dl.google.com              # Go runtimes (downloads)
+golang.org                 # Go modules (vanity imports)
+proxy.golang.org           # Go module proxy
+sum.golang.org             # Go checksum database
+adoptium.net               # Java runtimes (Temurin)
+cache.ruby-lang.org        # Ruby sources
+python.org                 # Python sources and installers
+# mise verifies the signatures of the tools it installs with Sigstore's
+# trust root, and refuses to install what it cannot verify.
+tuf-repo-cdn.sigstore.dev  # Sigstore's trust root: mise verifies the tools it installs with it
 
 # Package registries
-registry.npmjs.org
-yarnpkg.com
-pypi.org
-pythonhosted.org
-crates.io
-rubygems.org
-repo.maven.apache.org
-repo1.maven.org
-plugins.gradle.org
-services.gradle.org
-clojars.org
+registry.npmjs.org         # npm packages
+yarnpkg.com                # Yarn
+pypi.org                   # Python packages (index)
+pythonhosted.org           # Python packages (files)
+crates.io                  # Rust crates
+rubygems.org               # Ruby gems
+repo.maven.apache.org      # Maven Central
+repo1.maven.org            # Maven Central (mirror)
+plugins.gradle.org         # Gradle plugins
+services.gradle.org        # Gradle distributions
+clojars.org                # Clojure libraries
