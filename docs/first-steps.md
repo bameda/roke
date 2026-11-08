@@ -34,7 +34,7 @@ from the closest [example project](../examples/projects/README.md), here
 the Node.js one, and edit its settings in `project.env`:
 
 ```fish
-cp -r ~/src/roke/examples/projects/node-app ~/.config/roke/projects/shop
+cp -r ~/.local/share/roke/examples/projects/node-app ~/.config/roke/projects/shop
 cd ~/.config/roke
 $EDITOR projects/shop/project.env
 ```

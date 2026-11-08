@@ -35,7 +35,7 @@ the devenv: it edits the code, and you check it in the devenv.
 2. Copy this configuration, named after the clone's directory (`penpot`):
 
    ```fish
-   cp -r ~/src/roke/examples/projects/penpot ~/.config/roke/projects/penpot
+   cp -r ~/.local/share/roke/examples/projects/penpot ~/.config/roke/projects/penpot
    ```
 
 3. Start the agent in the same clone:

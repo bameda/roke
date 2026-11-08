@@ -151,7 +151,7 @@ Boot, Clojure) and one that uses every piece. To add a project, copy the closest
 what you need:
 
 ```fish
-cp -r ~/src/roke/examples/projects/python-api ~/.config/roke/projects/my-app
+cp -r ~/.local/share/roke/examples/projects/python-api ~/.config/roke/projects/my-app
 ```
 
 Two details:

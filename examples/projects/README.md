@@ -5,7 +5,7 @@ a directory to copy into your configuration, renamed after **your
 project's directory**:
 
 ```fish
-cp -r ~/src/roke/examples/projects/python-api ~/.config/roke/projects/my-api
+cp -r ~/.local/share/roke/examples/projects/python-api ~/.config/roke/projects/my-api
 ```
 
 Then adapt it: every file is optional, so delete what you do not need. The
