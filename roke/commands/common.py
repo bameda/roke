@@ -2,9 +2,8 @@
 
 from pathlib import Path
 
-from roke import markdown
 from roke.paths import BOX_DIR, repo_web_url
-from roke.ui import use_color
+from roke.ui import markdown, use_color
 
 
 def link_resolver(source: Path):

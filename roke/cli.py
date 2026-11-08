@@ -5,7 +5,8 @@ from dataclasses import dataclass, field
 
 from roke import commands
 from roke.commands.settings import EDITABLE
-from roke.ui import USAGE, Fail, die, help_for
+from roke.ui import Fail, die
+from roke.ui.help import USAGE, help_for
 
 RUN_LIKE = ("run", "continue", "shell", "exec", "urls")
 GROUPS: dict[str, dict[str, tuple[int, int | None]]] = {

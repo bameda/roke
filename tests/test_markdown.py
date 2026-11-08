@@ -6,7 +6,7 @@ import pytest
 from conftest import REPO
 
 sys.path.insert(0, str(REPO))
-from roke.markdown import (  # noqa: E402
+from roke.ui.markdown import (  # noqa: E402
     BOLD,
     CODE,
     HEADINGS,

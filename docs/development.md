@@ -17,7 +17,7 @@ standard library, so it only needs Python 3.10 or newer on the host.
 | `roke/docker.py` | Everything that talks to Docker: checking it is there, the running projects, docker compose |
 | `roke/paths.py` | Where roke and your configuration are, and helpers to read the catalog directories |
 | `roke/urls.py` | The output of `roke urls` |
-| `roke/ui.py` | Messages, errors and the help |
+| `roke/ui/` | How roke presents things: messages, errors, the pager and colours (`__init__.py`), the help text (`help.py`) and the terminal Markdown renderer for the READMEs (`markdown.py`) |
 
 Each command is a short function that builds a `Workspace` and calls the
 steps it needs. For example, `roke service add` needs the project and its
