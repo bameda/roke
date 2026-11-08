@@ -8,7 +8,9 @@
 #   ROKE_NETWORK            restricted (default) or open
 #   ROKE_NETWORK_ALLOW_ALL  allowed destinations, whitespace-separated:
 #                           domain, *.domain, IP or CIDR, each with an
-#                           optional :port (example.com:5432, 10.0.0.0/8:22)
+#                           optional :port (example.com:5432, 10.0.0.0/8:22),
+#                           or host:PORT, a port of the host (Docker's
+#                           host.docker.internal), which needs the port
 #   ROKE_FORWARD_<NAME>     "LISTEN_PORT HOST:PORT": forward a gateway port to
 #                           an internal service (the services publish their
 #                           web UIs on the host this way)
@@ -70,6 +72,18 @@ start() {
     host="$entry"
     if [[ "$entry" =~ ^(.+):([0-9]+)$ ]]; then host="${BASH_REMATCH[1]}"; port="${BASH_REMATCH[2]}"; fi
     host="${host#\*.}"
+    if [[ "$host" == host ]]; then
+      # A port of the host, never the whole host.
+      if [[ "$port" == any ]]; then
+        log "WARNING: ignoring 'host' without a port; allow host:PORT"
+        continue
+      fi
+      host="$(getent ahostsv4 host.docker.internal | awk '{print $1; exit}')"
+      if [[ -z "$host" ]]; then
+        log "WARNING: cannot resolve host.docker.internal; ignoring host:$port"
+        continue
+      fi
+    fi
     ports[$port]=1
     if [[ "$host" =~ ^[0-9.]+(/[0-9]+)?$ ]]; then
       elems+=("add element inet roke $(set_name "$port") { $host }")

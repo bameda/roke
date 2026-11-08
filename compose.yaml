@@ -14,6 +14,9 @@ services:
       ROKE_NETWORK_ALLOW_ALL: ${ROKE_NETWORK_ALLOW_ALL:-}
     cap_add:
       - NET_ADMIN
+    # The host, for the ports allowed as host:PORT (roke network add host:4401).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       default:
         aliases: [box]   # the box listens in the gateway's network namespace

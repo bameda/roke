@@ -100,3 +100,12 @@ def test_destinations_are_sorted(env):
     base = out.split("  base")[1].split("  agent")[0].splitlines()[1:]
     entries = [line.strip() for line in base]
     assert entries == sorted(entries, key=lambda e: e.removeprefix("*.").lower())
+
+
+def test_a_port_of_the_host(env):
+    shop = env.project()
+    r = env.roke("network", "add", "host", cwd=shop)
+    assert r.code != 0 and "never the whole host" in r.err
+    assert env.roke("network", "add", "host:4401", cwd=shop).code == 0
+    allowed = env.roke(cwd=shop).last("run")["env"]["ROKE_NETWORK_ALLOW_ALL"].split()
+    assert "host:4401" in allowed

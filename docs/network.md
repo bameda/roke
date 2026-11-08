@@ -7,6 +7,7 @@ anywhere else, nor reach your LAN or your VPN.
 - [How the pieces fit](#how-the-pieces-fit)
 - [Restricted and open mode](#restricted-and-open-mode)
 - [Allowing destinations](#allowing-destinations)
+- [A port of your machine](#a-port-of-your-machine)
 - [When something cannot connect](#when-something-cannot-connect)
 - [Publishing ports](#publishing-ports)
 - [Limitations](#limitations)
@@ -99,6 +100,7 @@ Each entry is one of:
 | `db.example.com:5432` | the domain and its subdomains, on that port only |
 | `203.0.113.10` | that address, on any port |
 | `10.20.0.0/16:22` | that range, on that port only |
+| `host:4401` | that port of your machine, the host (see [a port of your machine](#a-port-of-your-machine)) |
 
 `roke settings` shows the resulting list for the current project, layer
 by layer, so you can see where each entry comes from.
@@ -117,6 +119,21 @@ applies from the next start of the project. For every project, edit
 ```dotenv
 ROKE_NETWORK_ALLOW="api.example.com git.corp.example.com:22"
 ```
+
+## A port of your machine
+
+The box cannot reach your machine, the host, by design. To let it reach one
+service running there, such as an MCP server or a development environment,
+allow that port, one at a time:
+
+```fish
+roke network add host:4401
+```
+
+Inside the box, the host is `host.docker.internal`, so the agent reaches it
+at `host.docker.internal:4401`. The whole host is never allowed: `host`
+needs a port. The service on your machine must listen on an address Docker
+can reach, such as `0.0.0.0`, not only on `127.0.0.1`.
 
 ## When something cannot connect
 

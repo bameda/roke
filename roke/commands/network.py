@@ -48,6 +48,8 @@ def change(req) -> None:
         path, where = ws.project.env_file, ws.project.name
     if adding and not DESTINATION.fullmatch(dest):
         die(f"not a destination: '{dest}' (use a domain, IP or CIDR, with an optional :port)")
+    if adding and dest == "host":
+        die("allow a port of the host, never the whole host: host:PORT, such as host:4401")
     current = settings.value_of(path, "ROKE_NETWORK_ALLOW").split()
     if adding:
         if dest in current:

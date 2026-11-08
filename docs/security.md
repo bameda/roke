@@ -67,6 +67,9 @@ container, with files the agent cannot modify.
 - **Tokens you give to MCP servers.** An MCP server can do outside the box
   whatever its token allows, for example in GitHub. Give each token only
   the access the agent needs; see [MCP servers](../mcps/README.md).
+- **Ports of your machine you allow.** `roke network add host:PORT` lets
+  the box reach that port of your machine; whatever listens there is then
+  within the agent's reach. See [Network](network.md#a-port-of-your-machine).
 - **Allowed destinations.** In restricted mode, the box can still reach
   the destinations you allow, and in open mode anything at all. See
   [Network](network.md).

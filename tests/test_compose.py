@@ -83,6 +83,25 @@ def test_service_show(env, compose):
     assert "from your browser: http://127.0.0.1:8025" in r.out
 
 
+def test_the_gateway_knows_the_host(env, compose):
+    """host:PORT entries rely on host.docker.internal in the gateway."""
+    out = subprocess.run(
+        [compose, "-f", str(REPO / "compose.yaml"), "config", "--format", "json"],
+        env={
+            "ROKE_AGENT": "claude",
+            "ROKE_CONFIG_DIR": str(env.config),
+            "PROJECT_DIR": str(env.project()),
+            "ROKE_PROJECT_CONFIG": str(env.config),
+            "PATH": os.environ["PATH"],
+        },
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    extra_hosts = json.loads(out)["services"]["gateway"]["extra_hosts"]
+    assert "host.docker.internal" in str(extra_hosts) and "host-gateway" in str(extra_hosts)
+
+
 def test_ldap_service(env, compose):
     shop = env.project()
     r = env.roke("service", "show", "ldap", cwd=shop, env={"FAKE_REAL_COMPOSE": compose})
