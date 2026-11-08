@@ -17,6 +17,6 @@ services:
         condition: service_started
 
   mailpit:
-    image: axllent/mailpit:${MAILPIT_VERSION:-v1.33.0}
+    image: axllent/mailpit:${MAILPIT_VERSION:-v1.33.1}
     security_opt:
       - no-new-privileges:true
