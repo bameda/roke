@@ -34,6 +34,15 @@ run two agents at once, list them in `ROKE_PARALLEL_AGENTS` in the project's
 otherwise use the same agent and options as the open session, or finish it
 first (or run `roke down`).
 
+### `mise ERROR ... GitHub artifact attestations verification failed`
+
+mise verifies the signature of the tools it installs, and needs Sigstore's
+trust root for it, from `tuf-repo-cdn.sigstore.dev`, which roke allows by
+default. If you still see this, run `roke network blocked` to find what
+else it tried to reach. Turning the verification off
+(`MISE_GITHUB_ATTESTATIONS=false`) would install the tool without checking
+where it comes from: allow what is missing instead.
+
 ### Something cannot connect (a download, an API, a database...)
 
 The network is restricted by default. Run `roke network blocked` to see what the

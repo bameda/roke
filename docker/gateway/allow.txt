@@ -20,6 +20,12 @@ sum.golang.org
 adoptium.net
 cache.ruby-lang.org
 python.org
+# Sigstore's trust root, which mise downloads to verify the signatures and
+# attestations of the tools it installs (pnpm, uv...); without it mise
+# refuses to install them. GitHub's own trust root, tuf-repo.github.com, is
+# already covered by github.com above.
+tuf-repo-cdn.sigstore.dev
+
 # Package registries
 registry.npmjs.org
 yarnpkg.com

@@ -132,3 +132,11 @@ def test_annotate_matches_domains_and_subdomains():
     out = annotate(report, {"example.com": "why"}).splitlines()
     assert out[0].endswith("(why)") and out[1].endswith("(why)")
     assert out[2].endswith("1 lookups")
+
+
+def test_base_allows_what_mise_needs_to_verify_tools(env):
+    """mise verifies signatures with Sigstore's trust root, and refuses to
+    install a tool it cannot verify."""
+    allowed = env.roke(cwd=env.project()).last("run")["env"]["ROKE_NETWORK_ALLOW_ALL"].split()
+    assert "tuf-repo-cdn.sigstore.dev" in allowed
+    assert "github.com" in allowed  # and tuf-repo.github.com, GitHub's root, with it

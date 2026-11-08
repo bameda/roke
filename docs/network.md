@@ -84,7 +84,7 @@ add what is specific to you:
 
 | Layer | Where | What it covers |
 |---|---|---|
-| Base | `docker/gateway/allow.txt` in this repository | What mise, the package managers and Serena need: GitHub, npm, PyPI, crates.io, Maven Central... |
+| Base | `docker/gateway/allow.txt` in this repository | What mise, the package managers and Serena need: GitHub, npm, PyPI, crates.io, Maven Central..., and Sigstore's trust root, with which mise verifies what it installs |
 | Agent | `catalog/agents/<agent>/allow.txt` | The agent's API and login, and those of the agents in `ROKE_PARALLEL_AGENTS` (see [several agents at once](../catalog/agents/README.md#several-agents-at-once)) |
 | Services | `catalog/services/<name>/allow.txt` | Rarely needed: services have no route out anyway |
 | MCP servers | `allow` in `catalog/mcps/<name>/mcp.json` | What the project's [MCP servers](../catalog/mcps/README.md) need |
