@@ -47,13 +47,15 @@ agent's reach.
    ```fish
    cd ~/src/my-project
    roke build
+   roke
    ```
 
-   The first time, log in from inside the agent; see its
-   [README](catalog/agents/README.md).
+   `build` prepares the images; `roke` opens the agent. If the agent needs
+   authentication with its provider, follow its
+   [instructions](catalog/agents/README.md). roke itself has no account.
 
-Then follow [First steps](docs/first-steps.md) to set up a project with its
-services and tools.
+Follow [First steps](docs/first-steps.md) to continue sessions, add services
+and MCP tools, allow network destinations and start another project.
 
 ## Everyday use
 
@@ -69,7 +71,7 @@ roke settings show acme-api # another registered project's settings, from anywhe
 roke service show postgres  # a service: version, address, variables, docs
 roke settings edit          # edit the project's settings in your editor
 roke service add postgres   # add a service to the project, for good
-roke mcp add github         # give the agent an MCP server, for good
+roke mcp add context7       # give the agent library documentation tools
 roke agent use opencode     # use another agent in the project, for good
 roke network blocked        # what the network denied
 roke down                   # stop the project's containers (keeps data)
@@ -86,7 +88,7 @@ See [project IDs and moves](docs/configuration.md#project-ids-and-moves).
 | Guide | What you will find |
 |---|---|
 | [Installation](docs/installation.md) | Docker on each distribution, installing and updating roke, rootless Docker |
-| [First steps](docs/first-steps.md) | Step-by-step tutorial: adding a project |
+| [First steps](docs/first-steps.md) | Start in your project, continue sessions and add services, MCP tools and network access |
 | [Usage](docs/usage.md) | Every `roke` option, ports, git workflow, stopping and resetting |
 | [Agents](catalog/agents/README.md) | The available agents, choosing one, how each logs in and is configured, adding another |
 | [Configuration](docs/configuration.md) | `~/.config/roke`, keeping it in a private repo, per-project settings, tools, settings reference |

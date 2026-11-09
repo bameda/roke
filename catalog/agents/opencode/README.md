@@ -15,7 +15,8 @@ version.
 
 Run `/connect` inside OpenCode and follow the steps. The credentials are kept
 in the project's home volume (`~/.local/share/opencode/auth.json`), not in your real
-`$HOME`, and work for every project. Alternatively, put the provider's API
+`$HOME`, and persist for later sessions of this project. A separate project
+has its own home and login. Alternatively, put the provider's API
 key in `~/.config/roke/secrets.env`.
 
 ## Your configuration

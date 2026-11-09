@@ -138,12 +138,15 @@ Then build the image and start the agent in a project:
 ```fish
 cd ~/src/my-project
 roke build
+roke
 ```
 
-The first time, log in from inside the agent, as its README explains
+`roke build` prepares the images; `roke` starts the agent. If the agent needs
+authentication with its provider, follow its README
 ([Claude Code](../catalog/agents/claude/README.md#log-in),
 [Codex](../catalog/agents/codex/README.md#log-in),
-[OpenCode](../catalog/agents/opencode/README.md#log-in)). The login is stored in the
+[OpenCode](../catalog/agents/opencode/README.md#log-in)). roke itself has no
+account. The agent's login is stored in the
 project's own home volume, not in your real `$HOME`, so you log in once
 per project. An API key in `~/.config/roke/secrets.env` works for every
 project instead.

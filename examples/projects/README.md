@@ -1,8 +1,11 @@
 # Example projects
 
-Ready-made project configurations for common kinds of projects. Each one is
-a directory to copy into your configuration, renamed after **your
-project's directory**:
+Optional project configurations for common stacks. You can start with the
+commands in [First steps](../../docs/first-steps.md) and consult these
+examples when you need more customization.
+
+To use one as a starting point, copy it into your configuration, named after
+your **project ID**, which defaults to the project's directory name:
 
 ```fish
 cp -r ~/.local/share/roke/examples/projects/python-api ~/.config/roke/projects/my-api

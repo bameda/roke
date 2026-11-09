@@ -1,167 +1,181 @@
-# First steps: adding a project
+# First steps with your project
 
-This guide walks through adding a project to roke, using a concrete
-example: a Node app in `~/src/shop` that uses PostgreSQL and Redis and runs a
-dev server on port 5173.
+Start in your own project's directory and add what you need as you go.
+roke registers the project automatically; you do not need to copy an example
+or create configuration files first.
 
-## 0. Before you start
+## 1. Start your first session
 
-You need roke installed and its image built, an agent chosen with
-`ROKE_AGENT`, and to have logged in from inside the agent once: see
-[Installation](installation.md). Each project has its own home, so you log
-in once in each one (or use an API key in `secrets.env` for all of them).
-
-## 1. Decide what the project needs
-
-Before configuring anything, answer these questions:
-
-- **Which agent?** The one in `roke.env` applies to every project; set
-  `ROKE_AGENT` in the project's settings to use another one there.
-- **Which services does it use?** Check the catalog with `roke service`.
-  The [service catalog](../catalog/services/README.md) links to a guide for each one
-  explaining how your app connects to it.
-- **Is there a port you want to open in your browser?** For example, the dev
-  server's.
-- **Do you want Serena?** It pays off in medium and large repos.
-- **Should the agent be allowed to commit?** Recommended: no. You review the
-  diff and commit yourself.
-
-## 2. Create its directory in your configuration
-
-Each project has a directory in your configuration, `~/.config/roke`, named
-after its **project ID**, which defaults to its directory name:
-for `~/src/shop`, `projects/shop/`. Start
-from the closest [example project](../examples/projects/README.md), here
-the Node.js one, and edit its settings in `project.env`:
-
-```fish
-cp -r ~/.local/share/roke/examples/projects/node-app ~/.config/roke/projects/shop
-cd ~/.config/roke
-$EDITOR projects/shop/project.env
-```
-
-```dotenv
-ROKE_SERVICES=postgres,redis
-ROKE_PORTS="5173"
-ROKE_SERENA=1
-POSTGRES_DB=shop
-```
-
-If a service of this project publishes a web UI, such as Mailpit, and you
-will have another project open at the same time, change its port here (for
-example, `MAILPIT_UI_PORT=18025`).
-
-If you keep your configuration in a
-[private repository](configuration.md#keeping-it-in-a-private-repository)
-(recommended), commit the directory there:
-
-```fish
-git add projects/shop
-git commit -m "chore: add shop project"
-```
-
-Either way it stays out of the agent's reach: `roke` never mounts your
-configuration directory.
-
-## 3. (Optional) Everything else the project needs
-
-The project's directory can hold more than its settings. Add only what you
-need; the [`reference`](../examples/projects/reference/) example has a
-sample of each:
-
-- `secrets.env`, for secrets only this project uses;
-- `AGENTS.md`, with private instructions for the agent in this project;
-- `compose.yaml`, to tweak a service (for example, PostGIS instead of
-  PostgreSQL);
-- `services/<name>/`, for services that are not in the catalog and only
-  this project needs.
-
-See [per-project settings](configuration.md#per-project-settings) for the
-details of each one.
-
-## 4. Declare the language tools
-
-In the project itself, create a `mise.toml`. It is installed automatically on
-startup and cached for next time.
-
-```toml
-# ~/src/shop/mise.toml
-[tools]
-node = "22"
-```
-
-If you skip this, the agent can add it itself with `mise use node@22`.
-
-## 5. Make the app work inside the box
-
-Two things to check:
-
-- **Service connections.** The app must read the variables that already
-  exist inside the container, such as `DATABASE_URL` and `REDIS_URL`, instead
-  of pointing to `localhost`.
-- **Dev server.** It must listen on `0.0.0.0`. With Vite, for example:
-  `vite --host 0.0.0.0`.
-
-The box's instructions already explain both to the agent, so you can simply
-ask it to do this.
-
-## 6. First start and checks
-
-```fish
-cd ~/src/shop
-roke shell
-```
-
-The line `[roke] project: ... services: postgres,redis ... serena: yes`
-confirms your settings were picked up. Inside the shell, check that
-everything responds:
+You need Docker with Compose and roke installed: see
+[Installation](installation.md) if you have not done that yet. If you have
+not chosen a default agent yet, choose one once:
 
 ```bash
-env | grep -E 'DATABASE_URL|REDIS_URL|ROKE'
-psql -c 'select 1'
-redis-cli -u "$REDIS_URL" ping
-exit
+roke agent use claude --global   # or codex, or opencode
 ```
 
-## 7. First session
+Run these commands in your terminal on the host, in the directory containing
+your code:
 
-```fish
+```bash
+cd ~/src/my-project
+roke build
 roke
 ```
 
-Inside, run `/init` so the agent analyses the project and writes its
-instructions file, with conventions, build and test commands and structure:
-`CLAUDE.md` for Claude Code, `AGENTS.md` for Codex and OpenCode. Review it
-and commit it from the host.
+`roke build` prepares the images. `roke` starts the agent inside the isolated
+box, with access to your project. The project ID defaults to the directory
+name, and roke remembers it for subsequent commands. If that ID is already
+taken, choose another with `roke build --id my-project-work` before starting
+the agent. See [project IDs and moves](configuration.md#project-ids-and-moves).
 
-If the project's team uses different agents, keep a single `AGENTS.md`:
-Codex and OpenCode read it, and so does Claude Code when the project has
-no `CLAUDE.md`.
+Your agent may need authentication with its provider. This is the agent's
+account, not a roke account; follow its instructions:
+[Claude Code](../catalog/agents/claude/README.md#log-in),
+[Codex](../catalog/agents/codex/README.md#log-in) or
+[OpenCode](../catalog/agents/opencode/README.md#log-in).
+Credentials are kept in this project's own home volume and persist between
+its sessions. If you already configured an API key, follow the relevant
+agent's instructions for using it.
 
-If you enabled Serena, a `.serena/` directory will appear. Decide whether to
-commit it or add it to `.gitignore`.
+You can now work with the agent. Ask it to read the project, explain how to
+run it, or make a change. It can install the project's language tools with
+[mise](configuration.md#languages-and-tools).
 
-## 8. Day to day
+## 2. Continue a session
 
-```fish
-cd ~/src/shop
-roke                        # new session
-roke continue               # resume the last one
-git diff                    # on the host: review what it did
-git commit -am "feat: ..."  # and commit it yourself
-roke down                   # when done, stop PostgreSQL and Redis
+Exit the agent to return to your host terminal. From the same project
+directory, resume its last session with:
+
+```bash
+roke continue
 ```
 
-The database keeps its data between sessions, even after `roke down`. See
-[Usage](usage.md) for every option.
+Use `roke` instead to start a new conversation. You do not need to repeat
+the project ID, agent choice or saved settings each time.
 
-## 9. Removing a project
+The following sections show optional additions. Run their `roke` commands
+in your host terminal, after leaving the agent. Changes apply on the next
+start: use `roke continue` to resume your conversation with the updated
+environment, or `roke` for a new one.
 
-```fish
-cd ~/src/shop
-roke purge                     # stops the services and deletes their data
-rm -r ~/.config/roke/projects/shop
+## 3. Add a service
+
+List the available services, add one to this project and inspect its
+connection details:
+
+```bash
+roke service
+roke service add postgres
+roke service show postgres
 ```
 
-If you keep your configuration in a repository, commit the removal there
-too.
+PostgreSQL starts with your next session. The box receives its connection
+variables, including `DATABASE_URL`; the app should use those rather than
+connect to `localhost`. You can ask the agent to adapt the app to them.
+
+Add more services as needed, for example `roke service add redis mailpit`.
+You can run a client yourself inside the box with `roke exec psql`.
+For more details, see the [service catalog](../catalog/services/README.md).
+
+## 4. Add an MCP server
+
+MCP servers give the agent additional tools. For example, Context7 provides
+library documentation:
+
+```bash
+roke mcp
+roke mcp add context7
+roke mcp show context7
+```
+
+The MCP is available on the next session start. Some MCP servers need
+credentials: `roke mcp show NAME` explains their requirements. Use
+`roke settings edit secrets` to configure secrets for this project; see the
+[MCP guide](../catalog/mcps/README.md) for each server's instructions.
+
+## 5. Allow a network destination
+
+The box has a restricted network by default. If a download or API request
+fails, leave the agent and inspect what was blocked:
+
+```bash
+roke network blocked
+```
+
+Allow a destination you need, with a note explaining why:
+
+```bash
+roke network add api.example.com --note "API used by this project"
+```
+
+Replace `api.example.com` with the domain you need from the blocked report.
+Use a domain, IP or address with a port, such as `db.example.com:5432`,
+rather than a full URL with `https://` and a path. Start the session again
+to apply the change. `roke network` shows the allowed destinations; the
+[network guide](network.md) explains the policy in detail.
+
+## 6. Open your app in the browser
+
+If the agent runs a web app on port 5173, publish that port when starting
+the session:
+
+```bash
+roke continue -p 5173
+```
+
+Ask the agent to make the dev server listen on `0.0.0.0`. Then open
+`http://127.0.0.1:5173` in your browser. From another host terminal in the
+project directory, `roke urls -p 5173` shows that address and any service
+web UIs.
+
+To save the port for future sessions, run `roke settings edit` and set
+`ROKE_PORTS="5173"`. Services such as Mailpit publish their own web UIs;
+their ports do not need `-p`.
+
+## 7. Check the environment and finish for the day
+
+From your host terminal:
+
+```bash
+roke settings              # the current project's effective settings
+roke logs --tail 50         # recent gateway and service logs
+roke doctor                # diagnose configuration and setup problems
+git diff                   # review the agent's changes
+roke down                  # stop the project's containers, keeping their data
+```
+
+By default, `.git` is read-only inside the box: review and commit changes
+on the host. Exiting the agent keeps the project's services running;
+`roke down` stops them. Your database data, agent credentials and sessions
+remain available next time. `roke purge` deletes those volumes; see
+[Usage](usage.md#projects-and-their-services) before using it.
+
+## 8. Start another project
+
+Enter another directory containing your code and start roke there:
+
+```bash
+cd ~/src/another-project
+roke
+```
+
+The base images are shared, so you usually do not need to build them again.
+Some services have their own image build; their README explains what they
+need. Each project has separate services, data, agent credentials and sessions.
+Add its services, MCP servers and allowed destinations using the same commands
+as above. `roke continue` resumes the session of the project you are in.
+
+`roke project` lists registered IDs and paths. From any directory,
+`roke settings show ID` shows a registered project's settings.
+
+## Further configuration and examples
+
+Once you need more customization, see [Configuration](configuration.md)
+for saved settings, private instructions, Compose overrides and keeping
+your configuration in a private repository. [Serena](serena.md) adds
+optional semantic code navigation.
+
+The [example projects](../examples/projects/README.md) show configurations
+for common stacks. Use them as references, or copy one if it matches what
+you need. They are optional; the commands above are enough to get started.
