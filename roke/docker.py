@@ -99,17 +99,30 @@ class Compose:
 
     def running(self, service: str) -> bool:
         out = self.call("ps", "--status", "running", "--quiet", service, capture=True)
+        if out.returncode:
+            detail = out.stderr.strip() or "docker compose ps failed"
+            die(f"could not check whether {service} is running: {detail}")
         return bool(out.stdout.strip())
 
     def config_hashes(self) -> dict[str, str]:
         """The hash of each service's configuration, as compose computes it to
         decide whether a running container must be recreated."""
-        out = self.call("config", "--hash", "*", capture=True).stdout
-        return dict(line.split(None, 1) for line in out.splitlines() if " " in line.strip())
+        result = self.call("config", "--hash", "*", capture=True)
+        if result.returncode:
+            detail = result.stderr.strip() or "docker compose config failed"
+            die(f"could not check Compose configuration: {detail}")
+        return dict(
+            line.split(None, 1) for line in result.stdout.splitlines() if " " in line.strip()
+        )
 
     def config(self, files=None) -> dict:
         """The resolved configuration, as docker compose reports it."""
         out = self.call("config", "--format", "json", files=files, capture=True)
+        if out.returncode:
+            die(
+                "could not read the project's compose configuration: "
+                + (out.stderr.strip() or "docker compose config failed")
+            )
         try:
             return json.loads(out.stdout)
         except ValueError:

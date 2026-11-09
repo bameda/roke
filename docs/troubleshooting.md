@@ -29,6 +29,12 @@ settings in `project.env`. The line `[roke] project: ...` printed on start
 shows the services and options that were applied, and `roke settings`
 shows every setting of the project and where it comes from.
 
+### `could not load settings from ...`
+
+The named `.env` file failed while Bash was reading it. Check its shell
+syntax and any commands it runs. Settings files are sourced as shell files;
+`roke settings edit` also checks their syntax when you close the editor.
+
 ### `the project is already running ...`
 
 Another session of the same project is open, and starting this one would

@@ -59,6 +59,9 @@ if args[:1] == ["compose"]:
         print("\n".join(os.environ.get("FAKE_COMPOSE_LS", "").split()))
         sys.exit(0)
     if "ps" in rest:
+        if os.environ.get("FAKE_COMPOSE_FAIL") == "ps":
+            print("daemon unavailable", file=sys.stderr)
+            sys.exit(1)
         if os.environ.get("FAKE_RUNNING"):
             print("0123456789ab")
         sys.exit(0)
@@ -68,6 +71,9 @@ if args[:1] == ["compose"]:
         print("  news.oraios-software.de                            2 lookups")
         sys.exit(0)
     if "config" in rest:
+        if os.environ.get("FAKE_COMPOSE_FAIL") == "config":
+            print("invalid compose file", file=sys.stderr)
+            sys.exit(1)
         real = os.environ.get("FAKE_REAL_COMPOSE")
         if real and "--hash" in rest:
             # Record the hashes, so tests can compare them between runs.

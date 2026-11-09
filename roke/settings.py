@@ -8,14 +8,30 @@ import re
 import subprocess
 from pathlib import Path
 
-_DUMP = 'set -a; for f in "$@"; do [ -f "$f" ] && . "$f"; done; env -0'
+from roke.ui import die
+
+_DUMP = (
+    'set -a; for f in "$@"; do '
+    '[ -f "$f" ] || continue; '
+    '. "$f" || { printf "ROKE_SETTINGS_ERROR:%s\\n" "$f" >&2; exit 1; }; '
+    "done; env -0"
+)
 
 
 def load(files: list[Path], base: dict[str, str]) -> dict[str, str]:
     """The environment BASE after sourcing FILES in order."""
-    out = subprocess.run(
-        ["bash", "-c", _DUMP, "roke", *map(str, files)], env=base, capture_output=True, check=True
-    ).stdout
+    result = subprocess.run(
+        ["bash", "-c", _DUMP, "roke", *map(str, files)], env=base, capture_output=True
+    )
+    if result.returncode:
+        marker = "ROKE_SETTINGS_ERROR:"
+        lines = result.stderr.decode(errors="replace").splitlines()
+        path = next(
+            (line[len(marker) :] for line in reversed(lines) if line.startswith(marker)), ""
+        )
+        source = path or "an env file"
+        die(f"could not load settings from {source}; check its shell syntax and commands")
+    out = result.stdout
     env = {}
     for item in out.decode(errors="replace").split("\0"):
         if "=" in item:
