@@ -19,7 +19,7 @@ services:
         condition: service_healthy
 
   seaweedfs:
-    image: chrislusf/seaweedfs:${SEAWEEDFS_VERSION:-4.52}
+    image: chrislusf/seaweedfs:${SEAWEEDFS_VERSION:-4.53}
     environment:
       SEAWEEDFS_ACCESS_KEY: ${SEAWEEDFS_ACCESS_KEY:-dev}
       SEAWEEDFS_SECRET_KEY: ${SEAWEEDFS_SECRET_KEY:-devdevdev}
