@@ -5,6 +5,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,7 @@ import pytest
 REPO = Path(__file__).resolve().parent.parent
 ROKE = REPO / "bin" / "roke"
 FAKES = Path(__file__).resolve().parent / "fakes"
+_skipped_reports = []
 
 
 def real_compose():
@@ -27,6 +29,40 @@ def real_compose():
         if os.access(candidate, os.X_OK):
             return candidate
     return None
+
+
+def pytest_sessionstart(session):
+    _skipped_reports.clear()
+    if os.environ.get("ROKE_REQUIRE_COMPOSE") == "1":
+        path = real_compose()
+        if not path:
+            pytest.exit("CI requires a real Docker Compose binary; none was found", returncode=4)
+        try:
+            result = subprocess.run([path, "version"], capture_output=True, timeout=10)
+        except (OSError, subprocess.TimeoutExpired):
+            pytest.exit(f"CI requires a working Docker Compose binary: {path}", returncode=4)
+        if result.returncode:
+            pytest.exit(f"CI requires a working Docker Compose binary: {path}", returncode=4)
+
+
+def pytest_collectreport(report):
+    if report.skipped:
+        _skipped_reports.append(report.nodeid)
+
+
+def pytest_runtest_logreport(report):
+    if report.skipped and not hasattr(report, "wasxfail"):
+        _skipped_reports.append(report.nodeid)
+
+
+def pytest_sessionfinish(session, exitstatus):
+    if os.environ.get("ROKE_REQUIRE_NO_SKIPS") == "1" and _skipped_reports:
+        print(
+            f"CI requires all selected tests to run: {len(_skipped_reports)} skipped",
+            file=sys.stderr,
+        )
+        if exitstatus == pytest.ExitCode.OK:
+            session.exitstatus = pytest.ExitCode.TESTS_FAILED
 
 
 class Result:

@@ -139,6 +139,13 @@ and `roke urls`, also need a real Docker Compose binary; they are skipped
 when there is none. GitHub Actions runs these tests on each push and pull
 request (`.github/workflows/test.yml`).
 
+The CI `test` job requires a working Compose binary and excludes the real
+Docker integration directory. `ROKE_REQUIRE_COMPOSE=1` makes a missing or
+broken Compose binary fail the run before tests start. Both CI jobs set
+`ROKE_REQUIRE_NO_SKIPS=1`: an unexpected skip during collection or execution
+fails the job instead of hiding missing coverage. These flags are unset in
+normal local runs, where optional prerequisites can still cause skips.
+
 ### Real Docker tests
 
 `tests/integration/` runs in a separate CI job with a Docker daemon. It

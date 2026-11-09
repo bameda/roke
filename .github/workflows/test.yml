@@ -19,7 +19,10 @@ jobs:
       - name: Checks (pre-commit)
         run: uvx pre-commit run --all-files --show-diff-on-failure
       - name: Tests
-        run: uvx pytest
+        env:
+          ROKE_REQUIRE_COMPOSE: "1"
+          ROKE_REQUIRE_NO_SKIPS: "1"
+        run: uvx pytest --ignore=tests/integration -rs
 
   docker-integration:
     runs-on: ubuntu-latest
@@ -36,4 +39,5 @@ jobs:
       - name: Real Docker tests
         env:
           ROKE_DOCKER_TESTS: "1"
-        run: uvx pytest tests/integration -v
+          ROKE_REQUIRE_NO_SKIPS: "1"
+        run: uvx pytest tests/integration -v -rs
