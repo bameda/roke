@@ -77,6 +77,9 @@ if args[:1] == ["compose"]:
         print("  news.oraios-software.de                            2 lookups")
         sys.exit(0)
     if "config" in rest:
+        if os.environ.get("FAKE_BAD_CONFIG"):
+            print("services: {}")
+            sys.exit(0)
         if os.environ.get("FAKE_COMPOSE_FAIL") == "config":
             print("invalid compose file", file=sys.stderr)
             sys.exit(1)
@@ -97,6 +100,10 @@ if args[:1] == ["compose"]:
             for item in filter(None, os.environ.get("FAKE_CONFIG_HASHES", "").split(",")):
                 print(" ".join(item.split("=", 1)))
             sys.exit(0)
-        print("services: {}")
+        print(
+            json.dumps(
+                {"services": {"box": {"image": os.environ.get("ROKE_BOX_IMAGE", "roke:latest")}}}
+            )
+        )
         sys.exit(0)
 sys.exit(0)

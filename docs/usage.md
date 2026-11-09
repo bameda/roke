@@ -59,8 +59,10 @@ them before the arguments passed to Compose.
 | `roke down [--all]` | Stop the project's containers, or every project's; their data is kept |
 | `roke purge` | Stop them and delete all the project's data |
 
-The box and gateway images are shared across projects, so a single build
-usually suffices when they use the same build settings. `roke build` also
+Projects with the same box recipe and build arguments share an image. roke
+automatically assigns different image tags to different build settings, so
+building another project's agent versions does not replace yours. The gateway
+image is shared. `roke build` also
 builds selected services that have a Dockerfile and applies the current
 project's configuration. The first build registers the project automatically,
 using its directory name as the default ID. The optional `--id NAME` chooses

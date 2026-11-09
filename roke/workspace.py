@@ -22,6 +22,7 @@ from roke.catalog.mcps import resolve as resolve_mcp
 from roke.catalog.services import Services
 from roke.destination import valid as valid_destination
 from roke.docker import Compose, require_docker
+from roke.images import box_image
 from roke.paths import BOX_DIR, config_dir
 from roke.project import by_id, check_guards, register, resolve
 from roke.ui import die, info
@@ -344,6 +345,7 @@ class Workspace:
                 "HOST_GID": env.get("ROKE_HOST_GID") or str(os.getgid()),
             }
         )
+        env["ROKE_BOX_IMAGE"] = box_image(BOX_DIR, env)
         if self.agent != "none" and create_agent_dir:
             (self.config / "agents" / self.agent).mkdir(parents=True, exist_ok=True)
         self.compose = Compose(BOX_DIR, p.compose_name, files, env)

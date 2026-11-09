@@ -256,6 +256,22 @@ name as one further down the list replaces it. See
 
 ## Agent configuration
 
+Box images are tagged automatically from their build arguments and recipe.
+Projects with the same inputs reuse the same image; different installed agents,
+agent versions, Serena build settings, PostgreSQL client versions or UID/GID
+use separate variants. Selecting an agent for a session or changing services,
+ports and network policy does not create a new box variant. Docker can reuse
+unchanged build layers across variants.
+
+Automatic tags cover the standard box recipe and its supported build arguments
+from settings. If you override `box.build` in your own Compose file, also set
+`box.image` to a distinct tag for that custom recipe. Explicit image overrides
+are respected, and `roke doctor` checks the resolved image.
+
+After upgrading from a version that only used `roke:latest`, run `roke build`
+for each distinct build configuration before starting sessions. Project IDs,
+home volumes and service data keep their existing identities.
+
 Two pieces of your configuration go to the agent:
 
 - **`AGENTS.md`**, at the top of the configuration directory: your

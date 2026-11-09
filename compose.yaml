@@ -25,7 +25,8 @@ services:
       - no-new-privileges:true
 
   box:
-    image: roke:latest
+    # The launcher selects a variant from the recipe and build arguments.
+    image: ${ROKE_BOX_IMAGE:-roke:latest}
     build:
       context: .
       # Passed only when set (in roke.env, for example); otherwise the

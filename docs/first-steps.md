@@ -160,7 +160,8 @@ cd ~/src/another-project
 roke
 ```
 
-The base images are shared, so you usually do not need to build them again.
+Projects with the same box build settings reuse its image, so you usually
+do not need to build it again. Different build settings use separate variants.
 Some services have their own image build; their README explains what they
 need. Each project has separate services, data, agent credentials and sessions.
 Add its services, MCP servers and allowed destinations using the same commands

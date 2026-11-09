@@ -178,8 +178,10 @@ how it is written: any change to roke must keep them passing.
 Run your clone's `roke` by its path, in a test project
 (`~/src/roke-dev/bin/roke`), so the `roke` you work with every day stays
 the installed one; see [working on roke with roke](../CONTRIBUTING.md#working-on-roke-with-roke).
-Both use the same image names (`roke:latest` and `roke-gateway:latest`), so
-building from either copy replaces those local images. Python code, Compose
+Box images use `roke:build-<hash>` tags derived from the recipe and build
+arguments (`roke/images.py`). Identical inputs in both copies share an image;
+different inputs get separate tags. The gateway uses `roke-gateway:latest`.
+Python code, Compose
 files and service definitions are read from the roke directory on each
 command. The agents' `setup.sh` and instructions are mounted into the box,
 so changes to them apply on its next start. The box's `Dockerfile` copies

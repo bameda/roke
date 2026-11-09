@@ -1,5 +1,6 @@
 """Read-only checks for a project's configuration and local prerequisites."""
 
+import json
 import shutil
 import subprocess
 
@@ -32,19 +33,23 @@ def run(req) -> int:
         print("Docker daemon: FAIL (start Docker and try again)")
         return 1
     print("Docker daemon: OK")
-    if subprocess.run(
-        ["docker", "image", "inspect", "roke:latest"], capture_output=True
-    ).returncode:
+    compose = ws.prepare_compose(create_agent_dir=False)
+    result = compose.call("config", "--format", "json", capture=True)
+    if result.returncode:
+        detail = result.stderr.strip() or "docker compose config failed"
+        print(f"Compose configuration: FAIL ({detail})")
+        return 1
+    try:
+        image = json.loads(result.stdout)["services"]["box"]["image"]
+        if not isinstance(image, str) or not image:
+            raise ValueError("missing image")
+    except (KeyError, TypeError, ValueError):
+        print("Compose configuration: FAIL (cannot read the box image)")
+        return 1
+    print("Compose configuration: OK")
+    if subprocess.run(["docker", "image", "inspect", image], capture_output=True).returncode:
         print("Box image: FAIL (run roke build)")
         issues = True
     else:
         print("Box image: OK")
-    compose = ws.prepare_compose(create_agent_dir=False)
-    result = compose.call("config", "--quiet", capture=True)
-    if result.returncode:
-        detail = result.stderr.strip() or "docker compose config failed"
-        print(f"Compose configuration: FAIL ({detail})")
-        issues = True
-    else:
-        print("Compose configuration: OK")
     return 1 if issues else 0

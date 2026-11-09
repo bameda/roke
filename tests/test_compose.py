@@ -45,7 +45,7 @@ def test_urls_does_not_need_the_image(env, compose):
 
 
 def test_urls_reports_an_unreadable_configuration(env):
-    r = env.roke("urls", cwd=env.project())  # the fake docker answers with YAML
+    r = env.roke("urls", cwd=env.project(), env={"FAKE_BAD_CONFIG": "1"})
     assert r.code != 0
     assert "could not read the project's compose configuration" in r.err
     assert "Traceback" not in r.err

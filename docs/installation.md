@@ -211,7 +211,8 @@ root is not root on your machine.
 
 ```fish
 cd ~/src/my-project && roke purge       # for each project: services and data
-docker image rm roke:latest
+docker image ls roke --format '{{.Repository}}:{{.Tag}}' | xargs -r docker image rm
+docker image rm roke-gateway:latest
 rm ~/.local/bin/roke
 rm -rf ~/.local/share/roke
 ```
