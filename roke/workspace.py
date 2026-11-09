@@ -20,6 +20,7 @@ from roke.catalog.agents import DEFAULT_INSTALLED, Agents
 from roke.catalog.mcps import Mcps
 from roke.catalog.mcps import resolve as resolve_mcp
 from roke.catalog.services import Services
+from roke.destination import valid as valid_destination
 from roke.docker import Compose, require_docker
 from roke.paths import BOX_DIR, config_dir
 from roke.project import check_guards, resolve
@@ -223,8 +224,10 @@ class Workspace:
         (label, entry)."""
         self.allow_notes: dict[tuple[str, str], str] = {}
 
-        def noted(label: str, pairs: list[tuple[str, str]]) -> list[str]:
+        def noted(label: str, pairs: list[tuple[str, str]], source: str) -> list[str]:
             for entry, note in pairs:
+                if not valid_destination(entry):
+                    die(f"invalid network destination '{entry}' in {source}")
                 if note:
                     self.allow_notes[(label, entry)] = note
             return [entry for entry, _ in pairs]
@@ -236,6 +239,7 @@ class Workspace:
                 noted(
                     "base",
                     settings.file_noted_entries(BOX_DIR / "docker" / "gateway" / "allow.txt"),
+                    "docker/gateway/allow.txt",
                 ),
             )
         ]
@@ -250,29 +254,37 @@ class Workspace:
                 pairs = settings.file_noted_entries(self.agents.file(name, "allow.txt"))
                 if len(agents) > 1:
                     pairs = [(e, f"{name}: {n}" if n else name) for e, n in pairs]
-                entries += noted(label, pairs)
+                entries += noted(label, pairs, f"catalog/agents/{name}/allow.txt")
             source = " ".join(f"catalog/agents/{name}/allow.txt" for name in agents)
             layers.append((label, source, entries))
         service_allow = []
         for name in self.selected:
             pairs = settings.file_noted_entries(self.services.file(name).parent / "allow.txt")
-            service_allow += noted("services", [(e, n or f"service {name}") for e, n in pairs])
+            service_allow += noted(
+                "services",
+                [(e, n or f"service {name}") for e, n in pairs],
+                str(self.services.file(name).parent / "allow.txt"),
+            )
         mcp_allow: list[str] = []
         for name in getattr(self, "resolved_mcps", {}):
             pairs = [(str(d), f"MCP {name}") for d in self.mcps.definition(name).get("allow", [])]
-            mcp_allow += noted("mcps", pairs)
+            mcp_allow += noted("mcps", pairs, str(self.mcps.file(name)))
         return layers + [
             ("services", "catalog/services/<name>/allow.txt", service_allow),
             ("mcps", "catalog/mcps/<name>/mcp.json", mcp_allow),
             (
                 "global",
                 "ROKE_NETWORK_ALLOW in roke.env (roke network add --global)",
-                noted("global", settings.noted_entries(self.global_allow)),
+                noted("global", settings.noted_entries(self.global_allow), str(self.global_env)),
             ),
             (
                 "project",
                 "ROKE_NETWORK_ALLOW in project.env (roke network add)",
-                noted("project", settings.noted_entries(self.project_allow)),
+                noted(
+                    "project",
+                    settings.noted_entries(self.project_allow),
+                    str(self.project.env_file),
+                ),
             ),
         ]
 

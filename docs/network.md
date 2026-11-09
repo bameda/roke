@@ -104,6 +104,9 @@ Each entry is one of:
 
 Ports must be between 1 and 65535. IPv4 addresses and CIDR ranges must be
 valid; domain labels cannot be empty or start or end with a hyphen.
+roke checks destinations from every layer when it loads the project, including
+entries added by hand in settings or catalog files. An invalid entry stops
+the command and identifies the file to fix before the gateway starts.
 
 `roke settings` shows the resulting list for the current project, layer
 by layer, so you can see where each entry comes from.

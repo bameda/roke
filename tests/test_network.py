@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from helpers import allowed_in
 
@@ -44,6 +46,31 @@ def test_accepts_valid_ipv4_ranges_and_ports(env):
     shop = env.project()
     for dest in ("10.0.0.0/8:22", "203.0.113.10", "example.com:65535", "host:1"):
         assert env.roke("network", "add", dest, cwd=shop).code == 0
+
+
+@pytest.mark.parametrize("scope", ["global", "project"])
+def test_invalid_destination_edited_by_hand_names_its_file(env, scope):
+    shop = env.project()
+    path = env.config / "roke.env" if scope == "global" else env.project_env()
+    env.append(path, 'ROKE_NETWORK_ALLOW="example.com:70000"\n')
+    r = env.roke(cwd=shop)
+    assert r.code != 0
+    assert "invalid network destination 'example.com:70000'" in r.err
+    assert str(path) in r.err
+    assert not r.compose_calls("run")
+
+
+def test_invalid_mcp_destination_names_its_definition(env):
+    shop = env.project()
+    path = env.config / "mcps" / "broken" / "mcp.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps({"url": "https://example.com/mcp", "allow": ["bad..example.com"]}))
+    env.write_project_env("ROKE_MCPS=broken\n")
+    r = env.roke(cwd=shop)
+    assert r.code != 0
+    assert "invalid network destination 'bad..example.com'" in r.err
+    assert str(path) in r.err
+    assert not r.compose_calls("run")
 
 
 def test_allowed_destinations_are_combined_in_layers(env):
