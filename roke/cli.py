@@ -40,6 +40,7 @@ class Request:
     command: str = "run"
     sub: str = ""  # agent, service and network: list, use, add...
     project: str = ""  # -C DIR
+    project_id: str = ""  # --id ID
     agent: str = ""  # -a
     services: str | None = None  # -s
     ports: list = field(default_factory=list)
@@ -116,10 +117,16 @@ def _flags(req: Request, args: list, allowed: dict) -> None:
 def parse(argv: list) -> Request:
     req = Request()
     args = list(argv)
-    while args[:1] == ["-C"]:
+    while args and args[0] in ("-C", "--id"):
         if len(args) < 2:
-            die("-C needs a directory")
-        req.project, args = args[1], args[2:]
+            die(f"{args[0]} needs {'a directory' if args[0] == '-C' else 'a project ID'}")
+        if args[0] == "-C":
+            req.project = args[1]
+        else:
+            if not args[1]:
+                die("--id needs a project ID")
+            req.project_id = args[1]
+        args = args[2:]
     if args[:1] in (["-h"], ["--help"]):
         req.command, req.help = "help", ""
         return req
@@ -214,6 +221,8 @@ def parse(argv: list) -> Request:
         req.help = args[0] if args else ""
     else:
         die(f"unknown command: {c} (see roke help)")
+    if req.project_id and (req.is_global or c in ("init", "update") or req.all):
+        die("--id only applies to commands for one project")
     return req
 
 

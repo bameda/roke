@@ -14,7 +14,7 @@ def show(req) -> None:
 
 
 def change(req) -> None:
-    ws = Workspace(req).open(guards=not req.is_global)
+    ws = Workspace(req).open(guards=not req.is_global, register_project=not req.is_global)
     adding = req.sub == "add"
     if req.is_global:
         path, where = ws.global_env, "every project"

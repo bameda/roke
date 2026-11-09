@@ -13,7 +13,7 @@
 ## Command line
 
 ```text
-roke [-C DIR] [COMMAND] [OPTIONS]
+roke [-C DIR] [--id ID] [COMMAND] [OPTIONS]
 ```
 
 roke works on the project in the current directory, or in `DIR` with
@@ -28,6 +28,12 @@ remember:
 3. **Changes apply to the current project; `--global`, to every project.**
 
 `roke help` lists every command, and `roke help COMMAND` one of them.
+
+`--id ID` is a global option, placed before the command, like `-C`.
+It chooses the project's stable identity when first registering it, or
+reattaches an existing identity after moving the code. Subsequent commands
+find the ID by the registered path, so you normally omit it. See
+[project IDs and moves](configuration.md#project-ids-and-moves).
 
 **The project's box**
 
@@ -128,6 +134,7 @@ destinations, layer by layer.
 
 ```text
 Project   /home/me/src/shop (running)
+ID        shop
 Settings  /home/me/.config/roke: roke.env secrets.env projects/shop/project.env
 Agent     claude (default agent, roke.env)
 Network   restricted (built-in default): 29 destinations allowed (roke network)
@@ -244,9 +251,10 @@ what carries over and what does not.
 
 ## Projects and their services
 
-Each project gets its own set of containers, named `roke-<name>-<hash>`
-after its path. Two projects using `postgres` therefore get two separate
-databases, and you can have several projects open at once.
+Each project gets its own set of containers and volumes. Its Compose name
+starts as `roke-<name>-<hash>`, calculated from the original path, and is then
+stored in the local ID registry. Reattaching the ID after a move keeps that
+name and its data. Two projects using `postgres` get separate databases.
 
 When you exit the agent, the project's services **keep running**, so the
 next session starts instantly with the same data. Stop them when you are

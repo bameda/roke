@@ -14,8 +14,8 @@ points) and is meant to be its own private git repository.
 │   ├── claude/         settings.json, CLAUDE.md, agents/, commands/, skills/...
 │   ├── codex/          config.toml, AGENTS.md, prompts/, skills/...
 │   └── opencode/       opencode.jsonc, agents/, commands/, skills/...
-├── projects/           one directory per project, named after the project's
-│                       directory (see projects/README.md)
+├── projects/           one directory per project ID (defaults to its directory
+│                       name; see projects/README.md)
 ├── services/           optional: your own services, same layout as the catalog
 └── mcps/               optional: your own MCP servers, same layout as the catalog
 ```

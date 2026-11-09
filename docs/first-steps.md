@@ -29,7 +29,8 @@ Before configuring anything, answer these questions:
 ## 2. Create its directory in your configuration
 
 Each project has a directory in your configuration, `~/.config/roke`, named
-after the **project's directory**: for `~/src/shop`, `projects/shop/`. Start
+after its **project ID**, which defaults to its directory name:
+for `~/src/shop`, `projects/shop/`. Start
 from the closest [example project](../examples/projects/README.md), here
 the Node.js one, and edit its settings in `project.env`:
 

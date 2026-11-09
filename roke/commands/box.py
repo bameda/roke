@@ -17,7 +17,7 @@ from roke.workspace import Workspace
 
 
 def run(req) -> int:
-    ws = Workspace(req).open(docker=True)
+    ws = Workspace(req).open(docker=True, register_project=True)
     ws.load_all(required_agent=True)
     ws.pin_versions(ws.selected)
     compose = ws.prepare_compose(publish=True)
@@ -39,7 +39,7 @@ def run(req) -> int:
     if not ws.git_rw and (p.dir / ".git").is_dir():
         args += ["-v", f"{p.dir}/.git:{p.dir}/.git:ro", "-e", "ROKE_GIT_READONLY=1"]
     info(
-        f"project: {p.dir}  ·  agent: {ws.agent}  ·  network: {ws.network}  ·  "
+        f"project: {p.dir}  ·  id: {p.name}  ·  agent: {ws.agent}  ·  network: {ws.network}  ·  "
         f"services: {ws.env['ROKE_SERVICES'] or 'none'}  ·  "
         f".git: {'rw' if ws.git_rw else 'ro'}  ·  serena: {'yes' if ws.serena else 'no'}"
     )

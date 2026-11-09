@@ -4,6 +4,7 @@
 - [Keeping it in a private repository](#keeping-it-in-a-private-repository)
 - [Global settings and secrets](#global-settings-and-secrets)
 - [Per-project settings](#per-project-settings)
+- [Project IDs and moves](#project-ids-and-moves)
 - [Your own services](#your-own-services)
 - [Agent configuration](#agent-configuration)
 - [Languages and tools](#languages-and-tools)
@@ -102,8 +103,9 @@ Each one documents its own options in comments.
 
 ## Per-project settings
 
-Each project has its own directory in `projects/`, named after the
-**project's directory**: for `~/src/my-app`, `projects/my-app/`. Every file
+Each project has its own directory in `projects/`, named after its stable
+**project ID**, which defaults to the directory name: for `~/src/my-app`,
+`projects/my-app/`. Use `roke --id NAME` to choose another ID. Every file
 in it is optional:
 
 ```
@@ -159,9 +161,8 @@ Two details:
 - **Paths.** In compose files, relative paths resolve against the
   roke repository. To refer to files in the project's directory, use
   `${ROKE_PROJECT_CONFIG}`, for example `${ROKE_PROJECT_CONFIG}/initdb`.
-- **Names.** Two projects with the same directory name share these settings.
-  Their data and services are still separate, because those are keyed by the
-  full path.
+- **Names.** IDs distinguish projects even when their directory names match.
+  A collision asks you to choose another ID with `roke --id NAME`.
 
 These files live here, and not inside the project, on purpose. A compose
 file can mount any host path, so if `roke` read one from the project, the
@@ -169,6 +170,58 @@ agent could write one that mounted `/` and escaped the container the next
 time you launched it. For the same reason, only `AGENTS.md` is visible
 inside the box: the rest of the project's directory, secrets included, is
 not.
+
+## Project IDs and moves
+
+The first session, or command that edits a project's configuration, registers
+its ID, absolute path and Docker Compose project name in
+`~/.config/roke/.local/projects.json` (under `ROKE_CONFIG_DIR` when set).
+The ID defaults to the directory name. IDs start with a letter or digit and
+contain only letters, digits, dots, underscores and hyphens.
+
+The registry stays outside the mounted project. Its directory has its own
+`.gitignore` excluding all local state: sync the settings in `projects/<id>/`,
+but register each machine's paths locally. Read-only commands such as
+`settings`, `doctor`, `logs` and `urls` do not create or update registrations.
+
+If another path already owns the ID, choose a distinct one before the command:
+
+```fish
+cd ~/clients/contoso/api
+roke --id contoso-api
+roke logs                      # the registered ID is remembered for this path
+roke --id contoso-api settings  # an explicit ID works with other project commands too
+```
+
+Existing projects are adopted automatically on first use at their original
+path. Their Compose names are preserved, keeping the same volumes, databases
+and agent sessions. If an explicit ID differs from the old directory name,
+roke copies existing settings into `projects/<id>/` when that destination
+does not exist and the old name is not already registered to another project.
+The original settings remain available. When the old name belongs to another
+registered project, its settings and secrets are never copied automatically.
+If two legacy projects shared a settings directory, choose distinct IDs and
+copy the desired configuration files to the new ID's directory yourself.
+
+Register an existing project before moving it, so roke can retain its original
+Compose name. Stop its containers first, move it on the host, then use the
+existing ID from the new path:
+
+```fish
+cd ~/src/api
+roke shell                      # adopts this project as api; exit the shell
+roke down
+mv ~/src/api ~/work/backend
+cd ~/work/backend
+roke --id api                    # reattaches api, retaining its settings and data
+roke                            # no flag needed on subsequent starts
+```
+
+The old path must no longer exist. A second copy or worktree needs a separate
+ID while the original is present. A registered path cannot be given another
+ID through `--id`. Moving a project never copies Docker volumes or renames
+its Compose project. Deleting the local registry loses these associations;
+keep it when moving code, and do not use `purge` as part of a move.
 
 ## Your own services
 

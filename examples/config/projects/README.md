@@ -1,7 +1,8 @@
 # Projects
 
-One directory per project, named after the **project's directory**: for
-`~/src/my-app`, `projects/my-app/`. To add a project, copy one of the
+One directory per project, named after its **project ID**, which defaults to
+the directory name: for `~/src/my-app`, `projects/my-app/`. Choose another ID
+with `roke --id NAME` before starting it. To add a project, copy one of the
 [example projects](https://github.com/bameda/roke/tree/main/examples/projects)
 and adapt it, or create the directory with only the files you need. All of
 them are optional:

@@ -3,7 +3,7 @@
 from roke.ui import die
 
 USAGE = """\
-Usage: roke [-C DIR] [COMMAND] [OPTIONS]
+Usage: roke [-C DIR] [--id ID] [COMMAND] [OPTIONS]
 
 Run a coding agent in a container that can only see the project in the
 current directory (or DIR, with -C).
@@ -64,6 +64,11 @@ roke itself
   roke update                Update roke (then roke build)
   roke help [COMMAND]        This help, or a command's part of it
 
+Project selection (before COMMAND):
+  -C DIR                    Work in DIR
+      --id ID               Choose a project ID, or reattach it after a move;
+                             remembered on start or when editing settings
+
 Options for run, continue, shell and exec, for this time only (-s and -p
 also apply to roke urls):
   -a, --agent NAME           Use another agent
@@ -74,7 +79,8 @@ also apply to roke urls):
       --serena, --no-serena  Enable or disable Serena
 
 Settings live in ~/.config/roke (or $ROKE_CONFIG_DIR): roke.env for every
-project and projects/<dir-name>/ for each one. See docs/usage.md.
+project and projects/<id>/ for each one. The ID defaults to the directory
+name. See docs/usage.md.
 """
 
 BOX_COMMANDS = (
@@ -117,6 +123,7 @@ def help_for(command: str) -> str:
     if section is None:
         die(f"no help for '{command}' (commands: {' '.join(SECTIONS)})")
     text = _block(section)
+    text += "\n\n" + _block("Project selection")
     if section == "The project's box":
         text += "\n\n" + _block("Options for run")
     return text

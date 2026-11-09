@@ -107,11 +107,10 @@ cd ../shop-experiment
 roke --agent codex
 ```
 
-Give the worktree a distinct directory name if it needs different project
-settings. roke keys containers and data by the full path, but looks up
-`~/.config/roke/projects/<name>/` by the directory's basename. Worktrees
-with the same basename share those settings even though their containers
-and data remain separate.
+Each worktree has its own registered ID. The default is its directory name;
+if that ID is already taken, choose one with `roke --id shop-experiment`.
+Settings live in `~/.config/roke/projects/<id>/`. See
+[project IDs and moves](../../docs/configuration.md#project-ids-and-moves).
 
 ## Instructions for the agent
 

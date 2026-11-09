@@ -23,7 +23,7 @@ def show(req) -> None:
 
 
 def use(req) -> None:
-    ws = Workspace(req).open(guards=not req.is_global)
+    ws = Workspace(req).open(guards=not req.is_global, register_project=not req.is_global)
     name, p = req.values[0], ws.project
     if not ws.agents.exists(name):
         die(f"unknown agent: '{name}' (available: {' '.join(ws.agents.names())})")
@@ -44,7 +44,7 @@ def use(req) -> None:
 
 
 def reset(req) -> None:
-    p = Workspace(req).open().project
+    p = Workspace(req).open(register_project=True).project
     settings.drop(p.env_file, "ROKE_AGENT")
     info(f"{p.name} uses the default agent")
 

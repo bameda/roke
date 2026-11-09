@@ -47,7 +47,7 @@ def _major(version: str) -> str:
 
 
 def upgrade(req) -> None:
-    ws = Workspace(req).open()
+    ws = Workspace(req).open(register_project=True)
     p, used = ws.project, project_services(ws)
     names = req.values or used
     for name in names:
@@ -84,7 +84,7 @@ def upgrade(req) -> None:
 
 
 def change(req) -> None:
-    ws = Workspace(req).open()
+    ws = Workspace(req).open(register_project=True)
     p, names, adding = ws.project, req.values, req.sub == "add"
     current = project_services(ws)
     if adding:

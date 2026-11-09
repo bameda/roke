@@ -38,6 +38,7 @@ def show(req) -> None:
         "\n".join(
             [
                 f"Project   {p.dir}{state(p.compose_name)}",
+                f"ID        {p.name}",
                 f"Settings  {ws.config}: {found or '(no files)'}",
                 f"Agent     {agent}",
                 *([f"Parallel  {', '.join(ws.parallel_agents)}"] if ws.parallel_agents else []),
@@ -190,7 +191,7 @@ def editor(ws) -> list[str]:
 
 def edit(req) -> int:
     what = req.values[0] if req.values else "env"
-    ws = Workspace(req).open(guards=not req.is_global)
+    ws = Workspace(req).open(guards=not req.is_global, register_project=not req.is_global)
     ws.load_settings()
     path, key = target(ws, what, req.is_global)
     if not path.exists():

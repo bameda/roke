@@ -25,11 +25,19 @@ Run `roke init`, or `./install.sh` from the repository, to create
 
 ### My settings are ignored
 
-The project's configuration directory must be named after the project's
-directory: for `~/src/my-app`, `~/.config/roke/projects/my-app/`, with its
-settings in `project.env`. The line `[roke] project: ...` printed on start
+The project's configuration directory is named after its registered ID,
+which defaults to the directory name: for `~/src/my-app`, normally
+`~/.config/roke/projects/my-app/`, with its settings in `project.env`.
+`roke settings` shows the ID. The line `[roke] project: ...` printed on start
 shows the services and options that were applied, and `roke settings`
 shows every setting of the project and where it comes from.
+
+### `project ID ... is registered at ...`
+
+Another path owns that ID. For a separate project, choose a new one with
+`roke --id NAME`. If you moved the original project, stop its containers
+before moving it, then use its existing ID from the new path once the old
+path is gone. See [project IDs and moves](configuration.md#project-ids-and-moves).
 
 ### `could not load settings from ...`
 

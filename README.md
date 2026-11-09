@@ -75,8 +75,9 @@ roke help                   # every command
 ```
 
 Each project keeps its services, ports and other options in its own
-directory, `~/.config/roke/projects/<name>/`, so day to day `roke` is
-usually enough.
+directory, `~/.config/roke/projects/<id>/`. The ID defaults to the directory
+name; use `roke --id NAME` to resolve a collision or reattach a moved project.
+See [project IDs and moves](docs/configuration.md#project-ids-and-moves).
 
 ## Documentation
 

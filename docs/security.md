@@ -62,6 +62,11 @@ commands. See [Codex](../catalog/agents/codex/README.md).
   and settings from `~/.config/roke` and from its own repository, and
   refuses to mount a project that contains either of them. A compose file
   written by the agent could otherwise mount any host path.
+- **Project identity stays outside the project too.** The local ID registry
+  lives in the protected configuration directory and is never mounted into
+  the box. Files in the repository cannot select another project's identity,
+  settings or volumes. Reattaching an ID to a new path requires the explicit
+  `--id` option and the old path must no longer exist.
 - **The network is restricted by default.** The box only reaches the
   destinations you allow, and the services have no route out at all; see
   [Network](network.md).

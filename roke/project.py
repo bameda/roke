@@ -1,7 +1,12 @@
 """The project roke works on, and the guards against mounting too much."""
 
+import fcntl
 import hashlib
+import json
+import os
 import re
+import shutil
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -11,7 +16,7 @@ from roke.ui import die
 @dataclass
 class Project:
     dir: Path  # the project's directory, resolved
-    name: str  # its directory's name
+    name: str  # stable project ID
     config: Path  # ~/.config/roke/projects/<name>/
     compose_name: str
 
@@ -24,20 +29,117 @@ class Project:
         return self.config / "services"
 
 
-def resolve(directory: str, config_dir: Path) -> Project:
+def _records(config: Path) -> dict[str, dict[str, str]]:
+    registry = config / ".local" / "projects.json"
+    if not registry.exists():
+        return {}
+    try:
+        records = json.loads(registry.read_text())
+        if not isinstance(records, dict):
+            raise ValueError("expected an object")
+        for name, entry in records.items():
+            if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", name):
+                raise ValueError("invalid project ID")
+            if not isinstance(entry, dict) or set(entry) != {"path", "compose_name"}:
+                raise ValueError("expected path and compose_name")
+            if not isinstance(entry["path"], str) or not Path(entry["path"]).is_absolute():
+                raise ValueError("expected an absolute path")
+            if not isinstance(entry["compose_name"], str) or not re.fullmatch(
+                r"roke-[a-z0-9][a-z0-9_-]*", entry["compose_name"]
+            ):
+                raise ValueError("invalid Compose name")
+        for field in ("path", "compose_name"):
+            if len({entry[field] for entry in records.values()}) != len(records):
+                raise ValueError(f"duplicate {field}")
+        return records
+    except (OSError, ValueError) as exc:
+        die(f"cannot read project registry {registry}: {exc}")
+
+
+def resolve(directory: str, config_dir: Path, project_id: str = "", lookup: bool = True) -> Project:
     path = Path(directory)
     if not path.is_dir():
         die(f"directory does not exist: {directory}")
     path = path.resolve()
-    name = path.name
-    slug = re.sub(r"-+", "-", re.sub(r"[^a-z0-9]", "-", name.lower())).strip("-")
+    records = _records(config_dir) if lookup else {}
+    if project_id and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", project_id):
+        die(
+            "invalid project ID: use letters, digits, dots, underscores or hyphens; "
+            "start with a letter or digit"
+        )
+    bound = next((name for name, entry in records.items() if entry["path"] == str(path)), "")
+    if bound and project_id and bound != project_id:
+        die(f"{path} is already registered as {bound}; omit --id or use --id {bound}")
+    name = project_id or bound or path.name
+    if name in records:
+        entry = records[name]
+        if entry["path"] != str(path) and (not project_id or Path(entry["path"]).exists()):
+            die(
+                f"project ID '{name}' is registered at {entry['path']}; "
+                "choose another ID with: roke --id NAME. "
+                "After moving a directory, use --id with its existing ID "
+                "once the old path is gone"
+            )
+        return Project(path, name, config_dir / "projects" / name, entry["compose_name"])
+    slug = re.sub(r"-+", "-", re.sub(r"[^a-z0-9]", "-", path.name.lower())).strip("-")
     digest = hashlib.sha1(str(path).encode()).hexdigest()[:8]
+    config = config_dir / "projects" / name
+    legacy = config_dir / "projects" / path.name
+    # An explicit ID can adopt existing settings, but never copy another
+    # registered project's settings or secrets merely because names match.
+    if name != path.name and not config.exists() and path.name not in records and legacy.is_dir():
+        config = legacy
     return Project(
         dir=path,
         name=name,
-        config=config_dir / "projects" / name,
+        config=config,
         compose_name=f"roke-{slug or 'project'}-{digest}",
     )
+
+
+def register(project: Project, config: Path, project_id: str = "") -> Project:
+    """Adopt legacy names and serialize registrations without exposing state to the box."""
+    try:
+        return _register(project, config, project_id)
+    except OSError as exc:
+        die(f"cannot register project {project.name}: {exc}")
+
+
+def _register(project: Project, config: Path, project_id: str) -> Project:
+    state = config / ".local"
+    state.mkdir(mode=0o700, exist_ok=True)
+    if not state.resolve().is_relative_to(config):
+        die("the local project registry must live inside the roke configuration")
+    ignore = state / ".gitignore"
+    if not ignore.exists():
+        ignore.write_text("*\n")
+    with (state / "projects.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        project = resolve(str(project.dir), config, project_id)
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", project.name):
+            die(
+                "choose a project ID with roke --id NAME "
+                "(letters, digits, dots, underscores or hyphens)"
+            )
+        records = _records(config)
+        target = config / "projects" / project.name
+        if project.config != target:
+            shutil.copytree(project.config, target)
+            project.config = target
+        entry = {"path": str(project.dir), "compose_name": project.compose_name}
+        if records.get(project.name) == entry:
+            return project
+        records[project.name] = entry
+        registry = state / "projects.json"
+        with tempfile.NamedTemporaryFile(mode="w", dir=state, delete=False) as tmp:
+            try:
+                json.dump(records, tmp, indent=2)
+                tmp.write("\n")
+                tmp.close()
+                os.replace(tmp.name, registry)
+            finally:
+                Path(tmp.name).unlink(missing_ok=True)
+    return project
 
 
 def _inside(path: Path, parent: Path) -> bool:

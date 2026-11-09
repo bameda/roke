@@ -38,6 +38,9 @@ For `roke run`, the path through the code is:
    installed roke directory. `roke/cli.py` parses the request and dispatches
    it to `roke/commands/box.py`.
 2. `Workspace.open()` resolves the project and checks the mount guards.
+   Session starts and configuration edits also register its stable ID,
+   retaining the original Compose name during first-use adoption. Read-only
+   commands only look up existing registrations.
    `load_all()` reads global and project settings, chooses an agent, selects
    services and MCP servers, then builds the network allow list. Selected
    MCP servers can add services and network destinations.
