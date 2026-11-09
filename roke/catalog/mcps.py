@@ -66,6 +66,45 @@ class Mcps:
             die(f"{path} is not valid JSON: {e}")
         if not isinstance(data, dict) or ("command" in data) == ("url" in data):
             die(f"{path} must have either a command (local) or a url (remote)")
+
+        def strings(field: str, nonempty: bool = False) -> None:
+            value = data[field]
+            if (
+                not isinstance(value, list)
+                or (nonempty and not value)
+                or not all(isinstance(item, str) and item for item in value)
+            ):
+                die(
+                    f"{path}: {field} must be a list of non-empty strings"
+                    + (" with at least one entry" if nonempty else "")
+                )
+
+        def mapping(field: str) -> None:
+            value = data[field]
+            if not isinstance(value, dict) or not all(
+                isinstance(key, str) and key and isinstance(item, str)
+                for key, item in value.items()
+            ):
+                die(f"{path}: {field} must map non-empty names to strings")
+
+        if "command" in data:
+            strings("command", nonempty=True)
+            if "headers" in data:
+                die(f"{path}: headers only applies to a remote MCP server")
+        else:
+            if not isinstance(data["url"], str) or not data["url"]:
+                die(f"{path}: url must be a non-empty string")
+            if "env" in data:
+                die(f"{path}: env only applies to a local MCP server")
+        for field in ("description",):
+            if field in data and not isinstance(data[field], str):
+                die(f"{path}: {field} must be a string")
+        for field in ("env", "headers"):
+            if field in data:
+                mapping(field)
+        for field in ("requires", "allow", "services"):
+            if field in data:
+                strings(field)
         return data
 
     def render(self, used: list[str]) -> str:

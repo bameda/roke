@@ -108,6 +108,26 @@ def test_invalid_definitions(env):
     assert r.code != 0 and "either a command (local) or a url (remote)" in r.err
 
 
+def test_malformed_mcp_fields_are_reported_before_changing_settings(env):
+    shop = env.project()
+    bad = env.config / "mcps" / "bad" / "mcp.json"
+    bad.parent.mkdir(parents=True)
+    cases = [
+        ({"command": []}, "command"),
+        ({"command": "uvx"}, "command"),
+        ({"url": 42}, "url"),
+        ({"url": "https://example.com", "headers": ["bad"]}, "headers"),
+        ({"command": ["uvx"], "env": {"TOKEN": 1}}, "env"),
+        ({"command": ["uvx"], "services": "postgres"}, "services"),
+        ({"command": ["uvx"], "requires": [42]}, "requires"),
+    ]
+    for definition, field in cases:
+        bad.write_text(json.dumps(definition))
+        r = env.roke("mcp", "add", "bad", cwd=shop)
+        assert r.code != 0 and str(bad) in r.err and field in r.err
+        assert not env.project_env().exists() or env_value(env.project_env(), "ROKE_MCPS") is None
+
+
 def test_an_mcp_starts_the_services_it_needs(env):
     shop = env.project()
     env.roke("mcp", "add", "grafana", cwd=shop)

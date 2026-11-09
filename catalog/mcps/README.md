@@ -69,6 +69,12 @@ the agent:
 | `allow` | Network destinations it needs, added to the [allowed destinations](../../docs/network.md) |
 | `services` | [Services](../services/README.md) it needs, started with it: for example the database it reads, as `postgres` does |
 
+`command` must be a non-empty list of strings; `url` must be a non-empty
+string. Use `env` only with `command` and `headers` only with `url`; both
+are maps of names to strings. `requires`, `allow` and `services` are lists
+of strings. roke checks these fields when it reads the definition and
+reports the file and field if one is malformed.
+
 When the project starts, roke replaces each `${VAR}` with the variable's
 value from your settings, usually a token in `~/.config/roke/secrets.env`
 (or the project's `secrets.env`), so tokens never go in these files.

@@ -102,6 +102,9 @@ Each entry is one of:
 | `10.20.0.0/16:22` | that range, on that port only |
 | `host:4401` | that port of your machine, the host (see [a port of your machine](#a-port-of-your-machine)) |
 
+Ports must be between 1 and 65535. IPv4 addresses and CIDR ranges must be
+valid; domain labels cannot be empty or start or end with a hyphen.
+
 `roke settings` shows the resulting list for the current project, layer
 by layer, so you can see where each entry comes from.
 

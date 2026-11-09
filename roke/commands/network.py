@@ -4,11 +4,10 @@ destinations, and what was blocked."""
 import re
 
 from roke import settings
+from roke.destination import valid
 from roke.paths import BOX_DIR
 from roke.ui import die, info
 from roke.workspace import Workspace
-
-DESTINATION = re.compile(r"(\*\.)?[A-Za-z0-9.-]+(/[0-9]{1,2})?(:[0-9]{1,5})?")
 
 
 def _sort_key(entry: str) -> str:
@@ -51,10 +50,13 @@ def change(req) -> None:
         path, where = ws.global_env, "every project"
     else:
         path, where = ws.project.env_file, ws.project.name
-    if adding and not DESTINATION.fullmatch(dest):
-        die(f"not a destination: '{dest}' (use a domain, IP or CIDR, with an optional :port)")
     if adding and dest == "host":
         die("allow a port of the host, never the whole host: host:PORT, such as host:4401")
+    if adding and not valid(dest):
+        die(
+            f"not a destination: '{dest}' "
+            "(use a domain, IPv4 or CIDR, with an optional port 1-65535)"
+        )
     note = (req.note or "").strip()
     if note and re.search(r'["$`\\]', note):
         die('a note cannot contain " $ ` or \\ (the settings files are read by bash)')

@@ -19,10 +19,31 @@ def test_add_global(env):
     assert allowed_in(env.config / "roke.env") == ["api.example.com"]
 
 
-@pytest.mark.parametrize("dest", ["bad value!", "http://x.com", "a b"])
+@pytest.mark.parametrize(
+    "dest",
+    [
+        "bad value!",
+        "http://x.com",
+        "a b",
+        "example.com:0",
+        "example.com:65536",
+        "example.com:abc",
+        "bad..example.com",
+        "-bad.example.com",
+        "10.0.0.0/33",
+        "256.0.0.1",
+        "host:0",
+    ],
+)
 def test_add_rejects_invalid_destinations(env, dest):
     r = env.roke("network", "add", dest, cwd=env.project())
     assert r.code != 0
+
+
+def test_accepts_valid_ipv4_ranges_and_ports(env):
+    shop = env.project()
+    for dest in ("10.0.0.0/8:22", "203.0.113.10", "example.com:65535", "host:1"):
+        assert env.roke("network", "add", dest, cwd=shop).code == 0
 
 
 def test_allowed_destinations_are_combined_in_layers(env):
