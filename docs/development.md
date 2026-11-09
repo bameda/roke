@@ -9,7 +9,7 @@ standard library, so it only needs Python 3.10 or newer on the host.
 | Module | What it does |
 |---|---|
 | `roke/cli.py` | Parses the arguments into a request and runs it |
-| `roke/commands/` | The commands, one module per group of `roke help`: `box.py` (run, continue, shell, exec, urls, settings, build, down, purge), `agent.py`, `service.py`, `network.py` and `setup.py` (init, update) |
+| `roke/commands/` | Command handlers: `box.py` (sessions, logs, lifecycle), `doctor.py`, `settings.py`, `agent.py`, `service.py`, `mcp.py`, `network.py` and `setup.py` (init, update) |
 | `roke/workspace.py` | A `Workspace`: the project, your configuration and what follows from them for a command. Its steps, in order: open (configuration, project, guards), settings, agent, services, network, docker compose |
 | `roke/catalog/` | roke's catalogs: `agents.py` (the coding agents in `agents/`), `services.py` (the services) and `mcps.py` (the MCP servers, and how their definitions are resolved), each looked up in the project's configuration, yours and the repository |
 | `roke/settings.py` | Reads and edits `roke.env`, `project.env` and `secrets.env` |
@@ -29,6 +29,31 @@ shell files: quotes, comments and variable references work as before.
 The scripts that run inside the containers stay in bash: the box's
 entrypoint (`docker/entrypoint.sh`), the gateway (`docker/gateway/gateway.sh`)
 and each agent's `install.sh` and `setup.sh`.
+
+### From a command to an agent session
+
+For `roke run`, the path through the code is:
+
+1. `bin/roke` starts Python in isolated mode, loading the package from the
+   installed roke directory. `roke/cli.py` parses the request and dispatches
+   it to `roke/commands/box.py`.
+2. `Workspace.open()` resolves the project and checks the mount guards.
+   `load_all()` reads global and project settings, chooses an agent, selects
+   services and MCP servers, then builds the network allow list. Selected
+   MCP servers can add services and network destinations.
+3. `prepare_compose()` combines the base `compose.yaml`, selected service
+   fragments, the project's own Compose override and a temporary port file
+   when ports are published. `roke/docker.py` invokes Docker Compose with
+   those files and the resolved environment.
+4. Compose starts the gateway and selected services. The box shares the
+   gateway's network namespace; only the gateway has an external route.
+   `docker/entrypoint.sh` prepares project tools and agent instructions, then
+   sources the selected agent's `setup.sh` and runs the agent.
+
+The command does not read Compose overrides from the project repository:
+they live in roke's configuration directory, outside the agent's writable
+mount. The [security guide](security.md) explains this boundary, and the
+[network guide](network.md) shows the container layout.
 
 ## Development tools
 
@@ -119,9 +144,11 @@ how it is written: any change to roke must keep them passing.
 Run your clone's `roke` by its path, in a test project
 (`~/src/roke-dev/bin/roke`), so the `roke` you work with every day stays
 the installed one; see [working on roke with roke](../CONTRIBUTING.md#working-on-roke-with-roke).
-Both use the same images (`roke:latest`), so a `roke build` from either
-rebuilds them for both. The scripts that run inside the containers
-(`docker/entrypoint.sh`, `docker/gateway/gateway.sh`, the agents'
-`setup.sh`) are mounted from the repository, so they apply on the next
-start too; the `Dockerfile`s and the agents' `install.sh` need
-`roke build`.
+Both use the same image names (`roke:latest` and `roke-gateway:latest`), so
+building from either copy replaces those local images. Python code, Compose
+files and service definitions are read from the roke directory on each
+command. The agents' `setup.sh` and instructions are mounted into the box,
+so changes to them apply on its next start. The box's `Dockerfile` copies
+`docker/entrypoint.sh` and runs the agents' `install.sh`; the gateway's
+`Dockerfile` copies `docker/gateway/gateway.sh`. Changes to these files or
+either Dockerfile need `roke build` before they reach a container.
