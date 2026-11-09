@@ -15,7 +15,7 @@ The project's box
   roke exec CMD...           Run a command in the box
   roke urls                  Where the app and the services are
   roke settings              The project's settings and where they come from
-  roke doctor                Check the project's configuration and local setup
+  roke doctor                Check prerequisites and report what needs fixing
   roke settings edit [FILE]  Edit them in your editor (--global: yours): env
                              (default), secrets, compose, instructions, or
                              tools (the project's mise.toml)

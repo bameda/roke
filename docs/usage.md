@@ -39,7 +39,7 @@ remember:
 | `roke exec CMD...` | Run a command in the box |
 | `roke urls` | Where the app and the services are |
 | `roke settings` | The project's settings and where they come from |
-| `roke doctor` | Check the configuration, selected agent and MCP servers, Docker, the image and Compose; returns nonzero when something needs attention |
+| `roke doctor` | Check prerequisites and report what needs fixing; returns nonzero when something needs attention |
 | `roke settings edit [FILE]` | Edit them in your editor; see [editing the settings](#editing-the-settings) |
 | `roke build [--no-cache]` | Build the images; `--no-cache` also updates the agents |
 | `roke down [--all]` | Stop the project's containers, or every project's; their data is kept |

@@ -3,47 +3,48 @@
 import shutil
 import subprocess
 
-from roke.ui import die
 from roke.workspace import Workspace
 
 
 def run(req) -> int:
     ws = Workspace(req).open()
     ws.load_all(required_agent=True)
-    print(f"Project   {ws.project.dir}")
-    print(f"Agent     {ws.agent} (configured in ROKE_AGENTS)")
-    print(f"Services  {', '.join(ws.selected) or 'none'}")
-    print(f"Network   {ws.network}")
+    print("Project configuration: OK")
     issues = False
     for name in ws.selected_mcps:
         if name in ws.resolved_mcps:
-            print(f"MCP       {name}: ready")
+            print(f"MCP {name}: OK")
         else:
             definition = ws.mcps.definition(name)
             missing = [key for key in definition.get("requires", []) if not ws.env.get(key)]
             reason = f"set {', '.join(missing)} in secrets.env" if missing else "set its variables"
-            print(f"MCP       {name}: left out ({reason})")
+            print(f"MCP {name}: FAIL ({reason})")
             issues = True
     if not shutil.which("docker"):
-        die("Docker is not installed; install Docker with the Compose plugin")
+        print("Docker: FAIL (install Docker with the Compose plugin)")
+        return 1
     version = subprocess.run(["docker", "compose", "version"], capture_output=True, text=True)
     if version.returncode:
-        die("the Docker Compose plugin (v2) is missing")
-    print("Docker    Compose available")
+        print("Docker Compose: FAIL (install the Compose plugin v2)")
+        return 1
+    print("Docker Compose: OK")
     if subprocess.run(["docker", "info"], capture_output=True).returncode:
-        die("cannot connect to the Docker daemon; start Docker and try again")
-    print("Docker    daemon available")
+        print("Docker daemon: FAIL (start Docker and try again)")
+        return 1
+    print("Docker daemon: OK")
     if subprocess.run(
         ["docker", "image", "inspect", "roke:latest"], capture_output=True
     ).returncode:
-        print("Image     roke:latest missing (run roke build)")
+        print("Box image: FAIL (run roke build)")
         issues = True
     else:
-        print("Image     roke:latest available")
+        print("Box image: OK")
     compose = ws.prepare_compose(create_agent_dir=False)
     result = compose.call("config", "--quiet", capture=True)
     if result.returncode:
         detail = result.stderr.strip() or "docker compose config failed"
-        die(f"invalid Compose configuration: {detail}")
-    print("Compose   valid")
+        print(f"Compose configuration: FAIL ({detail})")
+        issues = True
+    else:
+        print("Compose configuration: OK")
     return 1 if issues else 0

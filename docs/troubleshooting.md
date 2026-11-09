@@ -6,9 +6,11 @@
 
 ## Common problems
 
-Run `roke doctor` in a project to check its agent, services, MCP variables,
-Docker daemon, image and Compose configuration. It reports names of missing
-variables without printing their values.
+Run `roke doctor` in a project to check its configuration, MCP requirements,
+Docker, the box image and Compose. Each line names the check, then reports
+`OK` or `FAIL` and tells you what to fix. Use `roke settings` to see the
+settings in effect.
+The diagnostic reports names of missing variables without printing their values.
 
 ### `unknown option for roke run: --down`
 
