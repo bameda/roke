@@ -136,8 +136,32 @@ python3 -m pytest          # or with pytest installed
 
 The tests that check the resolved configurations of the example projects,
 and `roke urls`, also need a real Docker Compose binary; they are skipped
-when there is none. GitHub Actions runs every test on each push, after the
-checks above (`.github/workflows/test.yml`).
+when there is none. GitHub Actions runs these tests on each push and pull
+request (`.github/workflows/test.yml`).
+
+### Real Docker tests
+
+`tests/integration/` runs in a separate CI job with a Docker daemon. It
+exercises the production gateway in restricted and open modes: internal
+service access, allowed domains and ports, blocked DNS and direct IPs, DNS
+redirection, service network isolation and web UI forwarding on host loopback.
+It also uses the real roke launcher to write to the box's home volume, move
+the project and verify that reattaching its ID retains the data.
+
+These tests use local containers as external destinations, so test requests
+do not depend on public endpoints. Images still need to be downloaded and
+the gateway image built. On a machine with Docker, run:
+
+```bash
+docker compose -f tests/integration/compose.yaml build gateway
+docker compose -f tests/integration/compose.yaml pull allowed
+ROKE_DOCKER_TESTS=1 uvx pytest tests/integration -v
+```
+
+The default `uvx pytest` run skips this suite. It remains usable inside
+roke's box, which has no Docker daemon. Each integration stack has a unique
+project name; teardown prints container logs and removes its containers,
+networks and test volumes, including after a test failure.
 
 The tests describe what roke does from the outside, so they do not depend on
 how it is written: any change to roke must keep them passing.

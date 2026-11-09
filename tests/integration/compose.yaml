@@ -1,0 +1,59 @@
+# Local containers stand in for allowed and blocked internet destinations.
+# No test request needs a public endpoint.
+x-image: &image
+  image: python:3.13-alpine
+
+x-server: &server
+  <<: *image
+  command:
+    - python
+    - -c
+    - |
+      import http.server
+      import threading
+      for port in (8080, 8081):
+          server = http.server.ThreadingHTTPServer(("0.0.0.0", port),
+                                                  http.server.SimpleHTTPRequestHandler)
+          threading.Thread(target=server.serve_forever, daemon=True).start()
+      threading.Event().wait()
+  healthcheck:
+    test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080', timeout=2)"]
+    interval: 1s
+    timeout: 3s
+    retries: 30
+
+services:
+  gateway:
+    image: roke-gateway:integration
+    build: ../../docker/gateway
+    cap_add: [NET_ADMIN]
+    security_opt: [no-new-privileges:true]
+    environment:
+      ROKE_NETWORK: ${ROKE_TEST_NETWORK:-restricted}
+      ROKE_NETWORK_ALLOW_ALL: allowed.roke.test:8080
+      ROKE_FORWARD_TEST: "18080 internal:8080"
+    networks: [internal, egress]
+    ports: ["127.0.0.1::18080"]
+  box:
+    <<: *image
+    network_mode: service:gateway
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  internal:
+    <<: *server
+    networks: [internal]
+  allowed:
+    <<: *server
+    networks:
+      egress:
+        aliases: [allowed.roke.test]
+  blocked:
+    <<: *server
+    networks:
+      egress:
+        aliases: [blocked.roke.test]
+
+networks:
+  internal:
+    internal: true
+  egress: {}
