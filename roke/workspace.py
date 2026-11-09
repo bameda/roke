@@ -277,7 +277,9 @@ class Workspace:
         ]
 
     # --- docker compose ------------------------------------------------------------------
-    def prepare_compose(self, all_services: bool = False, publish: bool = False) -> Compose:
+    def prepare_compose(
+        self, all_services: bool = False, publish: bool = False, create_agent_dir: bool = True
+    ) -> Compose:
         """ALL_SERVICES: load every service, so that down and purge know all the
         volumes. PUBLISH: publish the box's ports, through the gateway."""
         p, env = self.project, self.env
@@ -313,7 +315,7 @@ class Workspace:
                 "HOST_GID": env.get("ROKE_HOST_GID") or str(os.getgid()),
             }
         )
-        if self.agent != "none":
+        if self.agent != "none" and create_agent_dir:
             (self.config / "agents" / self.agent).mkdir(parents=True, exist_ok=True)
         self.compose = Compose(BOX_DIR, p.compose_name, files, env)
         return self.compose

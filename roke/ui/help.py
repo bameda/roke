@@ -15,6 +15,7 @@ The project's box
   roke exec CMD...           Run a command in the box
   roke urls                  Where the app and the services are
   roke settings              The project's settings and where they come from
+  roke doctor                Check the project's configuration and local setup
   roke settings edit [FILE]  Edit them in your editor (--global: yours): env
                              (default), secrets, compose, instructions, or
                              tools (the project's mise.toml)
@@ -74,7 +75,18 @@ Settings live in ~/.config/roke (or $ROKE_CONFIG_DIR): roke.env for every
 project and projects/<dir-name>/ for each one. See docs/usage.md.
 """
 
-BOX_COMMANDS = ("run", "continue", "shell", "exec", "urls", "settings", "build", "down", "purge")
+BOX_COMMANDS = (
+    "run",
+    "continue",
+    "shell",
+    "exec",
+    "urls",
+    "settings",
+    "doctor",
+    "build",
+    "down",
+    "purge",
+)
 SECTIONS = {
     **{c: "The project's box" for c in BOX_COMMANDS},
     "agent": "Agents",

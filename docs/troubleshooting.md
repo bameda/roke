@@ -6,6 +6,10 @@
 
 ## Common problems
 
+Run `roke doctor` in a project to check its agent, services, MCP variables,
+Docker daemon, image and Compose configuration. It reports names of missing
+variables without printing their values.
+
 ### `unknown option for roke run: --down`
 
 Actions are commands, written without dashes: `roke down`, not

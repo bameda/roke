@@ -152,7 +152,7 @@ def parse(argv: list) -> Request:
                 req.values.append(a)
         if len(req.values) > 1 or (req.values and req.values[0] not in EDITABLE):
             die(f"usage: roke settings edit [{'|'.join(EDITABLE)}] [--global]")
-    elif c == "settings" or c == "purge":
+    elif c in ("settings", "purge", "doctor"):
         _flags(req, args, {})
     elif c == "build":
         _flags(req, args, {"--no-cache": "no_cache"})
