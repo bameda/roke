@@ -34,6 +34,7 @@ shows every setting of the project and where it comes from.
 
 ### `project ID ... is registered at ...`
 
+Use `roke project` to list registered IDs and locate missing paths.
 Another path owns that ID. For a separate project, choose a new one with
 `roke --id NAME`. If you moved the original project, stop its containers
 before moving it, then use its existing ID from the new path once the old

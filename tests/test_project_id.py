@@ -95,7 +95,7 @@ def test_invalid_ids(env, project_id):
 def test_read_only_commands_do_not_register(env):
     shop = env.project()
     for command in ("settings", "doctor", "logs"):
-        assert env.roke("--id", "my-shop", command, cwd=shop).code == 0
+        assert env.roke(command, cwd=shop).code == 0
     assert not registry(env).exists()
 
 
@@ -149,3 +149,63 @@ def test_concurrent_registration_cannot_claim_the_same_id(env):
     assert sorted(r.code for r in results) == [0, 1]
     entries = json.loads(registry(env).read_text())
     assert list(entries) == ["shared"]
+
+
+def test_id_after_commands_and_group_arguments(env):
+    shop = env.project()
+    r = env.roke("run", "--id", "alias", cwd=shop)
+    assert r.code == 0, r.text
+    assert env.roke("service", "add", "redis", cwd=shop).code == 0
+    assert env.project_env("alias").exists()
+    assert "ID        alias" in env.roke("settings", cwd=shop).out
+    assert "redis" in env.roke("service", cwd=shop).out
+
+
+def test_project_options_before_passthrough_arguments(env):
+    shop = env.project()
+    r = env.roke("exec", "--id", "alias", "echo", "--id", "child", cwd=shop)
+    assert r.code == 0, r.text
+    assert r.last("run")["args"][-3:] == ["echo", "--id", "child"]
+    r = env.roke("logs", "-C", str(shop), "--tail", "10", "gateway", cwd=env.home)
+    assert r.last("logs")["args"][-4:] == ["logs", "--tail", "10", "gateway"]
+
+
+def test_directory_after_settings_command(env):
+    shop = env.project()
+    r = env.roke("settings", "-C", str(shop), cwd=env.home)
+    assert r.code == 0, r.text
+    assert str(shop) in r.out and "ID        shop" in r.out
+    assert not registry(env).exists()
+
+
+@pytest.mark.parametrize("args", [("run",), ("doctor",), ("logs",), ("service", "list")])
+def test_missing_trailing_id_is_reported(env, args):
+    r = env.roke(*args, "--id", cwd=env.project())
+    assert r.code != 0 and "needs a project ID" in r.err
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("settings",),
+        ("doctor",),
+        ("logs",),
+        ("service", "add", "redis"),
+        ("settings", "edit"),
+        ("down",),
+    ],
+)
+def test_id_is_reserved_for_preparing_or_starting_projects(env, args):
+    r = env.roke(*args, "--id", "alias", cwd=env.project())
+    assert r.code != 0 and "--id is for preparing or starting a project" in r.err
+    assert not registry(env).exists()
+
+
+def test_build_registers_custom_id_for_subsequent_commands(env):
+    shop = env.project()
+    r = env.roke("build", "--id", "alias", cwd=shop)
+    assert r.code == 0, r.text
+    assert r.last("build")["env"]["ROKE_PROJECT_CONFIG"].endswith("/projects/alias")
+    assert not r.compose_calls("run")
+    assert "ID        alias" in env.roke("settings", cwd=shop).out
+    assert env.roke(cwd=shop).last("run")["env"]["ROKE_PROJECT_CONFIG"].endswith("/projects/alias")

@@ -173,7 +173,7 @@ not.
 
 ## Project IDs and moves
 
-The first session, or command that edits a project's configuration, registers
+The first build, session, or command that edits a project's configuration registers
 its ID, absolute path and Docker Compose project name in
 `~/.config/roke/.local/projects.json` (under `ROKE_CONFIG_DIR` when set).
 The ID defaults to the directory name. IDs start with a letter or digit and
@@ -182,16 +182,32 @@ contain only letters, digits, dots, underscores and hyphens.
 The registry stays outside the mounted project. Its directory has its own
 `.gitignore` excluding all local state: sync the settings in `projects/<id>/`,
 but register each machine's paths locally. Read-only commands such as
-`settings`, `doctor`, `logs` and `urls` do not create or update registrations.
+`project`, `settings`, `doctor`, `logs` and `urls` do not create or update registrations.
 
-If another path already owns the ID, choose a distinct one before the command:
+`roke project` lists the registered IDs and paths from any directory, marking
+paths that no longer exist as `missing`. It needs no Docker connection.
+`roke project show NAME` shows one identity's details. Use this inventory
+to recover an ID before reattaching a moved project.
+
+If another path already owns the ID, choose a distinct one with `--id`:
 
 ```fish
 cd ~/clients/contoso/api
 roke --id contoso-api
 roke logs                      # the registered ID is remembered for this path
-roke --id contoso-api settings  # an explicit ID works with other project commands too
+roke settings show contoso-api  # inspect its settings from any directory
 ```
+
+The project ID is remembered for its directory, so session commands normally
+need no `--id`. Use `roke --id NAME` to choose an ID on the first start or
+reattach a moved project. From the registered directory, `roke continue`,
+`roke shell` and `roke exec CMD` find the ID automatically.
+The first `roke build` also registers the project automatically, using its
+directory name as the default ID. The optional `--id NAME` chooses a different
+initial ID. Subsequent commands remember it without a flag.
+`roke settings` keeps showing the current project's settings;
+`roke settings show ID` reads a registered project's settings without changing
+its path, even if that path is missing. It never prints secret values.
 
 Existing projects are adopted automatically on first use at their original
 path. Their Compose names are preserved, keeping the same volumes, databases

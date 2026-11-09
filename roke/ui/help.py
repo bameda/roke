@@ -3,10 +3,11 @@
 from roke.ui import die
 
 USAGE = """\
-Usage: roke [-C DIR] [--id ID] [COMMAND] [OPTIONS]
+Usage: roke [COMMAND] [OPTIONS]
 
 Run a coding agent in a container that can only see the project in the
 current directory (or DIR, with -C).
+roke run is the explicit form of roke; both start a new agent session.
 
 The project's box
   roke [run]                 Start the agent
@@ -17,14 +18,20 @@ The project's box
   roke logs [OPTIONS] [SERVICE...]
                              Show project logs (Compose logs options)
   roke settings              The project's settings and where they come from
+  roke settings show ID      The settings of a registered project, from anywhere
   roke doctor                Check prerequisites and report what needs fixing
   roke settings edit [FILE]  Edit them in your editor (--global: yours): env
                              (default), secrets, compose, instructions, or
                              tools (the project's mise.toml)
   roke build [--no-cache]    Build the images
+                             (--id ID is optional; default ID: directory name)
   roke down [--all]          Stop the project's containers, or every project's;
                              their data is kept
   roke purge                 Stop them and delete all the project's data
+
+Projects
+  roke project               The registered IDs and paths on this machine
+  roke project show ID       A registered project's path, settings and Compose name
 
 Agents
   roke agent                 The agents, and the one this project uses
@@ -64,14 +71,14 @@ roke itself
   roke update                Update roke (then roke build)
   roke help [COMMAND]        This help, or a command's part of it
 
-Project selection (before COMMAND):
-  -C DIR                    Work in DIR
-      --id ID               Choose a project ID, or reattach it after a move;
-                             remembered on start or when editing settings
+Project selection (for example: roke settings -C DIR):
+  -C DIR                     Work in DIR
 
 Options for run, continue, shell and exec, for this time only (-s and -p
 also apply to roke urls):
   -a, --agent NAME           Use another agent
+      --id ID                Choose an ID on first start, or reattach after a move
+                             (remembered for subsequent sessions)
   -s, --services LIST        Start these services instead, comma-separated
   -p, --port PORT            Publish a port of the box on 127.0.0.1 (repeatable)
       --network MODE         restricted or open
@@ -97,6 +104,7 @@ BOX_COMMANDS = (
     "purge",
 )
 SECTIONS = {
+    "project": "Projects",
     **{c: "The project's box" for c in BOX_COMMANDS},
     "agent": "Agents",
     "service": "Services",

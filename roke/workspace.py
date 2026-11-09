@@ -23,7 +23,7 @@ from roke.catalog.services import Services
 from roke.destination import valid as valid_destination
 from roke.docker import Compose, require_docker
 from roke.paths import BOX_DIR, config_dir
-from roke.project import check_guards, register, resolve
+from roke.project import by_id, check_guards, register, resolve
 from roke.ui import die, info
 
 SERENA_DASHBOARD = "24282"
@@ -35,7 +35,11 @@ class Workspace:
 
     # --- the configuration and the project ------------------------------------------
     def open(
-        self, guards: bool = True, docker: bool = False, register_project: bool = False
+        self,
+        guards: bool = True,
+        docker: bool = False,
+        register_project: bool = False,
+        registered_id: str = "",
     ) -> "Workspace":
         config = config_dir()
         if not config.is_dir():
@@ -44,11 +48,15 @@ class Workspace:
         if self.config == BOX_DIR or self.config.is_relative_to(BOX_DIR):
             die("the configuration directory must live outside the roke repo")
         self.global_env = self.config / "roke.env"
-        self.project = resolve(
-            self.req.project or os.getcwd(),
-            self.config,
-            self.req.project_id,
-            lookup=not self.req.is_global,
+        self.project = (
+            by_id(self.config, registered_id)
+            if registered_id
+            else resolve(
+                self.req.project or os.getcwd(),
+                self.config,
+                self.req.project_id,
+                lookup=not self.req.is_global,
+            )
         )
         if docker:
             require_docker()

@@ -29,7 +29,8 @@ class Project:
         return self.config / "services"
 
 
-def _records(config: Path) -> dict[str, dict[str, str]]:
+def registered(config: Path) -> dict[str, dict[str, str]]:
+    """Read the machine-local identities, without registering a working directory."""
     registry = config / ".local" / "projects.json"
     if not registry.exists():
         return {}
@@ -56,12 +57,23 @@ def _records(config: Path) -> dict[str, dict[str, str]]:
         die(f"cannot read project registry {registry}: {exc}")
 
 
+def by_id(config: Path, project_id: str) -> Project:
+    """Look up an identity for inspection, even when its directory is missing."""
+    projects = registered(config)
+    if project_id not in projects:
+        die(f"unknown project ID: '{project_id}' (see roke project)")
+    entry = projects[project_id]
+    return Project(
+        Path(entry["path"]), project_id, config / "projects" / project_id, entry["compose_name"]
+    )
+
+
 def resolve(directory: str, config_dir: Path, project_id: str = "", lookup: bool = True) -> Project:
     path = Path(directory)
     if not path.is_dir():
         die(f"directory does not exist: {directory}")
     path = path.resolve()
-    records = _records(config_dir) if lookup else {}
+    records = registered(config_dir) if lookup else {}
     if project_id and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", project_id):
         die(
             "invalid project ID: use letters, digits, dots, underscores or hyphens; "
@@ -121,7 +133,7 @@ def _register(project: Project, config: Path, project_id: str) -> Project:
                 "choose a project ID with roke --id NAME "
                 "(letters, digits, dots, underscores or hyphens)"
             )
-        records = _records(config)
+        records = registered(config)
         target = config / "projects" / project.name
         if project.config != target:
             shutil.copytree(project.config, target)

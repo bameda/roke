@@ -82,7 +82,7 @@ def logs(req) -> int:
 
 
 def build(req) -> int:
-    ws = Workspace(req).open(docker=True)
+    ws = Workspace(req).open(docker=True, register_project=True)
     ws.load_all()
     args = ["build", "--pull"] + (["--no-cache"] if req.no_cache else [])
     return ws.prepare_compose().call(*args).returncode

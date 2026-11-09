@@ -10,6 +10,8 @@ from roke.ui.help import USAGE, help_for
 
 RUN_LIKE = ("run", "continue", "shell", "exec", "urls")
 GROUPS: dict[str, dict[str, tuple[int, int | None]]] = {
+    "settings": {"show": (1, 1)},
+    "project": {"list": (0, 0), "show": (1, 1)},
     "agent": {"list": (0, 0), "show": (1, 1), "use": (1, 1), "reset": (0, 0)},
     "service": {
         "list": (0, 0),
@@ -22,6 +24,8 @@ GROUPS: dict[str, dict[str, tuple[int, int | None]]] = {
     "network": {"list": (0, 0), "add": (1, 1), "rm": (1, 1), "blocked": (0, 0)},
 }
 USAGES = {
+    "settings show": "roke settings show ID",
+    "project show": "roke project show ID",
     "agent use": "roke agent use NAME [--global]",
     "agent show": "roke agent show NAME",
     "service show": "roke service show NAME",
@@ -47,7 +51,7 @@ class Request:
     network: str = ""
     git_rw: bool = False
     serena: bool | None = None
-    cmd: list = field(default_factory=list)  # shell and exec
+    cmd: list = field(default_factory=list)  # shell, exec and logs
     values: list = field(default_factory=list)  # names or destinations
     is_global: bool = False
     major: bool = False  # service upgrade --major
@@ -70,12 +74,22 @@ def _take(args: list, i: int, what: str) -> str:
     return args[i + 1]
 
 
+def _project_option(req: Request, option: str, args) -> None:
+    value = next(args, None)
+    if not value:
+        die(f"{option} needs {'a directory' if option == '-C' else 'a project ID'}")
+    setattr(req, "project" if option == "-C" else "project_id", value)
+
+
 def _run_options(req: Request, args: list) -> list:
     """Parse the run options at the start of ARGS; return the rest."""
     i = 0
     while i < len(args):
         a = args[i]
-        if a in ("-a", "--agent"):
+        if a in ("--id", "-C"):
+            _project_option(req, a, iter(args[i + 1 : i + 2]))
+            i += 2
+        elif a in ("-a", "--agent"):
             req.agent = _take(args, i, "agent name")
             i += 2
         elif a in ("-s", "--services"):
@@ -105,7 +119,11 @@ def _run_options(req: Request, args: list) -> list:
 
 
 def _flags(req: Request, args: list, allowed: dict) -> None:
-    for a in args:
+    arg_iter = iter(args)
+    for a in arg_iter:
+        if a in ("--id", "-C"):
+            _project_option(req, a, arg_iter)
+            continue
         if a in ("-h", "--help"):
             req.help = req.command
             return
@@ -118,14 +136,7 @@ def parse(argv: list) -> Request:
     req = Request()
     args = list(argv)
     while args and args[0] in ("-C", "--id"):
-        if len(args) < 2:
-            die(f"{args[0]} needs {'a directory' if args[0] == '-C' else 'a project ID'}")
-        if args[0] == "-C":
-            req.project = args[1]
-        else:
-            if not args[1]:
-                die("--id needs a project ID")
-            req.project_id = args[1]
+        _project_option(req, args[0], iter(args[1:2]))
         args = args[2:]
     if args[:1] in (["-h"], ["--help"]):
         req.command, req.help = "help", ""
@@ -149,8 +160,11 @@ def parse(argv: list) -> Request:
         _expect_no_more(req, rest)
     elif c == "settings" and args[:1] == ["edit"]:
         req.sub = "edit"
-        for a in args[1:]:
-            if a == "--global":
+        arg_iter = iter(args[1:])
+        for a in arg_iter:
+            if a in ("--id", "-C"):
+                _project_option(req, a, arg_iter)
+            elif a == "--global":
                 req.is_global = True
             elif a in ("-h", "--help"):
                 req.help = c
@@ -159,27 +173,34 @@ def parse(argv: list) -> Request:
                 req.values.append(a)
         if len(req.values) > 1 or (req.values and req.values[0] not in EDITABLE):
             die(f"usage: roke settings edit [{'|'.join(EDITABLE)}] [--global]")
-    elif c in ("settings", "purge", "doctor"):
+    elif c in ("purge", "doctor") or (c == "settings" and args[:1] != ["show"]):
         _flags(req, args, {})
     elif c == "build":
         _flags(req, args, {"--no-cache": "no_cache"})
     elif c == "down":
         _flags(req, args, {"--all": "all"})
     elif c == "logs":
+        while args and args[0] in ("--id", "-C"):
+            _project_option(req, args[0], iter(args[1:2]))
+            args = args[2:]
         if args in (["-h"], ["--help"]):
             req.help = c
         else:
             req.cmd = args
     elif c in GROUPS:
-        req.sub = args[0] if args else "list"
-        args = args[1:]
+        if args and not args[0].startswith("-"):
+            req.sub, args = args[0], args[1:]
+        else:
+            req.sub = "list"
         if req.sub in ("-h", "--help"):
             req.help = c
             return req
         values = []
         arg_iter = iter(args)
         for a in arg_iter:
-            if a == "--global":
+            if a in ("--id", "-C"):
+                _project_option(req, a, arg_iter)
+            elif a == "--global":
                 req.is_global = True
             elif a == "--major" and c == "service":
                 req.major = True
@@ -203,6 +224,10 @@ def parse(argv: list) -> Request:
             _expect_no_more(req, values)
         if req.major and req.sub != "upgrade":
             die("--major only applies to roke service upgrade")
+        if c == "project" and req.is_global:
+            die("roke project lists this machine's registry; it has no --global option")
+        if c == "settings" and req.is_global:
+            die("roke settings show ID inspects one project; it has no --global option")
         if req.note is not None and (c, req.sub) != ("network", "add"):
             die("--note only applies to roke network add")
         if c == "agent" and req.sub == "reset" and req.is_global:
@@ -221,8 +246,13 @@ def parse(argv: list) -> Request:
         req.help = args[0] if args else ""
     else:
         die(f"unknown command: {c} (see roke help)")
-    if req.project_id and (req.is_global or c in ("init", "update") or req.all):
-        die("--id only applies to commands for one project")
+    if req.project_id and c == "project":
+        die("use roke project show ID to inspect a registered project")
+    if req.project_id and c not in ("build", "run", "continue", "shell", "exec"):
+        die(
+            "--id is for preparing or starting a project; "
+            "use roke settings show ID to inspect its settings"
+        )
     return req
 
 

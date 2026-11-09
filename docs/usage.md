@@ -13,7 +13,7 @@
 ## Command line
 
 ```text
-roke [-C DIR] [--id ID] [COMMAND] [OPTIONS]
+roke [COMMAND] [OPTIONS]
 ```
 
 roke works on the project in the current directory, or in `DIR` with
@@ -29,13 +29,19 @@ remember:
 
 `roke help` lists every command, and `roke help COMMAND` one of them.
 
-`--id ID` is a global option, placed before the command, like `-C`.
-It chooses the project's stable identity when first registering it, or
-reattaches an existing identity after moving the code. Subsequent commands
-find the ID by the registered path, so you normally omit it. See
+`-C DIR` chooses the project's directory, for example `roke settings -C DIR`.
+The project ID is remembered for its directory. Use `roke --id acme-api`
+to choose an ID on the first start or reattach a moved project. Subsequent
+commands such as `roke continue`, `roke shell` and `roke exec CMD` find the
+ID automatically. To inspect another project's
+settings, use `roke settings show ID`. See
 [project IDs and moves](configuration.md#project-ids-and-moves).
+For `exec`, put roke options before the command to execute; for `logs`, put
+them before the arguments passed to Compose.
 
 **The project's box**
+
+`roke run` is the explicit form of `roke`: both start a new agent session.
 
 | Command | Description |
 |---|---|
@@ -46,15 +52,30 @@ find the ID by the registered path, so you normally omit it. See
 | `roke urls` | Where the app and the services are |
 | `roke logs [OPTIONS] [SERVICE...]` | Show project logs; passes arguments to [`docker compose logs`](https://docs.docker.com/reference/cli/docker/compose/logs/) |
 | `roke settings` | The project's settings and where they come from |
+| `roke settings show ID` | The effective settings of a registered project, from any directory |
 | `roke doctor` | Check prerequisites and report what needs fixing; returns nonzero when something needs attention |
 | `roke settings edit [FILE]` | Edit them in your editor; see [editing the settings](#editing-the-settings) |
 | `roke build [--no-cache]` | Build the images; `--no-cache` also updates the agents |
 | `roke down [--all]` | Stop the project's containers, or every project's; their data is kept |
 | `roke purge` | Stop them and delete all the project's data |
 
+The box and gateway images are shared across projects, so a single build
+usually suffices when they use the same build settings. `roke build` also
+builds selected services that have a Dockerfile and applies the current
+project's configuration. The first build registers the project automatically,
+using its directory name as the default ID. The optional `--id NAME` chooses
+a different initial ID, for example `roke build --id acme-api`.
+
 If Compose rejects a service name, `roke logs` shows the available names from
 the resolved Compose configuration. This includes the gateway, selected
 services and any services added in the project's `compose.yaml`.
+
+**Projects** (see [project IDs and moves](configuration.md#project-ids-and-moves))
+
+| Command | Description |
+|---|---|
+| `roke project` | List registered IDs and paths on this machine, marking missing directories; works from anywhere without Docker |
+| `roke project show ID` | Show a registered project's path, settings directory and Compose name |
 
 **Agents** (see [choosing the agent](#choosing-the-agent))
 
@@ -122,10 +143,14 @@ Examples:
 ```fish
 roke continue               # resume the agent's last session
 roke exec -s postgres psql  # a single command, with a service
-roke -C ~/src/shop urls     # another project, from anywhere
+roke urls -C ~/src/shop     # another project, from anywhere
 ```
 
 ## Checking the settings
+
+`roke settings` inspects the current project. `roke settings show ID` uses a
+registered identity instead, from any directory, without changing its path
+or registration. It also works when the registered directory is missing.
 
 `roke settings` shows what applies to the current project and where each
 value comes from: the agent, the network mode, the services, the ports, the

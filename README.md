@@ -64,6 +64,8 @@ roke -s postgres -p 5173    # this time with a database and the dev server's por
 roke shell                  # bash inside the box
 roke exec psql              # a single command inside the box
 roke urls                   # where the app and the services are
+roke project                # registered project IDs and their paths
+roke settings show acme-api # another registered project's settings, from anywhere
 roke service show postgres  # a service: version, address, variables, docs
 roke settings edit          # edit the project's settings in your editor
 roke service add postgres   # add a service to the project, for good

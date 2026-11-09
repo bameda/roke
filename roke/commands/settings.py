@@ -17,7 +17,7 @@ SECRET_NAME = re.compile(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)=", re.M)
 
 # --- roke settings ------------------------------------------------------------------
 def show(req) -> None:
-    ws = Workspace(req).open(guards=False)
+    ws = Workspace(req).open(guards=False, registered_id=req.values[0] if req.sub == "show" else "")
     ws.load_all()
     p = ws.project
     files = [
