@@ -92,9 +92,15 @@ class Compose:
             cmd += ["-f", str(f)]
         return cmd + list(args)
 
-    def call(self, *args: str, files=None, capture=False) -> subprocess.CompletedProcess:
+    def call(
+        self, *args: str, files=None, capture=False, capture_stderr=False
+    ) -> subprocess.CompletedProcess:
         return subprocess.run(
-            self.command(*args, files=files), env=self.env, capture_output=capture, text=True
+            self.command(*args, files=files),
+            env=self.env,
+            stdout=subprocess.PIPE if capture else None,
+            stderr=subprocess.PIPE if capture or capture_stderr else None,
+            text=True,
         )
 
     def running(self, service: str) -> bool:

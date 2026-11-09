@@ -62,6 +62,11 @@ project tried to reach and was denied, then allow it with
 `roke network add DESTINATION` and start the project again. See
 [Network](network.md).
 
+For errors from a service, use `roke logs SERVICE` (for example,
+`roke logs postgres`). `roke logs gateway` shows the network gateway's logs;
+`roke logs -f` follows all project services. Compose options pass through, so
+`roke logs --tail 100 --since 2h postgres` limits lines and filters by time.
+
 ### The app does not load in the browser
 
 Publish its port (`-p 5173` or `ROKE_PORTS`) and make the dev server

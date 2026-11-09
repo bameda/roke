@@ -14,6 +14,7 @@ HANDLERS = {
     ("down", ""): box.down,
     ("purge", ""): box.purge,
     ("doctor", ""): doctor.run,
+    ("logs", ""): box.logs,
     ("agent", "list"): agent.show,
     ("agent", "show"): agent.show_one,
     ("agent", "use"): agent.use,

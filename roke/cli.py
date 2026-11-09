@@ -158,6 +158,11 @@ def parse(argv: list) -> Request:
         _flags(req, args, {"--no-cache": "no_cache"})
     elif c == "down":
         _flags(req, args, {"--all": "all"})
+    elif c == "logs":
+        if args in (["-h"], ["--help"]):
+            req.help = c
+        else:
+            req.cmd = args
     elif c in GROUPS:
         req.sub = args[0] if args else "list"
         args = args[1:]

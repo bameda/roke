@@ -52,6 +52,12 @@ if args[:1] == ["run"]:
     sys.exit(subprocess.run([sys.executable, "-c", script]).returncode)
 if args[:1] == ["compose"]:
     rest = args[1:]
+    if "logs" in rest and os.environ.get("FAKE_LOGS_ERROR"):
+        if os.environ["FAKE_LOGS_ERROR"] == "service":
+            print("no such service: missing", file=sys.stderr)
+        else:
+            print("unknown flag: --bad", file=sys.stderr)
+        sys.exit(1)
     if rest[:1] == ["version"]:
         print("Docker Compose version v5.0.0-fake")
         sys.exit(0)
@@ -74,6 +80,9 @@ if args[:1] == ["compose"]:
         if os.environ.get("FAKE_COMPOSE_FAIL") == "config":
             print("invalid compose file", file=sys.stderr)
             sys.exit(1)
+        if "--services" in rest:
+            print(os.environ.get("FAKE_COMPOSE_SERVICES", "box\ngateway"))
+            sys.exit(0)
         real = os.environ.get("FAKE_REAL_COMPOSE")
         if real and "--hash" in rest:
             # Record the hashes, so tests can compare them between runs.

@@ -14,6 +14,8 @@ The project's box
   roke shell                 Open bash in the box
   roke exec CMD...           Run a command in the box
   roke urls                  Where the app and the services are
+  roke logs [OPTIONS] [SERVICE...]
+                             Show project logs (Compose logs options)
   roke settings              The project's settings and where they come from
   roke doctor                Check prerequisites and report what needs fixing
   roke settings edit [FILE]  Edit them in your editor (--global: yours): env
@@ -81,6 +83,7 @@ BOX_COMMANDS = (
     "shell",
     "exec",
     "urls",
+    "logs",
     "settings",
     "doctor",
     "build",

@@ -38,12 +38,17 @@ remember:
 | `roke shell` | Open bash in the box |
 | `roke exec CMD...` | Run a command in the box |
 | `roke urls` | Where the app and the services are |
+| `roke logs [OPTIONS] [SERVICE...]` | Show project logs; passes arguments to [`docker compose logs`](https://docs.docker.com/reference/cli/docker/compose/logs/) |
 | `roke settings` | The project's settings and where they come from |
 | `roke doctor` | Check prerequisites and report what needs fixing; returns nonzero when something needs attention |
 | `roke settings edit [FILE]` | Edit them in your editor; see [editing the settings](#editing-the-settings) |
 | `roke build [--no-cache]` | Build the images; `--no-cache` also updates the agents |
 | `roke down [--all]` | Stop the project's containers, or every project's; their data is kept |
 | `roke purge` | Stop them and delete all the project's data |
+
+If Compose rejects a service name, `roke logs` shows the available names from
+the resolved Compose configuration. This includes the gateway, selected
+services and any services added in the project's `compose.yaml`.
 
 **Agents** (see [choosing the agent](#choosing-the-agent))
 

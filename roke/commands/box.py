@@ -1,6 +1,7 @@
 """The project's box: run (also continue, shell and exec), urls, settings,
 build, down and purge."""
 
+import re
 import sys
 
 from roke import urls as urls_output
@@ -61,6 +62,23 @@ def urls(req) -> int:
         )
     )
     return 0
+
+
+def logs(req) -> int:
+    ws = Workspace(req).open(docker=True)
+    ws.load_all()
+    compose = ws.prepare_compose(create_agent_dir=False)
+    result = compose.call("logs", *req.cmd, capture_stderr=True)
+    if result.stderr:
+        print(result.stderr, end="", file=sys.stderr)
+        if result.returncode and re.search(
+            r"no such service|service .+ not found", result.stderr, re.I
+        ):
+            available = compose.call("config", "--services", capture=True)
+            names = [name for name in available.stdout.splitlines() if name != "box"]
+            if not available.returncode and names:
+                print(f"Available logs: {', '.join(names)}", file=sys.stderr)
+    return result.returncode
 
 
 def build(req) -> int:
