@@ -30,6 +30,18 @@ with open(os.environ["FAKE_DOCKER_LOG"], "a") as log:
 
 # Running containers: sessions (FAKE_SESSIONS="claude,codex", one-off runs of
 # the box) and services (FAKE_RUNNING_HASHES="gateway=h1,postgres=h2").
+if args[:1] == ["version"]:
+    if "FAKE_DOCKER_VERSION_OUTPUT" in os.environ:
+        print(os.environ["FAKE_DOCKER_VERSION_OUTPUT"])
+        sys.exit(0)
+    data = {"Client": {"Version": "28.1.0-fake"}}
+    failed = os.environ.get("FAKE_DOCKER_FAIL") == "info"
+    if not failed:
+        data["Server"] = {"Version": "27.5.0-fake"}
+    print(json.dumps(data))
+    sys.exit(1 if failed else 0)
+if args[:1] == ["info"]:
+    sys.exit(1 if os.environ.get("FAKE_DOCKER_FAIL") == "info" else 0)
 if args[:1] == ["ps"]:
     if os.environ.get("FAKE_DOCKER_FAIL") == "ps":
         print("daemon unavailable", file=sys.stderr)

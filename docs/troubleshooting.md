@@ -18,8 +18,13 @@ To save a report for an issue, use:
 roke doctor --yaml > roke-diagnostic.yaml
 ```
 
-It contains check results and Python/Compose versions, without environment
+It contains check results and versions of Python, the Docker client
+(`docker_client`), Docker Engine (`docker_engine`) and Docker Compose
+(`docker_compose`, previously `compose`), without environment
 values, project paths, tokens or raw error output from configuration tools.
+The top-level `ok` is `true` when all checks pass and `false` otherwise.
+Versions that cannot be read are omitted; if the daemon is unavailable,
+the Docker client version can still be reported without an Engine version.
 Errors that could quote configuration values are replaced with an action to
 run locally. Normal `roke doctor` keeps its detailed local error messages.
 The command still exits nonzero if a check fails; the report is written even

@@ -1,5 +1,7 @@
 """Project diagnostics without starting containers or writing settings."""
 
+import pytest
+
 
 def test_healthy_project(env):
     shop = env.project()
@@ -54,13 +56,46 @@ def test_yaml_report_is_read_only_and_contains_no_secrets_or_paths(env):
     r = env.roke("doctor", "--yaml", cwd=shop)
     assert r.code == 0, r.text
     assert r.out.startswith("schema_version: 1\nok: true\nversions:\n")
-    assert '  compose: "' in r.out
+    assert '  docker_compose: "v5.0.0-fake"' in r.out
+    assert '  docker_client: "28.1.0-fake"' in r.out
+    assert '  docker_engine: "27.5.0-fake"' in r.out
+    assert "  compose:" not in r.out
     assert '  - name: "MCP github"' in r.out
     assert '    status: "FAIL"' not in r.out
     assert "private-token-value" not in r.text
     assert str(env.home) not in r.text
     assert not r.err
     assert sorted(str(path) for path in env.config.rglob("*")) == before
+
+
+def test_yaml_report_keeps_client_version_when_daemon_is_unavailable(env):
+    r = env.roke("doctor", "--yaml", cwd=env.project(), env={"FAKE_DOCKER_FAIL": "info"})
+    assert r.code == 1
+    assert "ok: false" in r.out
+    assert '  docker_client: "28.1.0-fake"' in r.out
+    assert "docker_engine:" not in r.out
+    assert 'name: "Docker daemon"\n    status: "FAIL"' in r.out
+    assert not r.err
+
+
+@pytest.mark.parametrize(
+    "output",
+    [
+        "invalid secret-value",
+        "null",
+        "[]",
+        '{"Client": null, "Server": []}',
+        '{"Client": {"Version": "secret-value"}, "Server": {"Version": 42}}',
+    ],
+)
+def test_yaml_report_ignores_unusable_docker_versions(env, output):
+    r = env.roke("doctor", "--yaml", cwd=env.project(), env={"FAKE_DOCKER_VERSION_OUTPUT": output})
+    assert r.code == 0, r.text
+    assert "ok: true" in r.out
+    assert "docker_client:" not in r.out
+    assert "docker_engine:" not in r.out
+    assert "secret-value" not in r.text
+    assert not r.err
 
 
 def test_yaml_failure_reports_multiple_issues_without_raw_compose_errors(env):

@@ -63,6 +63,27 @@ def run(req) -> int:
     return report.finish()
 
 
+def docker_versions(report: Report) -> None:
+    result = subprocess.run(
+        ["docker", "version", "--format", "{{json .}}"], capture_output=True, text=True
+    )
+    try:
+        data = json.loads(result.stdout)
+    except ValueError:
+        return
+    if not isinstance(data, dict):
+        return
+    # A failed daemon connection may still provide the client's version.
+    for component, key in (("Client", "docker_client"), ("Server", "docker_engine")):
+        if component == "Server" and result.returncode:
+            continue
+        details = data.get(component)
+        version = details.get("Version") if isinstance(details, dict) else None
+        # Only export version tokens, never arbitrary tool output or errors.
+        if isinstance(version, str) and re.fullmatch(r"v?\d[\w.+-]*", version):
+            report.versions[key] = version
+
+
 def diagnose(req, report: Report) -> None:
     ws = Workspace(req).open()
     ws.load_all(required_agent=True)
@@ -78,13 +99,15 @@ def diagnose(req, report: Report) -> None:
     if not shutil.which("docker"):
         report.add("Docker", False, "install Docker with the Compose plugin")
         return
+    if report.as_yaml:
+        docker_versions(report)
     version = subprocess.run(["docker", "compose", "version"], capture_output=True, text=True)
     if version.returncode:
         report.add("Docker Compose", False, "install the Compose plugin v2")
         return
     match = re.fullmatch(r"Docker Compose version (v?\d[\w.+-]*)", version.stdout.strip())
     if match:
-        report.versions["compose"] = match[1]
+        report.versions["docker_compose"] = match[1]
     report.add("Docker Compose", True)
     if subprocess.run(["docker", "info"], capture_output=True).returncode:
         report.add("Docker daemon", False, "start Docker and try again")
