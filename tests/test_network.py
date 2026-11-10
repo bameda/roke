@@ -102,6 +102,7 @@ def test_network_lists_the_layers(env):
     env.roke("network", "add", "project.example.com", cwd=shop)
     out = env.roke("network", cwd=shop).out
     assert "Network mode: restricted (built-in default)" in out
+    assert "Published ports: roke urls" in out
     for part in (
         "base",
         "agent",

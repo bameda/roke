@@ -39,6 +39,7 @@ def show(req) -> None:
             [
                 f"Project   {p.dir}{state(p.compose_name)}",
                 f"ID        {p.name}",
+                f"Compose   {p.compose_name}",
                 f"Settings  {ws.config}: {found or '(no files)'}",
                 f"Agent     {agent}",
                 *([f"Parallel  {', '.join(ws.parallel_agents)}"] if ws.parallel_agents else []),
@@ -46,7 +47,7 @@ def show(req) -> None:
                 f"Services  {service_labels(ws) or 'none'}",
                 f"MCPs      {mcp_labels(ws) or 'none'}",
                 f"Secrets   {secret_names(ws) or 'none'}",
-                f"Ports     {' '.join(ws.ports) or 'none'}",
+                f"Box ports {' '.join(ws.ports) or 'none'} (all published ports: roke urls)",
                 f"Serena    {'on' if ws.serena else 'off'}",
                 f".git      {'read-write' if ws.git_rw else 'read-only'}",
             ]

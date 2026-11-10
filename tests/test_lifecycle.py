@@ -54,11 +54,12 @@ def test_settings(env):
     out = env.roke("settings", cwd=shop).out
     for part in (
         f"Project   {shop}",
+        "Compose   roke-shop-",
         "Agent     claude (default agent, roke.env)",
         "Network   restricted (built-in default): ",
         "destinations allowed (roke network)",
         "Services  postgres ",
-        "Ports     5173",
+        "Box ports 5173 (all published ports: roke urls)",
         "Serena    off",
         ".git      read-only",
     ):

@@ -30,7 +30,8 @@ def test_urls(env, compose):
     )
     r = env.roke("urls", "-p", "5173", cwd=shop, env={"FAKE_REAL_COMPOSE": compose})
     assert r.code == 0, r.text
-    assert "http://127.0.0.1:5173 (box port 5173)" in r.out
+    assert "Configured ports (project stopped)" in r.out
+    assert "http://127.0.0.1:5173 → box:5173 (tcp, local only)" in r.out
     assert "mailpit      http://127.0.0.1:18025" in r.out
     assert "mailpit:1025 · mailpit:8025" in r.out
     assert "DATABASE_URL" not in r.out  # variables are in roke service show

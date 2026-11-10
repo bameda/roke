@@ -7,6 +7,7 @@ import sys
 from roke import urls as urls_output
 from roke.docker import (
     container_env,
+    published_configuration,
     require_docker,
     running_containers,
     running_projects,
@@ -52,13 +53,15 @@ def urls(req) -> int:
     ws.load_all()
     compose = ws.prepare_compose(publish=True)
     services = {s: compose.config(ws.base_files + [ws.services.file(s)]) for s in ws.selected}
+    containers = running_containers(compose.name)
     print(
         urls_output.render(
             ws.project.name,
-            compose.running("gateway"),
+            bool(containers),
             compose.config(),
             compose.config(ws.base_files),
             services,
+            published_configuration(containers),
         )
     )
     return 0

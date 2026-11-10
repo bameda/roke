@@ -3,6 +3,7 @@ configuration: the URLs to open from the host, and each service's address
 and variables inside the box. Each service's variables are told apart by
 comparing the configuration with and without it."""
 
+import ipaddress
 import re
 
 SERENA_DASHBOARD = "24282"
@@ -20,21 +21,34 @@ def forwards(full: dict) -> dict[str, str]:
 
 
 def host_urls(full: dict) -> list[tuple[str, str, str]]:
-    """The URLs published on the host: (what, url, note)."""
-    gateway = full.get("services", {}).get("gateway", {})
+    """All host bindings: (what, address, destination and scope)."""
     fwd = forwards(full)
     rows = []
-    for p in gateway.get("ports") or []:
-        host, published, target = p.get("host_ip") or "", p.get("published"), str(p.get("target"))
-        url = f"http://127.0.0.1:{published}"
-        note = "" if host == "127.0.0.1" else "(also reachable from your network)"
-        if target in fwd:
-            label = fwd[target].split(":")[0]
-        elif target == SERENA_DASHBOARD:
-            label, url = "serena", url + "/dashboard/"
-        else:
-            label, note = "app", f"(box port {target}) {note}".strip()
-        rows.append((label, url, note))
+    for name, service in full.get("services", {}).items():
+        for p in service.get("ports") or []:
+            host = p.get("host_ip") or "0.0.0.0"
+            published, target = p.get("published"), str(p.get("target"))
+            if published is None:
+                continue
+            protocol = p.get("protocol", "tcp")
+            scope = "local only" if ipaddress.ip_address(host).is_loopback else "network access"
+            if host in ("0.0.0.0", "::"):
+                scope += f", bind {host}"
+            address = "127.0.0.1" if host == "0.0.0.0" else host
+            address = "::1" if address == "::" else address
+            address = f"[{address}]" if ":" in address else address
+            scheme = "http" if name == "gateway" and protocol == "tcp" else protocol
+            url = f"{scheme}://{address}:{published}"
+            label, destination = name, f"{name}:{target}"
+            if name == "gateway":
+                if target in fwd:
+                    destination = fwd[target]
+                    label = destination.split(":")[0]
+                elif target == SERENA_DASHBOARD:
+                    label, destination, url = "serena", f"box:{target}", url + "/dashboard/"
+                else:
+                    label, destination = "app", f"box:{target}"
+            rows.append((label, url, f"→ {destination} ({protocol}, {scope})"))
     return sorted(rows)
 
 
@@ -60,18 +74,27 @@ def service_info(name: str, own_conf: dict, base: dict, full: dict) -> tuple[lis
     return [f"{name}:{p}" for p in sorted(ports)] or [name], {k: value(k) for k in own}
 
 
-def render(project: str, running: bool, full: dict, base: dict, services: dict) -> str:
-    rows = host_urls(full)
+def render(
+    project: str, running: bool, full: dict, base: dict, services: dict, published: dict
+) -> str:
+    configured = host_urls(full)
+    rows = host_urls(published) if running else configured
     labels = list(services) + ["app", "serena"] + [label for label, _, _ in rows]
     col = max(12, *(len(x) for x in labels)) + 1
     out = [
         f"{project} ({'running' if running else 'not running: start it with roke'})",
         "",
-        "Open from your browser",
+        "Published ports (running containers)" if running else "Configured ports (project stopped)",
     ]
     if not rows:
-        out.append("  nothing published: roke -p PORT for the app; services publish their UIs")
+        out.append(
+            "  none" if running else "  none: roke -p PORT for the app; services publish their UIs"
+        )
     out += [f"  {label:<{col}}{url} {note}".rstrip() for label, url, note in rows]
+    if running and rows != configured:
+        out += ["", "Configured ports (next start)"]
+        out += [f"  {label:<{col}}{url} {note}" for label, url, note in configured] or ["  none"]
+        out.append("  Settings differ from the running containers; applied on the next start.")
     out += ["", "Reach from inside the box"]
     if not services:
         out.append("  no services: roke service add NAME, or -s LIST for one run")

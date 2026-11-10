@@ -84,6 +84,47 @@ def container_env(container: str) -> dict[str, str]:
     return dict(item.split("=", 1) for item in values if "=" in item)
 
 
+def published_configuration(containers: list[dict[str, str]]) -> dict:
+    """Published bindings and gateway forwards of the running containers,
+    in the same shape as resolved Compose configuration."""
+    services: dict = {}
+    for container in containers:
+        name, ident = container["service"], container["id"]
+        out = _output(
+            ["docker", "inspect", "--format", "{{json .NetworkSettings.Ports}}", ident],
+            f"read published ports of container {ident}",
+        )
+        try:
+            bindings = json.loads(out)
+            if bindings is None:
+                bindings = {}
+            if not isinstance(bindings, dict):
+                raise ValueError
+            service = services.setdefault(name, {"ports": []})
+            for target, addresses in bindings.items():
+                port, protocol = target.split("/")
+                for address in addresses or []:
+                    if not all(isinstance(address[key], str) for key in ("HostIp", "HostPort")):
+                        raise ValueError
+                    service["ports"].append(
+                        {
+                            "target": port,
+                            "protocol": protocol,
+                            "host_ip": address["HostIp"],
+                            "published": address["HostPort"],
+                        }
+                    )
+        except (ValueError, TypeError, KeyError, AttributeError):
+            die(f"could not read published ports of container {ident}")
+        if name == "gateway":
+            service["environment"] = {
+                key: value
+                for key, value in container_env(ident).items()
+                if key.startswith("ROKE_FORWARD_")
+            }
+    return {"services": services}
+
+
 def stop_project(name: str) -> int:
     return subprocess.run(["docker", "compose", "-p", name, "down", "--remove-orphans"]).returncode
 

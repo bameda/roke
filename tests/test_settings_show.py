@@ -29,7 +29,7 @@ def test_named_settings_work_when_project_path_is_missing(env):
     assert r.code == 0, r.text
     assert f"Project   {shop}" in r.out
     assert "ID        alias" in r.out
-    assert "Ports     5173" in r.out
+    assert "Box ports 5173 (all published ports: roke urls)" in r.out
     assert registry.read_text() == before
 
 

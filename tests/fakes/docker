@@ -63,8 +63,16 @@ if args[:1] == ["inspect"]:
         print("invalid response")
         sys.exit(0)
     container = args[-1]
+    if ".NetworkSettings.Ports" in args[2]:
+        print(json.dumps(json.loads(os.environ.get("FAKE_PORT_BINDINGS", "{}")).get(container)))
+        sys.exit(0)
+    if "FAKE_CONTAINER_ENVS" in os.environ:
+        print(json.dumps(json.loads(os.environ["FAKE_CONTAINER_ENVS"]).get(container, [])))
+        sys.exit(0)
     if container.startswith("sess-"):
         print(json.dumps([f"ROKE_AGENT={container[5:]}"]))
+    else:
+        print("[]")
     sys.exit(0)
 if args[:1] in (["volume"],):
     sys.exit(0)
@@ -130,6 +138,9 @@ if args[:1] == ["compose"]:
         if "--hash" in rest:
             for item in filter(None, os.environ.get("FAKE_CONFIG_HASHES", "").split(",")):
                 print(" ".join(item.split("=", 1)))
+            sys.exit(0)
+        if "FAKE_CONFIG_JSON" in os.environ:
+            print(os.environ["FAKE_CONFIG_JSON"])
             sys.exit(0)
         print(
             json.dumps(

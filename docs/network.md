@@ -195,6 +195,11 @@ publishes them on `127.0.0.1`:
   service's compose file asks the gateway to forward a port to it. See
   [publishing a service's port](../catalog/services/README.md#publishing-a-services-port).
 
+Run `roke urls` to see all published ports, their destinations and binding
+scope, including the services' UIs. It reads running containers and shows
+configured ports separately when they differ. `roke network` lists allowed
+outgoing destinations.
+
 ## Limitations
 
 - **Programs that resolve names on their own**, for example with DNS over

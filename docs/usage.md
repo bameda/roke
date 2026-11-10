@@ -162,18 +162,22 @@ destinations, layer by layer.
 ```text
 Project   /home/me/src/shop (running)
 ID        shop
+Compose   roke-shop-f39b23e3
 Settings  /home/me/.config/roke: roke.env secrets.env projects/shop/project.env
 Agent     claude (default agent, roke.env)
 Network   restricted (built-in default): 29 destinations allowed (roke network)
 Services  postgres 18, mailpit v1.33.0
 MCPs      github
 Secrets   GITHUB_PAT (global)
-Ports     5173
+Box ports 5173 (all published ports: roke urls)
 Serena    on
 .git      read-only
 ```
 
-`roke network` shows only the network part, and `roke agent` and
+`Box ports` lists the configured ports of the box. `roke urls` includes the
+services' published ports too. `Compose` identifies the project in Docker.
+
+`roke network` shows the allowed outgoing destinations, and `roke agent` and
 `roke service` what is available and what the project uses.
 
 ## Editing the settings
@@ -196,15 +200,16 @@ syntax error, such as an unclosed quote, would stop roke until fixed.
 
 ## Finding the services and ports
 
-`roke urls` shows where everything is in the current project, with the
-values that actually apply (your ports, your database name...):
+`roke urls` shows the ports published by the current project's running
+containers, their destinations and whether they bind only to your machine
+or also to a network interface:
 
 ```text
 shop (running)
 
-Open from your browser
-  app          http://127.0.0.1:5173 (box port 5173)
-  mailpit      http://127.0.0.1:18025
+Published ports (running containers)
+  app          http://127.0.0.1:5173 → box:5173 (tcp, local only)
+  mailpit      http://127.0.0.1:18025 → mailpit:8025 (tcp, local only)
 
 Reach from inside the box
   postgres     postgres:5432
@@ -213,9 +218,17 @@ Reach from inside the box
 The variables each service gives the box: roke service show NAME
 ```
 
-It reads the project's resolved configuration, so it needs Docker, but not
-the project running. Options such as `-s` and `-p` apply, so
-`roke urls -s redis` shows what that run would look like.
+It includes ports published by custom containers in the project's
+`compose.yaml`. HTTP addresses are shown for the app and forwarded service
+UIs; other bindings use `tcp://` or `udp://` addresses. `network access`
+means the port binds to a non-loopback interface; host firewalls still apply.
+
+If the project is stopped, it shows configured ports instead. If the running
+bindings differ from the current configuration, a separate `Configured ports
+(next start)` section shows the expected bindings after restarting. Options
+such as `-s` and `-p` apply to that configuration, so `roke urls -s redis`
+shows what that run would look like without changing running containers.
+Docker and Compose are required; the project does not need to be running.
 
 The variables each service gives the box, with your settings applied, are
 in `roke service show NAME`, followed by the service's README:

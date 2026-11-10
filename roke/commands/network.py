@@ -40,6 +40,7 @@ def show(req) -> None:
     ws = Workspace(req).open(guards=False)
     ws.load_all()
     print(f"Network mode: {ws.network} ({ws.network_source})\n")
+    print("Published ports: roke urls\n")
     print(render_network(ws))
 
 
