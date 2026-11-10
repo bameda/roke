@@ -90,7 +90,7 @@ host; [rootless Docker](#rootless-docker) avoids that.
 ## Install roke
 
 ```fish
-curl -fsSL https://raw.githubusercontent.com/bameda/roke/main/install.sh | bash
+curl -fsSL https://github.com/bameda/roke/releases/latest/download/install.sh | bash
 ```
 
 The installer:
@@ -106,7 +106,9 @@ The whole script runs from its last line, so a download cut halfway runs
 nothing. To read it before running it:
 
 ```fish
-curl -fsSL https://raw.githubusercontent.com/bameda/roke/main/install.sh -o install.sh
+curl -fsSL https://github.com/bameda/roke/releases/latest/download/install.sh -o install.sh
+curl -fsSL https://github.com/bameda/roke/releases/latest/download/SHA256SUMS -o SHA256SUMS
+sha256sum -c SHA256SUMS
 less install.sh
 bash install.sh
 ```
@@ -125,8 +127,7 @@ Its settings are environment variables, placed before `bash`:
 To work on roke itself, clone the repository wherever you want and run
 `./install.sh` from it: it uses that clone instead.
 
-To follow development on `main`, or until the first stable release is
-published, install with:
+To follow development on `main`, install with:
 
 ```fish
 curl -fsSL https://raw.githubusercontent.com/bameda/roke/main/install.sh \
@@ -176,7 +177,7 @@ its URL to the installer. It clones the repository into `~/.config/roke` and
 adds any missing file from the examples:
 
 ```fish
-curl -fsSL https://raw.githubusercontent.com/bameda/roke/main/install.sh \
+curl -fsSL https://github.com/bameda/roke/releases/latest/download/install.sh \
   | ROKE_CONFIG_REPO=git@github.com:<you>/roke-config.git bash
 ```
 
@@ -211,10 +212,9 @@ Running the installer again follows the same channel unless `ROKE_VERSION`
 is set explicitly. Your configuration is not touched, and neither are the
 versions of your projects' services, which each project keeps: `roke service`
 shows which ones have a newer version, and `roke service upgrade` moves a
-project on (see [Versions](../catalog/services/README.md#versions)). Releases with
-incompatible changes are marked with `!` in the commit history (for example
-`feat(postgres)!: ...`): read their description, which explains what to
-change.
+project on (see [Versions](../catalog/services/README.md#versions)). Read
+[CHANGELOG.md](../CHANGELOG.md) or the GitHub Release notes before updating;
+breaking changes and migration steps appear first.
 
 `roke build` rebuilds the images only where something changed. Agents
 installed from a channel (`latest`, `stable`) are not updated by it, since

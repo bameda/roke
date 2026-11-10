@@ -2,7 +2,7 @@
 # Installs roke, or updates it if it is already installed.
 #
 # From the internet (clones roke into ~/.local/share/roke):
-#   curl -fsSL https://raw.githubusercontent.com/bameda/roke/main/install.sh | bash
+#   curl -fsSL https://github.com/bameda/roke/releases/latest/download/install.sh | bash
 #
 # From a clone of the repository (uses that clone):
 #   ./install.sh

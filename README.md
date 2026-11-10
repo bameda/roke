@@ -37,11 +37,8 @@ agent's reach.
 2. Install roke:
 
    ```fish
-   curl -fsSL https://raw.githubusercontent.com/bameda/roke/main/install.sh | bash
+   curl -fsSL https://github.com/bameda/roke/releases/latest/download/install.sh | bash
    ```
-
-   Until the first stable release is published, use `| ROKE_VERSION=main bash`
-   to install from `main`. New installations otherwise select the latest stable release.
 
 3. Choose your default agent: `roke agent use claude --global`, `codex` or
    `opencode`.

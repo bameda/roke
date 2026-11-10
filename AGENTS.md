@@ -57,6 +57,27 @@ Docker Compose skip themselves when there is none, as inside roke's box.
   requires users to do something is marked with `!` and ends with a
   `BREAKING CHANGE:` paragraph saying what to do.
 
+## Release recommendations
+
+When proposing changes, assess whether they justify a release using
+[Version selection](docs/releases.md#version-selection). Consider the
+accumulated changes since the last published release, not just the current
+commit, and recommend the increment with the greatest compatibility impact:
+
+- **Major**: incompatible changes requiring users to adapt commands,
+  configuration or workflows. From `1.0.0` onward, include migration steps.
+- **Minor**: new functionality that preserves existing usage, such as a
+  command, optional flag, service or agent. Below `1.0.0`, incompatible
+  changes also use minor and still require migration instructions.
+- **Patch**: compatible fixes and maintenance without new functionality,
+  including documentation corrections and compatible dependency updates.
+
+A release recommendation should explain the benefit to users, the proposed
+increment and any migration needed. Important fixes and useful new features
+can justify a release; internal refactoring, tests or CI changes alone can
+usually wait and be grouped with later changes. Not every commit needs a
+release. The maintainer selects the increment and starts release preparation.
+
 ## Adding a service, an agent or an MCP server
 
 Follow [Adding your own service](catalog/services/README.md#adding-your-own-service),

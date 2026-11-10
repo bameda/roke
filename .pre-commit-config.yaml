@@ -2,7 +2,7 @@
 #   uvx pre-commit install
 # and run every check on every file with
 #   uvx pre-commit run --all-files
-# GitHub Actions runs the same checks (.github/workflows/test.yml).
+# GitHub Actions runs the same checks (.github/workflows/ci.yml).
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0

@@ -58,12 +58,12 @@ they live in roke's configuration directory, outside the agent's writable
 mount. The [security guide](security.md) explains this boundary, and the
 [network guide](network.md) shows the container layout.
 
-## Development tools
+## Versions and releases
 
 The root `VERSION` file is the single source of the application version,
 read by `roke version` (also `roke --version`) and `roke doctor --yaml`.
-Keep development versions marked with a `-dev` suffix until preparing a release. Agent and service
-versions remain independent of roke's version.
+A `-dev` suffix identifies a development version. Agent and service versions
+remain independent of roke's version.
 
 Managed installations store their update channel in the installation's
 local Git configuration (`roke.channel`), outside project settings. Stable
@@ -71,6 +71,15 @@ updates resolve GitHub's latest published release and check out its tag;
 `main` updates only fast-forward. Both the installer and updater preserve
 local changes and commits. Installer/update tests use local Git repositories
 and simulated GitHub responses, without network access.
+
+Release automation lives in `scripts/release.py` and the prepare/publish
+workflows. `CHANGELOG.md` records the released history; preparation creates
+the next section from Git commits. Publication is a final CI job, allowed
+only after the checks and real Docker tests pass for the exact `main`
+commit being tagged. [Release lifecycle](releases.md) documents version
+selection, changelog generation, validation and publication.
+
+## Development tools
 
 Before each commit, [pre-commit](https://pre-commit.com/) checks the
 changed files:
@@ -149,7 +158,7 @@ python3 -m pytest          # or with pytest installed
 The tests that check the resolved configurations of the example projects,
 and `roke urls`, also need a real Docker Compose binary; they are skipped
 when there is none. GitHub Actions runs these tests on each push and pull
-request (`.github/workflows/test.yml`).
+request (`.github/workflows/ci.yml`, **CI and releases**).
 
 The CI `test` job requires a working Compose binary and excludes the real
 Docker integration directory. `ROKE_REQUIRE_COMPOSE=1` makes a missing or

@@ -1,0 +1,70 @@
+name: Prepare release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version increment
+        type: choice
+        required: true
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: read
+
+concurrency:
+  group: roke-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Prepare version and changelog
+        env:
+          BUMP: ${{ inputs.bump }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          gh auth setup-git
+          old="$(git ls-remote origin refs/heads/release/next | cut -f1)"
+          version="$(python3 scripts/release.py prepare --bump "$BUMP" \
+            --repository "$GITHUB_REPOSITORY" --notes-file "$RUNNER_TEMP/release-notes.md")"
+          git switch -c release/next
+          git add VERSION CHANGELOG.md
+          git commit -s -m "chore(release): v$version"
+          git push "--force-with-lease=refs/heads/release/next:$old" origin HEAD:refs/heads/release/next
+          {
+            echo 'Updates VERSION and CHANGELOG.md for the next release.'
+            echo
+            echo 'Review migration notes, then merge after CI passes. Publication follows successful CI on main.'
+            echo 'Run Prepare release again if main changes before merging; it regenerates this branch.'
+            echo
+            cat "$RUNNER_TEMP/release-notes.md"
+          } > "$RUNNER_TEMP/release-pr.md"
+          existing="$(gh pr list --base main --head release/next --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --title "chore(release): v$version" --body-file "$RUNNER_TEMP/release-pr.md"
+          else
+            gh pr create --base main --head release/next --title "chore(release): v$version" \
+              --body-file "$RUNNER_TEMP/release-pr.md"
+          fi
+      - name: Run CI explicitly for the release branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --ref release/next
