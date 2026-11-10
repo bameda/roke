@@ -31,6 +31,8 @@ HANDLERS = {
     ("mcp", "show"): mcp.show_one,
     ("mcp", "add"): mcp.change,
     ("mcp", "rm"): mcp.change,
+    ("mcp", "allow"): mcp.approval,
+    ("mcp", "ask"): mcp.approval,
     ("network", "list"): network.show,
     ("network", "add"): network.change,
     ("network", "rm"): network.change,

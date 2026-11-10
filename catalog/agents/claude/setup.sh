@@ -22,15 +22,20 @@ cp "$AGENT_INSTRUCTIONS" /etc/claude-code/CLAUDE.md
 # The project's MCP servers (roke mcp) and Serena, through a per-start MCP
 # configuration passed on the command line; MCP servers you add to Claude
 # Code yourself keep working alongside them.
-mcp_servers="$(python3 /opt/roke/agents/mcp.py claude)"
+mcp_args=(claude)
 if ((SERENA_ENABLED)); then
   serena_command claude-code
-  mcp_servers="$(jq --args '. + { serena: {
-      type: "stdio", command: $ARGS.positional[0], args: $ARGS.positional[1:]
-    } }' -- "${SERENA_CMD[@]}" <<<"$mcp_servers")"
+  mcp_args+=(--serena "${SERENA_CMD[@]}")
 fi
+mcp_servers="$(python3 /opt/roke/agents/mcp.py "${mcp_args[@]}")"
 if [[ "$mcp_servers" != "{}" ]]; then
   mcp_config="$ROKE_RUNTIME/claude-mcp.json"
   jq '{ mcpServers: . }' <<<"$mcp_servers" > "$mcp_config"
   AGENT_ARGS=(--mcp-config "$mcp_config")
+fi
+permissions="$(python3 /opt/roke/agents/mcp.py --permissions "${mcp_args[@]}")"
+if [[ "$permissions" != "{}" ]]; then
+  permissions_file="$ROKE_RUNTIME/claude-permissions.json"
+  printf '%s\n' "$permissions" > "$permissions_file"
+  AGENT_ARGS+=(--settings "$permissions_file")
 fi

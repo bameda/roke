@@ -29,6 +29,10 @@ read-only, so edit it on your host. The terminal client's own file
 
 ## Instructions, MCP servers and Serena
 
+`roke mcp allow NAME` and `roke mcp ask NAME` generate OpenCode 2 permission
+rules for that server's tools and resource access, including Serena.
+See [Tool approvals](../../mcps/README.md#tool-approvals).
+
 - **Instructions**: the combined instructions (see
   [agents](../README.md#instructions-for-the-agent)) become
   `~/.config/opencode/AGENTS.md`, OpenCode's global instructions file. The

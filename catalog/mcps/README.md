@@ -43,6 +43,55 @@ password...):
 [Serena](../../docs/serena.md) is an MCP server too, but it is installed in the
 image and enabled with `ROKE_SERENA` or `--serena`.
 
+## Tool approvals
+
+MCP activation and tool approval are separate settings. Set both when adding
+a server, or change its approval policy later:
+
+```bash
+roke mcp add context7 --allow
+roke mcp add github --ask
+roke mcp allow serena
+roke mcp ask serena
+roke mcp show serena
+```
+
+`allow` preauthorizes the server's tools; `ask` requests confirmation and
+revokes roke's preauthorization while keeping the server enabled. Both
+commands accept several names. `add --allow` or `add --ask` applies the
+policy to every name being added; the flags are mutually exclusive.
+Adding a server without either flag preserves its approval preference.
+
+Preferences are per project. `--global` sets defaults for every project;
+an explicit project preference wins for that server, so `roke mcp ask NAME`
+can override a global `allow`. `roke mcp show NAME` displays the effective
+policy and its source. With no preference, the agent's own defaults apply.
+Removing a server clears its approval preference at the same scope.
+If it remains enabled globally, project approval overrides are kept.
+
+Serena supports the same commands: `roke mcp add serena --allow` enables
+the built-in server and preauthorizes its tools. `roke mcp rm serena`
+disables it in that scope. `allow` and `ask` alone do not enable a server.
+The existing `--serena` and `ROKE_SERENA` settings remain available.
+
+Changes apply on the next session start. roke stores preferences outside
+the project repository and translates them into Codex server approval
+settings, Claude Code permission rules, and OpenCode 2 permission rules.
+Separately configured tool rules and managed policies retain their agent's
+native precedence. MCP authentication and interactive server requests use
+their own flows. To clear a native permission saved independently by an
+agent, use that agent's permission controls.
+
+Approval preferences require current agents supporting these settings.
+Names must use letters, digits, hyphens and underscores. If server names
+produce overlapping tool patterns, the adapter reports the ambiguity
+instead of authorizing another server's tools.
+
+The native mechanisms are documented in
+[Codex MCP configuration](https://learn.chatgpt.com/docs/extend/mcp),
+[Claude Code permissions](https://code.claude.com/docs/en/permissions) and
+[OpenCode permissions](https://opencode.ai/docs/permissions/).
+
 ## How it works
 
 Each MCP server is a directory with an `mcp.json` that does not depend on

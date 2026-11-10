@@ -34,6 +34,12 @@ holds instructions for Codex only, added to the combined instructions.
 
 ## Instructions, MCP servers and Serena
 
+Use `roke mcp allow NAME` or `roke mcp ask NAME` to manage server tool
+approvals, including Serena, without editing Codex configuration. See
+[Tool approvals](../../mcps/README.md#tool-approvals). Explicit preferences
+map to `default_tools_approval_mode = "approve"` or `"prompt"`; personal
+Codex settings and per-tool overrides keep their native precedence.
+
 - **Instructions**: the combined instructions (see
   [agents](../README.md#instructions-for-the-agent)) become
   `~/.codex/AGENTS.md`, Codex's global instructions file. The project's own

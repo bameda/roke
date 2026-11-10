@@ -1,7 +1,7 @@
 """roke mcp: list the MCP servers, give them to the agent or take them away,
 in the project or in every project."""
 
-from roke import settings
+from roke import mcp_permissions, settings
 from roke.commands.common import readme_section
 from roke.ui import die, info, page
 from roke.workspace import Workspace, split_list
@@ -10,7 +10,39 @@ from roke.workspace import Workspace, split_list
 def show(req) -> None:
     ws = Workspace(req).open(guards=False)
     ws.load_settings()
-    print(ws.mcps.render(split_list(ws.global_mcps) + split_list(ws.project_mcps)))
+    print(
+        ws.mcps.render(split_list(ws.global_mcps) + split_list(ws.project_mcps), serena=ws.serena)
+    )
+
+
+def validate(ws, names: list[str], policy: bool = False) -> None:
+    for name in names:
+        if name != "serena" and not ws.mcps.exists(name):
+            die(f"unknown MCP server: '{name}' (see roke mcp); nothing was changed")
+        if policy and not mcp_permissions.valid_name(name):
+            die("MCP approval names must contain only letters, digits, hyphens and underscores")
+        if ws.mcps.exists(name):
+            ws.mcps.definition(name)
+
+
+def save_approvals(path, policies: dict[str, str]) -> None:
+    # Remove duplicate assignments too: a later old allow must never shadow ask.
+    settings.drop(path, mcp_permissions.SETTING)
+    settings.set_or_drop(
+        path, mcp_permissions.SETTING, mcp_permissions.serialize(policies) if policies else ""
+    )
+
+
+def approval(req) -> None:
+    ws = Workspace(req).open(guards=not req.is_global, register_project=not req.is_global)
+    ws.load_settings()
+    validate(ws, req.values, policy=True)
+    path = ws.global_env if req.is_global else ws.project.env_file
+    policies = mcp_permissions.parse(settings.value_of(path, mcp_permissions.SETTING))
+    for name in req.values:
+        policies[name] = req.sub
+    save_approvals(path, policies)
+    info(f"MCP tool approvals: {', '.join(req.values)} = {req.sub}; applies from the next start")
 
 
 def change(req) -> None:
@@ -22,11 +54,18 @@ def change(req) -> None:
         path, where = ws.project.env_file, ws.project.name
     current = split_list(settings.value_of(path, "ROKE_MCPS"))
     if adding:
-        for name in req.values:
-            if not ws.mcps.exists(name):
-                die(f"unknown MCP server: '{name}' (see roke mcp); nothing was changed")
+        validate(ws, req.values, policy=bool(req.mcp_approval))
     ws.load_settings()
+    policies = mcp_permissions.parse(settings.value_of(path, mcp_permissions.SETTING))
     for name in req.values:
+        if req.mcp_approval:
+            policies[name] = req.mcp_approval
+        elif not adding and (req.is_global or name not in split_list(ws.global_mcps)):
+            policies.pop(name, None)
+        if name == "serena" and not ws.mcps.exists(name):
+            settings.set_value(path, "ROKE_SERENA", "1" if adding else "0")
+            info(f"{'enabled' if adding else 'disabled'} in {where}: serena")
+            continue
         if adding and name in current:
             info(f"{name} is already in {where}")
         elif adding:
@@ -47,6 +86,7 @@ def change(req) -> None:
         else:
             info(f"{name} is not in {where}")
     settings.set_or_drop(path, "ROKE_MCPS", ",".join(current))
+    save_approvals(path, policies)
     info("applies from the next start")
 
 
@@ -56,6 +96,20 @@ def show_one(req) -> None:
     ws = Workspace(req).open(guards=False)
     ws.load_settings()
     name = req.values[0]
+    if name == "serena" and not ws.mcps.exists(name):
+        used = "enabled" if ws.serena else "disabled (roke mcp add serena)"
+        page(
+            "\n".join(
+                [
+                    "serena: Built-in semantic tools",
+                    "",
+                    f"In this project: {used}",
+                    f"  tool approvals: {mcp_permissions.describe(ws, name)}",
+                    *readme_section(ws.mcps.catalog_dir.parent.parent / "docs" / "serena.md", ws),
+                ]
+            )
+        )
+        return
     if not ws.mcps.exists(name):
         die(f"unknown MCP server: '{name}' (see roke mcp)")
     d = ws.mcps.definition(name)
@@ -66,6 +120,7 @@ def show_one(req) -> None:
     else:
         used = f"not used (roke mcp add {name})"
     lines = [f"{name}: {d.get('description', '')}", "", f"In this project: {used}"]
+    lines.append(f"  tool approvals: {mcp_permissions.describe(ws, name)}")
     if "command" in d:
         lines.append("  local: " + " ".join(d["command"]))
     else:

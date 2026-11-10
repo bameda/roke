@@ -22,7 +22,7 @@ agents and code are all welcome.
 ## Setting up
 
 You need Linux with Docker and its Compose plugin, Python 3.11 or newer (for
-the development tools; roke itself needs 3.10), git and
+the development tools; roke itself needs 3.10), git, jq and
 [uv](https://docs.astral.sh/uv/).
 
 ```fish

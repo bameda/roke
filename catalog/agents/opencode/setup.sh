@@ -17,22 +17,12 @@ cp "$AGENT_INSTRUCTIONS" "$cfg/AGENTS.md"
 # System configuration (/etc/opencode, highest precedence), rebuilt on every
 # start: updates off, since the image decides the version, the project's MCP
 # servers (roke mcp), and Serena when enabled.
-# shellcheck disable=SC2016  # $schema is a literal key
-system_config='{ "$schema": "https://opencode.ai/config.json", "update": "disable" }'
+mcp_args=(opencode)
 if ((SERENA_ENABLED)); then
   serena_command ide
-  codemode=false
-  [[ "${ROKE_SERENA_CODEMODE:-0}" == "1" ]] && codemode=true
-  system_config="$(jq -n --argjson base "$system_config" --argjson codemode "$codemode" \
-    --args '$base + { mcp: { servers: { serena: {
-        type: "local",
-        command: $ARGS.positional,
-        codemode: $codemode,
-        timeout: { startup: 120000 }
-      } } } }' -- "${SERENA_CMD[@]}")"
+  mcp_args+=(--serena "${SERENA_CMD[@]}")
 fi
-# The project's MCP servers (roke mcp); Serena's entry wins a name clash.
-mcp_servers="$(python3 /opt/roke/agents/mcp.py opencode)"
-system_config="$(jq --argjson extra "$mcp_servers" \
-  '.mcp.servers = ($extra + (.mcp.servers // {}))' <<<"$system_config")"
+# shellcheck disable=SC2016  # $schema is a literal key
+system_config="$(python3 /opt/roke/agents/mcp.py "${mcp_args[@]}" \
+  | jq '. + { "$schema": "https://opencode.ai/config.json", "update": "disable" }')"
 printf '%s\n' "$system_config" > /etc/opencode/opencode.json

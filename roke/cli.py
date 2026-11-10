@@ -20,7 +20,14 @@ GROUPS: dict[str, dict[str, tuple[int, int | None]]] = {
         "rm": (1, None),
         "upgrade": (0, None),
     },
-    "mcp": {"list": (0, 0), "show": (1, 1), "add": (1, None), "rm": (1, None)},
+    "mcp": {
+        "list": (0, 0),
+        "show": (1, 1),
+        "add": (1, None),
+        "rm": (1, None),
+        "allow": (1, None),
+        "ask": (1, None),
+    },
     "network": {"list": (0, 0), "add": (1, 1), "rm": (1, 1), "blocked": (0, 0)},
 }
 USAGES = {
@@ -32,8 +39,10 @@ USAGES = {
     "mcp show": "roke mcp show NAME",
     "service add": "roke service add NAME...",
     "service rm": "roke service rm NAME...",
-    "mcp add": "roke mcp add NAME... [--global]",
+    "mcp add": "roke mcp add NAME... [--allow|--ask] [--global]",
     "mcp rm": "roke mcp rm NAME... [--global]",
+    "mcp allow": "roke mcp allow NAME... [--global]",
+    "mcp ask": "roke mcp ask NAME... [--global]",
     "network add": "roke network add DEST [--global] [--note TEXT]",
     "network rm": "roke network rm DEST [--global]",
 }
@@ -61,6 +70,7 @@ class Request:
     yaml: bool = False  # doctor --yaml
     version: bool = False  # version or --version
     channel: str = ""  # update --stable or --main
+    mcp_approval: str = ""  # mcp add --allow or --ask
     help: str | None = None  # set when only the help is wanted
 
 
@@ -214,6 +224,12 @@ def parse(argv: list) -> Request:
                 req.is_global = True
             elif a == "--major" and c == "service":
                 req.major = True
+            elif a in ("--allow", "--ask"):
+                if (c, req.sub) != ("mcp", "add"):
+                    die("--allow and --ask only apply to roke mcp add")
+                if req.mcp_approval and req.mcp_approval != a[2:]:
+                    die("--allow and --ask are mutually exclusive")
+                req.mcp_approval = a[2:]
             elif a == "--note" or a.startswith("--note="):
                 note = a.partition("=")[2] if "=" in a else next(arg_iter, None)
                 if note is None:

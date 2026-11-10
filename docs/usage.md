@@ -105,9 +105,11 @@ services and any services added in the project's `compose.yaml`.
 | Command | Description |
 |---|---|
 | `roke mcp` | The MCP servers, marking the ones this project uses |
-| `roke mcp show NAME` | An MCP server: its definition, whether its secrets are set, and its README |
-| `roke mcp add NAME...` | Give them to the agent in this project; with `--global`, in every project |
+| `roke mcp show NAME` | An MCP server: its definition, tool approval policy and source, whether its secrets are set, and its README |
+| `roke mcp add NAME... [--allow\|--ask]` | Give them to the agent; optionally set tool approvals. With `--global`, in every project |
 | `roke mcp rm NAME...` | Take them away; with `--global`, from every project |
+| `roke mcp allow NAME...` | Authorize their tools without prompting; with `--global`, by default in every project |
+| `roke mcp ask NAME...` | Request confirmation for their tools; with `--global`, by default in every project |
 
 **Network** (see [Network](network.md))
 

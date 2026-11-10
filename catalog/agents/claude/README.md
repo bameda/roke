@@ -38,6 +38,11 @@ stays in the project's home volume.
 
 ## Instructions, MCP servers and Serena
 
+`roke mcp allow NAME` and `roke mcp ask NAME` generate per-session Claude
+Code settings with `permissions.allow` or `permissions.ask` rules for that
+server. They also apply to Serena. Existing deny and ask rules retain
+Claude Code's precedence. See [Tool approvals](../../mcps/README.md#tool-approvals).
+
 - **Instructions**: the combined instructions (see
   [agents](../README.md#instructions-for-the-agent)) become the managed
   `CLAUDE.md` (`/etc/claude-code/CLAUDE.md`), which Claude Code loads before

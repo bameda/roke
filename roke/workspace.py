@@ -15,7 +15,7 @@ import os
 import sys
 from pathlib import Path
 
-from roke import settings
+from roke import mcp_permissions, settings
 from roke.catalog.agents import DEFAULT_INSTALLED, Agents
 from roke.catalog.mcps import Mcps
 from roke.catalog.mcps import resolve as resolve_mcp
@@ -84,9 +84,12 @@ class Workspace:
         env = settings.load([self.global_env, self.config / "secrets.env"], os.environ.copy())
         self.global_allow = env.pop("ROKE_NETWORK_ALLOW", "")
         self.global_mcps = env.pop("ROKE_MCPS", "")
+        self.global_mcp_approvals = mcp_permissions.parse(env.pop(mcp_permissions.SETTING, ""))
         env = settings.load([p.env_file, p.config / "secrets.env"], env)
         self.project_allow = env.get("ROKE_NETWORK_ALLOW", "")
         self.project_mcps = env.get("ROKE_MCPS", "")
+        self.project_mcp_approvals = mcp_permissions.parse(env.get(mcp_permissions.SETTING, ""))
+        self.mcp_approvals = {**self.global_mcp_approvals, **self.project_mcp_approvals}
         self.env = env
         self.services_text = r.services if r.services is not None else env.get("ROKE_SERVICES", "")
         self.ports = list(r.ports) or env.get("ROKE_PORTS", "").split()
@@ -208,14 +211,19 @@ class Workspace:
     def write_mcp_config(self) -> Path | None:
         """The resolved MCP servers, in a file for the box, readable only by
         you since it may hold tokens; None when there are none."""
-        if not self.resolved_mcps:
+        active = set(self.resolved_mcps) | ({"serena"} if self.serena else set())
+        approvals = {name: mode for name, mode in self.mcp_approvals.items() if name in active}
+        if not self.resolved_mcps and not approvals:
             return None
         runtime = Path(os.environ.get("XDG_RUNTIME_DIR") or "/tmp") / "roke"
         runtime.mkdir(parents=True, exist_ok=True)
         path = runtime / f"{self.project.compose_name}.mcp.json"
         path.touch(mode=0o600, exist_ok=True)
         path.chmod(0o600)
-        path.write_text(json.dumps({"servers": self.resolved_mcps}, indent=2) + "\n")
+        data: dict = {"servers": self.resolved_mcps}
+        if approvals:
+            data["approvals"] = approvals
+        path.write_text(json.dumps(data, indent=2) + "\n")
         return path
 
     # --- the network -------------------------------------------------------------------

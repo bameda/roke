@@ -107,7 +107,7 @@ class Mcps:
                 strings(field)
         return data
 
-    def render(self, used: list[str]) -> str:
+    def render(self, used: list[str], serena: bool | None = None) -> str:
         lines = ["MCP servers (roke mcp add NAME; --global for every project; * = used here):"]
         for name in self.names():
             desc = str(self.definition(name).get("description", ""))
@@ -115,6 +115,11 @@ class Mcps:
             if origin:
                 desc = f"[{origin}] {desc}"
             lines.append(f"{'*' if name in used else ' '} {name:<12} {desc}")
+        if serena is not None and not self.exists("serena"):
+            lines.append(
+                f"{'*' if serena else ' '} serena       Built-in semantic tools (roke --serena)"
+            )
+        lines += ["", "Tool approvals: roke mcp allow/ask NAME"]
         lines += ["", "More about each one: roke mcp show NAME"]
         return "\n".join(lines)
 

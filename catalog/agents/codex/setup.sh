@@ -21,6 +21,11 @@ toml_string() {
 
 # System configuration (/etc/codex/config.toml, the lowest layer: yours, in
 # ~/.codex/config.toml, wins over every value here), rebuilt on every start.
+mcp_args=(codex)
+if ((SERENA_ENABLED)); then
+  serena_command codex
+  mcp_args+=(--serena "${SERENA_CMD[@]}")
+fi
 {
   # No update checks: the image decides the version.
   echo "check_for_update_on_startup = false"
@@ -45,17 +50,6 @@ toml_string() {
   echo "[projects.$(toml_string "$PWD")]"
   echo 'trust_level = "trusted"'
 
-  if ((SERENA_ENABLED)); then
-    serena_command codex
-    echo
-    echo "[mcp_servers.serena]"
-    echo "command = $(toml_string "${SERENA_CMD[0]}")"
-    printf 'args = ['
-    sep=""
-    for arg in "${SERENA_CMD[@]:1}"; do printf '%s%s' "$sep" "$(toml_string "$arg")"; sep=", "; done
-    echo "]"
-    echo "startup_timeout_sec = 120"
-  fi
-  # The project's MCP servers (roke mcp).
-  python3 /opt/roke/agents/mcp.py codex
+  # The project's MCP servers, built-in Serena and explicit approval policy.
+  python3 /opt/roke/agents/mcp.py "${mcp_args[@]}"
 } > /etc/codex/config.toml

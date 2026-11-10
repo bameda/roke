@@ -52,10 +52,13 @@ Services
 
 MCP servers
   roke mcp                   The MCP servers, and the ones this project uses
-  roke mcp show NAME         An MCP server, its secrets, and its documentation
-  roke mcp add NAME...       Give them to the agent in this project (--global:
-                             in every project)
+  roke mcp show NAME         An MCP server, tool approval policy, and documentation
+  roke mcp add NAME...       Give them to the agent (--global: in every project)
+                             --allow or --ask also sets tool approvals
   roke mcp rm NAME...        Take them away (--global: from every project)
+  roke mcp allow NAME...     Allow their tools without prompting (--global:
+                             by default in every project)
+  roke mcp ask NAME...       Ask before using their tools (--global: by default)
 
 Network
   roke network               The network mode and the allowed destinations
