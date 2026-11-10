@@ -1,6 +1,7 @@
 """Project diagnostics without starting containers or writing settings."""
 
 import pytest
+from conftest import REPO
 
 
 def test_healthy_project(env):
@@ -56,6 +57,7 @@ def test_yaml_report_is_read_only_and_contains_no_secrets_or_paths(env):
     r = env.roke("doctor", "--yaml", cwd=shop)
     assert r.code == 0, r.text
     assert r.out.startswith("schema_version: 1\nok: true\nversions:\n")
+    assert f'  roke: "{(REPO / "VERSION").read_text().strip()}"' in r.out
     assert '  docker_compose: "v5.0.0-fake"' in r.out
     assert '  docker_client: "28.1.0-fake"' in r.out
     assert '  docker_engine: "27.5.0-fake"' in r.out
@@ -134,4 +136,5 @@ def test_yaml_report_when_configuration_is_missing(bare_env):
     r = bare_env.roke("doctor", "--yaml")
     assert r.code == 1
     assert r.out.startswith("schema_version: 1\nok: false\n")
+    assert f'  roke: "{(REPO / "VERSION").read_text().strip()}"' in r.out
     assert not r.err

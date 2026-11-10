@@ -67,6 +67,7 @@ Network
   roke network blocked       What the project tried to reach and was denied
 
 roke itself
+  roke version               Show the installed roke version (also --version)
   roke init [GIT_URL]        Create ~/.config/roke, cloning GIT_URL if given
   roke update                Update roke (then roke build)
   roke help [COMMAND]        This help, or a command's part of it
@@ -110,7 +111,7 @@ SECTIONS = {
     "service": "Services",
     "mcp": "MCP servers",
     "network": "Network",
-    **{c: "roke itself" for c in ("init", "update", "help")},
+    **{c: "roke itself" for c in ("init", "update", "version", "help")},
 }
 
 

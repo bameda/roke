@@ -12,6 +12,8 @@ def test_whole_help(env, args):
         "Services",
         "Network",
         "roke itself",
+        "roke version",
+        "also --version",
         "Options for run",
     ):
         assert part in r.out
@@ -26,6 +28,8 @@ def test_whole_help(env, args):
         (["service", "-h"], "roke service add", "roke agent use"),
         (["shell", "--help"], "roke shell", "roke agent use"),
         (["help", "down"], "roke down", "roke service add"),
+        (["help", "version"], "roke version", "roke service add"),
+        (["version", "--help"], "roke version", "roke service add"),
     ],
 )
 def test_help_for_a_command(env, args, expected, absent):

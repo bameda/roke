@@ -60,6 +60,11 @@ mount. The [security guide](security.md) explains this boundary, and the
 
 ## Development tools
 
+The root `VERSION` file is the single source of the application version,
+read by `roke version` (also `roke --version`) and `roke doctor --yaml`.
+Keep development versions marked with a `-dev` suffix until preparing a release. Agent and service
+versions remain independent of roke's version.
+
 Before each commit, [pre-commit](https://pre-commit.com/) checks the
 changed files:
 

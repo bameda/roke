@@ -8,6 +8,7 @@ import shutil
 import subprocess
 from contextlib import nullcontext, redirect_stderr
 
+from roke import version
 from roke.ui import Fail
 from roke.workspace import Workspace
 
@@ -16,7 +17,7 @@ class Report:
     def __init__(self, as_yaml: bool):
         self.as_yaml = as_yaml
         self.checks: list[dict[str, str]] = []
-        self.versions = {"python": platform.python_version()}
+        self.versions = {"roke": version.current(), "python": platform.python_version()}
 
     def add(self, name: str, passed: bool, detail: str = "", report_detail: str | None = None):
         status = "OK" if passed else "FAIL"

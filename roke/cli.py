@@ -3,7 +3,7 @@
 import sys
 from dataclasses import dataclass, field
 
-from roke import commands
+from roke import commands, version
 from roke.commands.settings import EDITABLE
 from roke.ui import Fail, die
 from roke.ui.help import USAGE, help_for
@@ -59,6 +59,7 @@ class Request:
     no_cache: bool = False
     all: bool = False
     yaml: bool = False  # doctor --yaml
+    version: bool = False  # version or --version
     help: str | None = None  # set when only the help is wanted
 
 
@@ -136,6 +137,11 @@ def _flags(req: Request, args: list, allowed: dict) -> None:
 def parse(argv: list) -> Request:
     req = Request()
     args = list(argv)
+    if args[:1] == ["--version"]:
+        if len(args) != 1:
+            die("usage: roke --version")
+        req.version = True
+        return req
     while args and args[0] in ("-C", "--id"):
         _project_option(req, args[0], iter(args[1:2]))
         args = args[2:]
@@ -245,6 +251,12 @@ def parse(argv: list) -> Request:
         req.values = args
     elif c == "update":
         _expect_no_more(req, args)
+    elif c == "version":
+        if args in (["-h"], ["--help"]):
+            req.help = c
+        else:
+            _expect_no_more(req, args)
+            req.version = True
     elif c == "help":
         req.help = args[0] if args else ""
     else:
@@ -262,6 +274,9 @@ def parse(argv: list) -> Request:
 def main(argv: list) -> int:
     try:
         req = parse(argv)
+        if req.version:
+            print(f"roke {version.current()}")
+            return 0
         if req.help is not None:
             print(help_for(req.help) if req.help else USAGE, end="" if not req.help else "\n")
             return 0

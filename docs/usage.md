@@ -28,6 +28,8 @@ remember:
 3. **Changes apply to the current project; `--global`, to every project.**
 
 `roke help` lists every command, and `roke help COMMAND` one of them.
+`roke version` (or `roke --version`) shows the installed roke version from
+any directory, without Docker or project configuration.
 
 `-C DIR` chooses the project's directory, for example `roke settings -C DIR`.
 The project ID is remembered for its directory. Use `roke --id acme-api`
@@ -121,6 +123,7 @@ services and any services added in the project's `compose.yaml`.
 | Command | Description |
 |---|---|
 | `roke init [GIT_URL]` | Create the [configuration directory](configuration.md), cloning it if a URL is given |
+| `roke version` or `roke --version` | Show the installed roke version |
 | `roke update` | Update roke; then `roke build` rebuilds the images |
 | `roke help [COMMAND]` | The help |
 
