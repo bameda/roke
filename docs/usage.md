@@ -53,7 +53,7 @@ them before the arguments passed to Compose.
 | `roke logs [OPTIONS] [SERVICE...]` | Show project logs; passes arguments to [`docker compose logs`](https://docs.docker.com/reference/cli/docker/compose/logs/) |
 | `roke settings` | The project's settings and where they come from |
 | `roke settings show ID` | The effective settings of a registered project, from any directory |
-| `roke doctor` | Check prerequisites and report what needs fixing; returns nonzero when something needs attention |
+| `roke doctor [--yaml]` | Check prerequisites and report what needs fixing; `--yaml` produces a shareable report. Returns nonzero when something needs attention |
 | `roke settings edit [FILE]` | Edit them in your editor; see [editing the settings](#editing-the-settings) |
 | `roke build [--no-cache]` | Build the images; `--no-cache` also updates the agents |
 | `roke down [--all]` | Stop the project's containers, or every project's; their data is kept |

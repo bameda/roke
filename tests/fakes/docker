@@ -81,7 +81,7 @@ if args[:1] == ["compose"]:
             print("services: {}")
             sys.exit(0)
         if os.environ.get("FAKE_COMPOSE_FAIL") == "config":
-            print("invalid compose file", file=sys.stderr)
+            print(os.environ.get("FAKE_COMPOSE_ERROR", "invalid compose file"), file=sys.stderr)
             sys.exit(1)
         if "--services" in rest:
             print(os.environ.get("FAKE_COMPOSE_SERVICES", "box\ngateway"))

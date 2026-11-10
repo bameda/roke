@@ -58,6 +58,7 @@ class Request:
     note: str | None = None  # network add --note
     no_cache: bool = False
     all: bool = False
+    yaml: bool = False  # doctor --yaml
     help: str | None = None  # set when only the help is wanted
 
 
@@ -173,7 +174,9 @@ def parse(argv: list) -> Request:
                 req.values.append(a)
         if len(req.values) > 1 or (req.values and req.values[0] not in EDITABLE):
             die(f"usage: roke settings edit [{'|'.join(EDITABLE)}] [--global]")
-    elif c in ("purge", "doctor") or (c == "settings" and args[:1] != ["show"]):
+    elif c == "doctor":
+        _flags(req, args, {"--yaml": "yaml"})
+    elif c == "purge" or (c == "settings" and args[:1] != ["show"]):
         _flags(req, args, {})
     elif c == "build":
         _flags(req, args, {"--no-cache": "no_cache"})

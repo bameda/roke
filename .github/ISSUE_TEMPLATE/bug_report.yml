@@ -31,6 +31,14 @@ body:
       description: The output of the failing command, including roke's messages. For network problems, add `roke network blocked`.
       render: text
   - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostic report
+      description: |
+        Run `roke doctor --yaml` from the affected project's directory on your host and paste its output, even if it reports failed checks.
+        If your version does not support `--yaml`, paste the output of `roke doctor` instead.
+      render: yaml
+  - type: textarea
     id: settings
     attributes:
       label: roke settings

@@ -12,6 +12,19 @@ Docker, the box image and Compose. Each line names the check, then reports
 settings in effect.
 The diagnostic reports names of missing variables without printing their values.
 
+To save a report for an issue, use:
+
+```bash
+roke doctor --yaml > roke-diagnostic.yaml
+```
+
+It contains check results and Python/Compose versions, without environment
+values, project paths, tokens or raw error output from configuration tools.
+Errors that could quote configuration values are replaced with an action to
+run locally. Normal `roke doctor` keeps its detailed local error messages.
+The command still exits nonzero if a check fails; the report is written even
+then. No project configuration or registry entries are changed.
+
 ### `unknown option for roke run: --down`
 
 Actions are commands, written without dashes: `roke down`, not

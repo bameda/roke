@@ -19,7 +19,7 @@ The project's box
                              Show project logs (Compose logs options)
   roke settings              The project's settings and where they come from
   roke settings show ID      The settings of a registered project, from anywhere
-  roke doctor                Check prerequisites and report what needs fixing
+  roke doctor [--yaml]       Check prerequisites (--yaml: shareable report)
   roke settings edit [FILE]  Edit them in your editor (--global: yours): env
                              (default), secrets, compose, instructions, or
                              tools (the project's mise.toml)
