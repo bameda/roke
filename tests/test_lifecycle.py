@@ -28,6 +28,26 @@ def test_down_all(env):
     assert "no roke project is running" in r.text
 
 
+def test_down_all_attempts_every_project_and_reports_failures(env):
+    r = env.roke(
+        "down",
+        "--all",
+        cwd=env.home,
+        env={
+            "FAKE_COMPOSE_LS": "roke-first roke-second roke-third",
+            "FAKE_DOWN_FAIL": "roke-first",
+        },
+    )
+    assert r.code != 0
+    downs = r.compose_calls("down")
+    assert [call["args"][call["args"].index("-p") + 1] for call in downs] == [
+        "roke-first",
+        "roke-second",
+        "roke-third",
+    ]
+    assert "could not stop projects: roke-first" in r.err
+
+
 def test_settings(env):
     shop = env.project()
     env.write_project_env('ROKE_SERVICES=postgres\nROKE_PORTS="5173"\n')

@@ -92,9 +92,13 @@ def down(req) -> int:
     if req.all:
         require_docker(compose=False)
         projects = running_projects()
+        failed = []
         for name in projects:
             info(f"stopping {name}")
-            stop_project(name)
+            if stop_project(name):
+                failed.append(name)
+        if failed:
+            die(f"could not stop projects: {', '.join(failed)}")
         if not projects:
             info("no roke project is running")
         return 0

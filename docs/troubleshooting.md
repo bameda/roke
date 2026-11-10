@@ -36,6 +36,13 @@ options (`-s`, `-p`, `--agent`...). `roke help` lists every command.
 Run `roke init`, or `./install.sh` from the repository, to create
 `~/.config/roke`.
 
+### `Docker state unavailable`
+
+`roke settings` can still show the configuration when Docker's container
+query fails, but marks the runtime state as unavailable. Run `roke doctor`
+to check the daemon. Commands that start sessions or stop all projects report
+failed Docker queries as errors rather than assuming nothing is running.
+
 ### My settings are ignored
 
 The project's configuration directory is named after its registered ID,

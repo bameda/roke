@@ -297,6 +297,10 @@ The box's home is the project's own volume with the agents' logins and
 sessions and the tools installed with mise, so after `roke purge` you log in
 again and tools are downloaded again.
 
+`roke down --all` attempts to stop every listed project, even if one fails.
+It returns a nonzero status and lists the failed projects when any could not
+be stopped. A failed Docker query is reported as an error.
+
 Some services do not keep data at all (Redis, Mailpit...); each
 [service's README](../catalog/services/README.md) says what it keeps.
 

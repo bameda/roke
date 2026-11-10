@@ -31,6 +31,12 @@ with open(os.environ["FAKE_DOCKER_LOG"], "a") as log:
 # Running containers: sessions (FAKE_SESSIONS="claude,codex", one-off runs of
 # the box) and services (FAKE_RUNNING_HASHES="gateway=h1,postgres=h2").
 if args[:1] == ["ps"]:
+    if os.environ.get("FAKE_DOCKER_FAIL") == "ps":
+        print("daemon unavailable", file=sys.stderr)
+        sys.exit(1)
+    if os.environ.get("FAKE_BAD_PS"):
+        print("invalid container list")
+        sys.exit(0)
     for agent in filter(None, os.environ.get("FAKE_SESSIONS", "").split(",")):
         print(f"box\tTrue\t\tsess-{agent}")
     for item in filter(None, os.environ.get("FAKE_RUNNING_HASHES", "").split(",")):
@@ -38,6 +44,12 @@ if args[:1] == ["ps"]:
         print(f"{service}\tFalse\t{hash_}\tid-{service}")
     sys.exit(0)
 if args[:1] == ["inspect"]:
+    if os.environ.get("FAKE_DOCKER_FAIL") == "inspect":
+        print("container disappeared", file=sys.stderr)
+        sys.exit(1)
+    if os.environ.get("FAKE_BAD_INSPECT"):
+        print("invalid response")
+        sys.exit(0)
     container = args[-1]
     if container.startswith("sess-"):
         print(json.dumps([f"ROKE_AGENT={container[5:]}"]))
@@ -62,8 +74,15 @@ if args[:1] == ["compose"]:
         print("Docker Compose version v5.0.0-fake")
         sys.exit(0)
     if "ls" in rest:
+        if os.environ.get("FAKE_DOCKER_FAIL") == "ls":
+            print("daemon unavailable", file=sys.stderr)
+            sys.exit(1)
         print("\n".join(os.environ.get("FAKE_COMPOSE_LS", "").split()))
         sys.exit(0)
+    failed_project = os.environ.get("FAKE_DOWN_FAIL")
+    if "down" in rest and failed_project and failed_project in rest:
+        print("cannot stop project", file=sys.stderr)
+        sys.exit(1)
     if "ps" in rest:
         if os.environ.get("FAKE_COMPOSE_FAIL") == "ps":
             print("daemon unavailable", file=sys.stderr)

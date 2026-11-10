@@ -9,7 +9,7 @@ import subprocess
 from pathlib import Path
 
 from roke import docker, settings
-from roke.ui import die, info
+from roke.ui import Fail, die, info
 from roke.workspace import Workspace
 
 SECRET_NAME = re.compile(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)=", re.M)
@@ -58,7 +58,11 @@ def state(compose_name: str) -> str:
     """ " (running)" or " (not running)", or nothing without Docker."""
     if not docker.available():
         return ""
-    running = docker.running_containers(compose_name)
+    try:
+        running = docker.running_containers(compose_name)
+    except Fail as exc:
+        info(str(exc))
+        return " (Docker state unavailable)"
     return " (running)" if running else " (not running)"
 
 

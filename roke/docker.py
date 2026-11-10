@@ -26,12 +26,19 @@ def available() -> bool:
     return subprocess.run(["docker", "compose", "version"], capture_output=True).returncode == 0
 
 
+def _output(args: list[str], operation: str) -> str:
+    result = subprocess.run(args, capture_output=True, text=True)
+    if result.returncode:
+        die(f"could not {operation}: {result.stderr.strip() or 'Docker command failed'}")
+    return result.stdout
+
+
 def running_projects() -> list[str]:
     """The compose projects of roke that are running."""
-    out = subprocess.run(
-        ["docker", "compose", "ls", "-q", "--filter", "name=roke-"], capture_output=True, text=True
+    out = _output(
+        ["docker", "compose", "ls", "-q", "--filter", "name=roke-"], "list running roke projects"
     )
-    return out.stdout.split()
+    return out.split()
 
 
 def running_containers(project: str) -> list[dict[str, str]]:
@@ -41,7 +48,7 @@ def running_containers(project: str) -> list[dict[str, str]]:
         '{{.Label "com.docker.compose.service"}}\t{{.Label "com.docker.compose.oneoff"}}\t'
         '{{.Label "com.docker.compose.config-hash"}}\t{{.ID}}'
     )
-    out = subprocess.run(
+    out = _output(
         [
             "docker",
             "ps",
@@ -50,27 +57,31 @@ def running_containers(project: str) -> list[dict[str, str]]:
             "--format",
             fmt,
         ],
-        capture_output=True,
-        text=True,
-    ).stdout
+        "list project containers",
+    )
     rows = []
     for line in out.splitlines():
         parts = line.split("\t")
-        if len(parts) == 4:
-            rows.append(dict(zip(("service", "oneoff", "hash", "id"), parts, strict=True)))
+        if len(parts) != 4:
+            die("could not read Docker's container list")
+        rows.append(dict(zip(("service", "oneoff", "hash", "id"), parts, strict=True)))
     return rows
 
 
 def container_env(container: str) -> dict[str, str]:
-    out = subprocess.run(
+    out = _output(
         ["docker", "inspect", "--format", "{{json .Config.Env}}", container],
-        capture_output=True,
-        text=True,
-    ).stdout
+        f"inspect container {container}",
+    )
     try:
-        return dict(item.split("=", 1) for item in json.loads(out) if "=" in item)
+        values = json.loads(out)
     except ValueError:
+        die(f"could not read Docker's environment for container {container}")
+    if values is None:
         return {}
+    if not isinstance(values, list) or not all(isinstance(value, str) for value in values):
+        die(f"could not read Docker's environment for container {container}")
+    return dict(item.split("=", 1) for item in values if "=" in item)
 
 
 def stop_project(name: str) -> int:
