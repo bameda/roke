@@ -1,6 +1,7 @@
 import hashlib
 from pathlib import Path
 
+import pytest
 from helpers import after, compose_files, project_name
 
 
@@ -55,6 +56,27 @@ def test_ports_are_published_by_the_gateway(env):
     env.write_project_env('ROKE_PORTS="8080"\n')
     files = compose_files(env.roke(cwd=shop).last("run"))
     assert '"127.0.0.1:8080:8080"' in Path(files[-1]).read_text()
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("-p", "3000 1275"),
+        ("-p", "3000", "-p", "1275"),
+        ("run", "-p", " 3000\t1275 "),
+        ("-p", "3000 1275", "-p", "127.0.0.1:9000:8000"),
+    ],
+)
+def test_port_lists_override_configured_ports(env, args):
+    shop = env.project()
+    env.write_project_env('ROKE_PORTS="8080"\n')
+    files = compose_files(env.roke(*args, cwd=shop).last("run"))
+    text = Path(files[-1]).read_text()
+    assert '"127.0.0.1:3000:3000"' in text
+    assert '"127.0.0.1:1275:1275"' in text
+    assert "8080" not in text
+    if "127.0.0.1:9000:8000" in args:
+        assert '"127.0.0.1:9000:8000"' in text
 
 
 def test_serena(env):

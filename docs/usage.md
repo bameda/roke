@@ -52,12 +52,12 @@ them before the arguments passed to Compose.
 | `roke urls` | Where the app and the services are |
 | `roke logs [OPTIONS] [SERVICE...]` | Show project logs; passes arguments to [`docker compose logs`](https://docs.docker.com/reference/cli/docker/compose/logs/) |
 | `roke settings` | The project's settings and where they come from |
-| `roke settings show ID` | The effective settings of a registered project, from any directory |
-| `roke doctor [--yaml]` | Check prerequisites and report what needs fixing; `--yaml` produces a shareable report. Returns nonzero when something needs attention |
 | `roke settings edit [FILE]` | Edit them in your editor; see [editing the settings](#editing-the-settings) |
+| `roke settings show ID` | The effective settings of a registered project, from any directory |
 | `roke build [--no-cache]` | Build the images; `--no-cache` also updates the agents |
 | `roke down [--all]` | Stop the project's containers, or every project's; their data is kept |
 | `roke purge` | Stop them and delete all the project's data |
+| `roke doctor [--yaml]` | Check prerequisites and report what needs fixing; `--yaml` produces a shareable report. Returns nonzero when something needs attention |
 
 Projects with the same box recipe and build arguments share an image. roke
 automatically assigns different image tags to different build settings, so
@@ -311,12 +311,18 @@ your browser, publish its port, either once with `-p` or for good with
 `ROKE_PORTS` in the project's settings:
 
 ```fish
-roke -p 5173
+roke -p "5173 3000"
 ```
 
-Then open `http://127.0.0.1:5173`. The server must listen on `0.0.0.0`, not
-`localhost` (for example `vite --host 0.0.0.0`); the box's instructions
-already tell the agent so.
+Or set them in `roke settings edit`:
+
+```dotenv
+ROKE_PORTS="5173 3000"
+```
+
+Then open `http://127.0.0.1:5173` or `http://127.0.0.1:3000`. The server
+must listen on `0.0.0.0`, not `localhost` (for example `vite --host 0.0.0.0`);
+the box's instructions already tell the agent so.
 
 Services with a web UI (Mailpit, RustFS, Grafana...) publish it themselves;
 do not add their ports to `-p`. See the [service catalog](../catalog/services/README.md).

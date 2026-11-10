@@ -97,7 +97,7 @@ def _run_options(req: Request, args: list) -> list:
             req.services = _take(args, i, "service list")
             i += 2
         elif a in ("-p", "--port"):
-            req.ports.append(_take(args, i, "port"))
+            req.ports.extend(_take(args, i, "port").split())
             i += 2
         elif a == "--network":
             req.network = _take(args, i, "network mode")
