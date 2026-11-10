@@ -95,7 +95,7 @@ curl -fsSL https://raw.githubusercontent.com/bameda/roke/main/install.sh | bash
 
 The installer:
 
-- clones roke into `~/.local/share/roke`;
+- installs the latest published stable release into `~/.local/share/roke`;
 - links the `roke` command into `~/.local/bin`, and tells you how to add it
   to your `PATH` if it is not there;
 - creates your configuration directory, `~/.config/roke`, from the examples
@@ -111,18 +111,35 @@ less install.sh
 bash install.sh
 ```
 
-Run it again at any time: if roke is already installed, it updates it.
+Run it again at any time: if roke is already installed, it updates within
+its saved channel. A checkout with local changes is left untouched.
 Its settings are environment variables, placed before `bash`:
 
 | Variable | Default | Description |
 |---|---|---|
 | `ROKE_CONFIG_REPO` | — | Your private configuration repository, cloned into `~/.config/roke` on the first install |
 | `ROKE_DIR` | `~/.local/share/roke` | Where to install roke |
-| `ROKE_VERSION` | `main` | Branch or tag to install |
+| `ROKE_VERSION` | `stable` for new installations | `stable`, `main`, or an explicit branch or tag to install |
 | `ROKE_BIN_DIR` | `~/.local/bin` | Where to link the `roke` command |
 
 To work on roke itself, clone the repository wherever you want and run
 `./install.sh` from it: it uses that clone instead.
+
+To follow development on `main`, or until the first stable release is
+published, install with:
+
+```fish
+curl -fsSL https://raw.githubusercontent.com/bameda/roke/main/install.sh \
+  | ROKE_VERSION=main bash
+```
+
+Use `ROKE_VERSION=vX.Y.Z` to install a specific release. Subsequent updates
+follow the stable channel rather than keeping that version pinned.
+The installer checks published releases through `api.github.com`; drafts,
+prereleases and tags without a release are not selected. If the lookup fails
+or no stable release exists, installation stops instead of falling back to
+`main`. An explicit branch other than `main` is treated as a development
+clone and updated manually with Git.
 
 Then choose your default agent:
 
@@ -174,8 +191,24 @@ roke update
 roke build          # in each project, to rebuild its images
 ```
 
-`roke update` pulls the latest version of roke; running the installer
-again does the same. Your configuration is not touched, and neither are the
+`roke update` follows the installation's saved channel. New installations
+default to `stable`; existing installations on `main` continue to follow
+`main`. Switch channels explicitly with:
+
+```fish
+roke update --main       # follow development; remembered for later updates
+roke update --stable     # return to the latest published stable release
+```
+
+Switching from `main` to `stable` can install an older version. An ordinary
+`roke update` refuses to downgrade to an older release. Local changes and
+unpushed commits are preserved: resolve them with Git before updating.
+If you have checked out a different branch yourself, the updater stops
+instead of switching it silently. Releases are checked out at their tags,
+so a detached HEAD in a stable installation is expected.
+
+Running the installer again follows the same channel unless `ROKE_VERSION`
+is set explicitly. Your configuration is not touched, and neither are the
 versions of your projects' services, which each project keeps: `roke service`
 shows which ones have a newer version, and `roke service upgrade` moves a
 project on (see [Versions](../catalog/services/README.md#versions)). Releases with

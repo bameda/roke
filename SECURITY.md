@@ -41,4 +41,4 @@ sandboxes, which roke does not rely on.
 
 ## Supported versions
 
-Only the latest version on the `main` branch is supported.
+The latest published stable release and the current `main` branch are supported.

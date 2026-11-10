@@ -60,6 +60,7 @@ class Request:
     all: bool = False
     yaml: bool = False  # doctor --yaml
     version: bool = False  # version or --version
+    channel: str = ""  # update --stable or --main
     help: str | None = None  # set when only the help is wanted
 
 
@@ -250,7 +251,12 @@ def parse(argv: list) -> Request:
             die("usage: roke init [GIT_URL]")
         req.values = args
     elif c == "update":
-        _expect_no_more(req, args)
+        if args in (["-h"], ["--help"]):
+            req.help = c
+        elif args in (["--main"], ["--stable"]):
+            req.channel = args[0][2:]
+        else:
+            _expect_no_more(req, args)
     elif c == "version":
         if args in (["-h"], ["--help"]):
             req.help = c

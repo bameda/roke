@@ -34,6 +34,9 @@ To check just the installed roke version, run `roke version` or
 `roke --version`. It does not need Docker or project configuration.
 A `-dev` suffix identifies a version
 under development rather than a published release.
+When Git metadata is available, the YAML report also includes
+`installation.channel` (`stable`, `main` or `development`) and
+`installation.commit`. It does not include the repository URL or path.
 
 ### `unknown option for roke run: --down`
 

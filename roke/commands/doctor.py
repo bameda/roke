@@ -8,7 +8,7 @@ import shutil
 import subprocess
 from contextlib import nullcontext, redirect_stderr
 
-from roke import version
+from roke import releases, version
 from roke.ui import Fail
 from roke.workspace import Workspace
 
@@ -18,6 +18,7 @@ class Report:
         self.as_yaml = as_yaml
         self.checks: list[dict[str, str]] = []
         self.versions = {"roke": version.current(), "python": platform.python_version()}
+        self.installation = releases.installation() if as_yaml else {}
 
     def add(self, name: str, passed: bool, detail: str = "", report_detail: str | None = None):
         status = "OK" if passed else "FAIL"
@@ -36,6 +37,11 @@ class Report:
             # string so names containing colons or line breaks remain data.
             lines = ["schema_version: 1", f"ok: {str(ok).lower()}", "versions:"]
             lines += [f"  {key}: {json.dumps(value)}" for key, value in self.versions.items()]
+            if self.installation:
+                lines.append("installation:")
+                lines += [
+                    f"  {key}: {json.dumps(value)}" for key, value in self.installation.items()
+                ]
             lines.append("checks:")
             for check in self.checks:
                 lines.append(f"  - name: {json.dumps(check['name'])}")

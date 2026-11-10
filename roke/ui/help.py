@@ -69,7 +69,9 @@ Network
 roke itself
   roke version               Show the installed roke version (also --version)
   roke init [GIT_URL]        Create ~/.config/roke, cloning GIT_URL if given
-  roke update                Update roke (then roke build)
+  roke update [--stable|--main]
+                             Update within the saved channel, or switch it
+                             (then roke build in your projects)
   roke help [COMMAND]        This help, or a command's part of it
 
 Project selection (for example: roke settings -C DIR):

@@ -65,6 +65,13 @@ read by `roke version` (also `roke --version`) and `roke doctor --yaml`.
 Keep development versions marked with a `-dev` suffix until preparing a release. Agent and service
 versions remain independent of roke's version.
 
+Managed installations store their update channel in the installation's
+local Git configuration (`roke.channel`), outside project settings. Stable
+updates resolve GitHub's latest published release and check out its tag;
+`main` updates only fast-forward. Both the installer and updater preserve
+local changes and commits. Installer/update tests use local Git repositories
+and simulated GitHub responses, without network access.
+
 Before each commit, [pre-commit](https://pre-commit.com/) checks the
 changed files:
 

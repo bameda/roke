@@ -124,7 +124,7 @@ services and any services added in the project's `compose.yaml`.
 |---|---|
 | `roke init [GIT_URL]` | Create the [configuration directory](configuration.md), cloning it if a URL is given |
 | `roke version` or `roke --version` | Show the installed roke version |
-| `roke update` | Update roke; then `roke build` rebuilds the images |
+| `roke update [--stable\|--main]` | Update within the saved channel, or switch it; then `roke build` rebuilds the images |
 | `roke help [COMMAND]` | The help |
 
 **Options** for `run`, `continue`, `shell` and `exec`, for this time only

@@ -40,6 +40,9 @@ agent's reach.
    curl -fsSL https://raw.githubusercontent.com/bameda/roke/main/install.sh | bash
    ```
 
+   Until the first stable release is published, use `| ROKE_VERSION=main bash`
+   to install from `main`. New installations otherwise select the latest stable release.
+
 3. Choose your default agent: `roke agent use claude --global`, `codex` or
    `opencode`.
 4. Start it in a project, building the image the first time:

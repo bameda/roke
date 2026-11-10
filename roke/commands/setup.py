@@ -3,8 +3,9 @@
 import shutil
 import subprocess
 
+from roke import releases
 from roke.paths import BOX_DIR, config_dir
-from roke.ui import die, info
+from roke.ui import die
 
 
 def init(req) -> None:
@@ -40,10 +41,4 @@ def init(req) -> None:
 
 
 def update(req) -> int:
-    if not (BOX_DIR / ".git").is_dir():
-        die(f"{BOX_DIR} is not a git clone; reinstall roke to update it")
-    info(f"updating {BOX_DIR}")
-    if subprocess.run(["git", "-C", str(BOX_DIR), "pull", "--ff-only"]).returncode != 0:
-        die(f"could not update: {BOX_DIR} has local changes or diverged (git -C {BOX_DIR} status)")
-    info("updated. Rebuild the images in your projects with: roke build")
-    return 0
+    return releases.update(req.channel)

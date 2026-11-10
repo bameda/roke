@@ -29,6 +29,7 @@ def test_whole_help(env, args):
         (["shell", "--help"], "roke shell", "roke agent use"),
         (["help", "down"], "roke down", "roke service add"),
         (["help", "version"], "roke version", "roke service add"),
+        (["update", "--help"], "roke update [--stable|--main]", "roke service add"),
         (["version", "--help"], "roke version", "roke service add"),
     ],
 )

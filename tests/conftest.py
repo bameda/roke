@@ -166,6 +166,13 @@ def bare_env(tmp_path):
 
 
 @pytest.fixture
+def release_repo(tmp_path):
+    from release_helpers import ReleaseRepo
+
+    return ReleaseRepo(tmp_path)
+
+
+@pytest.fixture
 def compose():
     path = real_compose()
     if not path:
