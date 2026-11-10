@@ -1,10 +1,8 @@
 # WireMock (`wiremock`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add wiremock` (or `roke -s wiremock` for one run).
+**Enable**: `roke service add wiremock`.
 
 [WireMock](https://wiremock.org/) simulates the HTTP APIs your app depends
 on (payments, email providers, third-party services...), so it can be
@@ -49,4 +47,4 @@ services:
 
 | Variable | Default |
 |---|---|
-| `WIREMOCK_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `WIREMOCK_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

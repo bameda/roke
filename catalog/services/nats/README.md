@@ -1,10 +1,8 @@
 # NATS (`nats`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add nats` (or `roke -s nats` for one run).
+**Enable**: `roke service add nats`.
 
 [NATS](https://nats.io/) messaging server, with
 [JetStream](https://docs.nats.io/nats-concepts/jetstream) enabled for
@@ -38,4 +36,4 @@ volume. Plain messages are not stored.
 
 | Variable | Default |
 |---|---|
-| `NATS_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `NATS_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

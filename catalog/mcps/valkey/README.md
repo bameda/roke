@@ -2,7 +2,7 @@
 
 Part of the [MCP catalog](../README.md).
 
-**Enable**: `roke mcp add valkey` (this project) or `roke mcp add valkey --global`.
+**Enable**: `roke mcp add valkey`.
 
 [Redis's official MCP server](https://github.com/redis/mcp-redis),
 connected to the project's [`valkey`](../../services/valkey/README.md)

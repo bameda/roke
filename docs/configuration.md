@@ -13,9 +13,7 @@
 ## The configuration directory
 
 Everything personal lives outside the roke repository, in
-`~/.config/roke`. To use another location, set `ROKE_CONFIG_DIR`. This
-way the repository can be shared and updated with `git pull` without
-conflicts.
+`~/.config/roke`. To use another location, set `ROKE_CONFIG_DIR`.
 
 ```
 ~/.config/roke/
@@ -24,6 +22,7 @@ conflicts.
 ├── AGENTS.md           your instructions for every agent
 ├── agents/             each agent's own configuration
 │   ├── claude/
+│   ├── codex/
 │   └── opencode/
 ├── projects/           one directory per project (see below)
 ├── services/           optional: your own services
@@ -34,66 +33,26 @@ conflicts.
 also run `roke init` at any time to add missing files: it never
 overwrites existing ones.
 
-The agent never sees this directory: `roke` refuses to mount a project that
-contains it or is inside it, so the agent cannot change its own settings.
+roke refuses to mount a project that contains this directory or is inside
+it. Only selected agent configuration and instructions are mounted into
+the box, read-only; settings and Compose files stay outside it.
 
 ## Keeping it in a private repository
 
-The configuration directory is meant to be a git repository of its own.
-That gives you history for your settings and lets you use them on other
-machines.
+Keep this directory in a **private** Git repository to track settings and
+reuse them on other machines. Before committing, check that every
+`secrets.env` is ignored; the generated `.gitignore` excludes them.
 
-**Create it** (once):
-
-```fish
-cd ~/.config/roke
-git init -b main
-git add -A
-git status          # no secrets.env may be listed
-git commit -m "chore: initial roke configuration"
-```
-
-Create an **empty, private** repository on GitHub (or any git host), then
-push to it:
-
-```fish
-git remote add origin git@github.com:<you>/roke-config.git
-git push -u origin main
-```
-
-**Day to day**, commit whenever you add a project or change a setting:
-
-```fish
-cd ~/.config/roke
-git add projects/my-app
-git commit -m "chore: add my-app project"
-git push
-```
-
-**On another machine**, pass the repository's URL to the installer (or to
-`roke init`). It clones it into `~/.config/roke` and adds any missing
-file from the examples:
-
-```fish
-curl -fsSL https://raw.githubusercontent.com/bameda/roke/main/install.sh \
-  | ROKE_CONFIG_REPO=git@github.com:<you>/roke-config.git bash
-```
-
-**What stays out of it**:
-
-- Every `secrets.env`, the global one and the projects', is listed in the
-  directory's `.gitignore`. Recreate them by hand on each machine (or log in
-  from inside the agent instead of using an API key).
-- The agents' logins, sessions and caches live in each project's home
-  volume, not here, so they are not synced either.
-
-Keep the repository **private**: it lists your projects and their settings.
+On a new machine, use `roke init GIT_URL`, or pass `ROKE_CONFIG_REPO` to the
+[installer](installation.md#on-another-machine-with-your-configuration-repository).
+Recreate secrets locally. Agent logins and sessions live in Docker volumes
+and are not synced. The project registry stores local paths and is not
+synced either.
 
 ## Global settings and secrets
 
 - **`roke.env`**: settings for every project, such as the agent to run,
-  service versions, ports or your git identity. It is loaded first, so
-  per-project settings take precedence. Safe to commit.
+  service versions, ports or your git identity. Safe to commit.
 - **`secrets.env`**: API keys and other secrets. It is loaded after
   `roke.env` and has permissions `600`. Not needed if you log in from
   inside the agent.
@@ -124,7 +83,7 @@ projects/my-app/
 
   ```dotenv
   ROKE_SERVICES=postgres,mailpit
-  ROKE_PORTS="5173"
+  ROKE_PORTS="5173 3000"
   ROKE_SERENA=1
   POSTGRES_DB=myapp
   ```
@@ -134,10 +93,8 @@ projects/my-app/
 - **`compose.yaml`**: a Docker Compose override, merged on top of the box's
   own, to tweak a service for this project (for example, PostGIS instead of
   plain PostgreSQL).
-- **`AGENTS.md`**: instructions for the agent that apply only to this
-  project and that should not go into the project's own repository, because
-  it belongs to your team or a client. They are added after the box's
-  instructions and your personal ones.
+- **`AGENTS.md`**: private instructions for this project, added after the
+  box's instructions and your personal ones.
 - **`services/`**: services only this project needs, with the same layout as
   the [catalog](../catalog/services/README.md). See
   [your own services](#your-own-services).
@@ -147,77 +104,32 @@ The settings files are loaded in this order, and the last one wins:
 `secrets.env`. All of them are also passed to the box as
 environment variables.
 
-The repository has [example projects](../examples/projects/README.md) for
-common cases (Ansible, Helm charts, Python, Node.js, Go, Rust, Rails, Spring
-Boot, Clojure) and one that uses every piece. To add a project, copy the closest one and keep only
-what you need:
+The [example projects](../examples/projects/README.md) show optional
+configurations for common stacks and custom services.
 
-```fish
-cp -r ~/.local/share/roke/examples/projects/python-api ~/.config/roke/projects/my-app
-```
+In Compose files, relative paths resolve against the roke repository. Use
+`${ROKE_PROJECT_CONFIG}` for files in this project's configuration directory,
+for example `${ROKE_PROJECT_CONFIG}/initdb`.
 
-Two details:
-
-- **Paths.** In compose files, relative paths resolve against the
-  roke repository. To refer to files in the project's directory, use
-  `${ROKE_PROJECT_CONFIG}`, for example `${ROKE_PROJECT_CONFIG}/initdb`.
-- **Names.** IDs distinguish projects even when their directory names match.
-  A collision asks you to choose another ID with `roke --id NAME`.
-
-These files live here, and not inside the project, on purpose. A compose
-file can mount any host path, so if `roke` read one from the project, the
-agent could write one that mounted `/` and escaped the container the next
-time you launched it. For the same reason, only `AGENTS.md` is visible
-inside the box: the rest of the project's directory, secrets included, is
-not.
+Settings and Compose overrides stay outside the mounted repository so the
+agent cannot change what roke mounts on its next start; see [Security](security.md).
 
 ## Project IDs and moves
 
-The first build, session, or command that edits a project's configuration registers
-its ID, absolute path and Docker Compose project name in
-`~/.config/roke/.local/projects.json` (under `ROKE_CONFIG_DIR` when set).
-The ID defaults to the directory name. IDs start with a letter or digit and
-contain only letters, digits, dots, underscores and hyphens.
-
-The registry stays outside the mounted project. Its directory has its own
-`.gitignore` excluding all local state: sync the settings in `projects/<id>/`,
-but register each machine's paths locally. Read-only commands such as
-`project`, `settings`, `doctor`, `logs` and `urls` do not create or update registrations.
-
-`roke project` lists the registered IDs and paths from any directory, marking
-paths that no longer exist as `missing`. It needs no Docker connection.
-`roke project show NAME` shows one identity's details. Use this inventory
-to recover an ID before reattaching a moved project.
-
-If another path already owns the ID, choose a distinct one with `--id`:
+The first build, session or configuration edit registers the project's ID,
+path and Compose name. The ID defaults to the directory name. It must start
+with a letter or digit and contain only letters, digits, dots, underscores
+and hyphens. If the name is taken, choose another on the first build or start:
 
 ```fish
-cd ~/clients/contoso/api
-roke --id contoso-api
-roke logs                      # the registered ID is remembered for this path
-roke settings show contoso-api  # inspect its settings from any directory
+roke build --id contoso-api
+roke                          # subsequent commands remember the ID
 ```
 
-The project ID is remembered for its directory, so session commands normally
-need no `--id`. Use `roke --id NAME` to choose an ID on the first start or
-reattach a moved project. From the registered directory, `roke continue`,
-`roke shell` and `roke exec CMD` find the ID automatically.
-The first `roke build` also registers the project automatically, using its
-directory name as the default ID. The optional `--id NAME` chooses a different
-initial ID. Subsequent commands remember it without a flag.
-`roke settings` keeps showing the current project's settings;
-`roke settings show ID` reads a registered project's settings without changing
-its path, even if that path is missing. It never prints secret values.
-
-Existing projects are adopted automatically on first use at their original
-path. Their Compose names are preserved, keeping the same volumes, databases
-and agent sessions. If an explicit ID differs from the old directory name,
-roke copies existing settings into `projects/<id>/` when that destination
-does not exist and the old name is not already registered to another project.
-The original settings remain available. When the old name belongs to another
-registered project, its settings and secrets are never copied automatically.
-If two legacy projects shared a settings directory, choose distinct IDs and
-copy the desired configuration files to the new ID's directory yourself.
+Use `roke project` to list registered IDs and paths, or `roke project show ID`
+for one project's details. Settings live in `projects/<id>/`; the local
+registry is `~/.config/roke/.local/projects.json`. Keep that registry on this
+machine when moving code; sync only configuration across machines.
 
 Register an existing project before moving it, so roke can retain its original
 Compose name. Stop its containers first, move it on the host, then use the
@@ -225,7 +137,7 @@ existing ID from the new path:
 
 ```fish
 cd ~/src/api
-roke shell                      # adopts this project as api; exit the shell
+roke shell                      # registers api if needed; exit the shell
 roke down
 mv ~/src/api ~/work/backend
 cd ~/work/backend
@@ -235,15 +147,14 @@ roke                            # no flag needed on subsequent starts
 
 The old path must no longer exist. A second copy or worktree needs a separate
 ID while the original is present. A registered path cannot be given another
-ID through `--id`. Moving a project never copies Docker volumes or renames
-its Compose project. Deleting the local registry loses these associations;
-keep it when moving code, and do not use `purge` as part of a move.
+ID through `--id`. Do not delete the registry or run `purge` as part of a
+move: they would lose the identity associations or delete the data.
 
 ## Your own services
 
 Services are looked up in three places, and the first one found wins:
 
-1. the project's `services/` (`projects/<name>/services/<service>/`);
+1. the project's `services/` (`projects/<id>/services/<service>/`);
 2. your `services/` (`~/.config/roke/services/<service>/`);
 3. the roke [catalog](../catalog/services/README.md).
 
@@ -256,21 +167,12 @@ name as one further down the list replaces it. See
 
 ## Agent configuration
 
-Box images are tagged automatically from their build arguments and recipe.
-Projects with the same inputs reuse the same image; different installed agents,
-agent versions, Serena build settings, PostgreSQL client versions or UID/GID
-use separate variants. Selecting an agent for a session or changing services,
-ports and network policy does not create a new box variant. Docker can reuse
-unchanged build layers across variants.
+Projects with the same box recipe and build settings share an image;
+different settings use separate images. Run `roke build` after changing
+installed agents, their versions or other build settings.
 
-Automatic tags cover the standard box recipe and its supported build arguments
-from settings. If you override `box.build` in your own Compose file, also set
-`box.image` to a distinct tag for that custom recipe. Explicit image overrides
-are respected, and `roke doctor` checks the resolved image.
-
-After upgrading from a version that only used `roke:latest`, run `roke build`
-for each distinct build configuration before starting sessions. Project IDs,
-home volumes and service data keep their existing identities.
+If you override `box.build` in a Compose file, also give `box.image` a
+distinct tag for that custom recipe.
 
 Two pieces of your configuration go to the agent:
 
@@ -315,13 +217,10 @@ per project.
 The agent can add tools itself with `mise use`. To skip the automatic
 install, set `ROKE_MISE_INSTALL=0`.
 
-If you always need something that mise does not provide, add it to the
-`apt-get install` in the `Dockerfile` and run `roke build --no-cache`.
-
 ## Settings reference
 
 The variables roke itself reads. Set them in `roke.env` (every project) or
-`projects/<name>/project.env` (one project). Each service has its own variables,
+`projects/<id>/project.env` (one project). Each service has its own variables,
 documented in its README in [services](../catalog/services/README.md).
 
 | Variable | Default | Description |
@@ -348,6 +247,6 @@ documented in its README in [services](../catalog/services/README.md).
 | `ROKE_PROJECT_CONFIG` | set by `roke` | The project's configuration directory, for paths in compose files |
 | `ROKE_AGENTS` | `claude codex opencode` | Agents installed in the image (rebuild after changing) |
 | `ROKE_AGENT_VERSIONS` | — | Agent versions as `agent=version` pairs (rebuild after changing) |
-| `POSTGRES_CLIENT_VERSION` | `18` | PostgreSQL client tools in the image (rebuild after changing) |
-| `SERENA_VERSION` | see `roke.env` | Serena version in the image (rebuild after changing) |
+| `POSTGRES_CLIENT_VERSION` | see [`Dockerfile`](../Dockerfile) | PostgreSQL client tools in the image (rebuild after changing) |
+| `SERENA_VERSION` | see [`Dockerfile`](../Dockerfile) | Serena version in the image (rebuild after changing) |
 | `INSTALL_SERENA` | `1` | `0` builds the image without Serena |

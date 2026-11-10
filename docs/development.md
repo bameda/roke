@@ -11,7 +11,7 @@ standard library, so it only needs Python 3.10 or newer on the host.
 | `roke/cli.py` | Parses the arguments into a request and runs it |
 | `roke/commands/` | Command handlers: `box.py` (sessions, logs, lifecycle), `doctor.py`, `settings.py`, `agent.py`, `service.py`, `mcp.py`, `network.py` and `setup.py` (init, update) |
 | `roke/workspace.py` | A `Workspace`: the project, your configuration and what follows from them for a command. Its steps, in order: open (configuration, project, guards), settings, agent, services, network, docker compose |
-| `roke/catalog/` | roke's catalogs: `agents.py` (the coding agents in `agents/`), `services.py` (the services) and `mcps.py` (the MCP servers, and how their definitions are resolved), each looked up in the project's configuration, yours and the repository |
+| `roke/catalog/` | roke's catalogs: `agents.py` (the coding agents in `catalog/agents/`), `services.py` (the services) and `mcps.py` (the MCP servers, and how their definitions are resolved), each looked up in the project's configuration, yours and the repository |
 | `roke/settings.py` | Reads and edits `roke.env`, `project.env` and `secrets.env` |
 | `roke/project.py` | The project, its compose name and the guards against mounting too much |
 | `roke/docker.py` | Everything that talks to Docker: checking it is there, the running projects, docker compose |
@@ -24,7 +24,7 @@ steps it needs. For example, `roke service add` needs the project and its
 guards, but neither the settings nor Docker.
 
 Settings files are read by bash, as if sourced, so they keep behaving like
-shell files: quotes, comments and variable references work as before.
+shell files: quotes, comments and variable references are supported.
 
 The scripts that run inside the containers stay in bash: the box's
 entrypoint (`docker/entrypoint.sh`), the gateway (`docker/gateway/gateway.sh`)
@@ -38,9 +38,8 @@ For `roke run`, the path through the code is:
    installed roke directory. `roke/cli.py` parses the request and dispatches
    it to `roke/commands/box.py`.
 2. `Workspace.open()` resolves the project and checks the mount guards.
-   Session starts and configuration edits also register its stable ID,
-   retaining the original Compose name during first-use adoption. Read-only
-   commands only look up existing registrations.
+   Session starts and configuration edits also register its stable ID;
+   read-only commands only look up existing registrations.
    `load_all()` reads global and project settings, chooses an agent, selects
    services and MCP servers, then builds the network allow list. Selected
    MCP servers can add services and network destinations.
@@ -81,32 +80,23 @@ selection, changelog generation, validation and publication.
 
 ## Development tools
 
-Before each commit, [pre-commit](https://pre-commit.com/) checks the
-changed files:
-
-| Tool | Checks |
-|---|---|
-| [ruff](https://docs.astral.sh/ruff/) | Python: lint (fixing what it can) and format |
-| [mypy](https://mypy.readthedocs.io/) | Python: types |
-| [ShellCheck](https://www.shellcheck.net/) | The shell scripts |
-| [zizmor](https://docs.zizmor.sh/) | The GitHub Actions workflows: security issues |
-| [check-jsonschema](https://check-jsonschema.readthedocs.io/) | The GitHub workflows, issue forms and `renovate.json`, against their official schemas |
-| [pre-commit-hooks](https://github.com/pre-commit/pre-commit-hooks) | Trailing whitespace, final newlines, YAML, merge conflicts, shebangs |
-
-Nothing needs installing besides [uv](https://docs.astral.sh/uv/): pre-commit
-installs each tool in its own environment. Set it up once in your clone:
-
-```fish
-uvx pre-commit install
-```
-
-From then on, `git commit` runs the checks on the files it commits and
-stops if one fails; ruff fixes and formats what it can, so add its changes
-and commit again. To check everything:
+The [contributor setup](../CONTRIBUTING.md#setting-up) installs a pre-commit
+hook. To run all checks manually:
 
 ```fish
 uvx pre-commit run --all-files
 ```
+
+| Tool | Checks |
+|---|---|
+| [ruff](https://docs.astral.sh/ruff/) | Python lint and formatting |
+| [mypy](https://mypy.readthedocs.io/) | Python types |
+| [ShellCheck](https://www.shellcheck.net/) | Shell scripts |
+| [zizmor](https://docs.zizmor.sh/) | GitHub Actions security |
+| [check-jsonschema](https://check-jsonschema.readthedocs.io/) | Workflows, issue forms and Renovate configuration |
+| [pre-commit-hooks](https://github.com/pre-commit/pre-commit-hooks) | Whitespace, YAML, merge conflicts and shebangs |
+
+If a hook changes files, review and stage them, then rerun the checks.
 
 The tools' settings live in `pyproject.toml` (ruff, mypy) and
 `.pre-commit-config.yaml` (versions). The tools need Python 3.11 or newer;
@@ -126,22 +116,16 @@ date, configured in `renovate.json`:
 | Development tools | `.pre-commit-config.yaml` |
 | GitHub Actions | The workflows, pinned by commit SHA |
 
-It opens pull requests on Monday mornings, and nothing is merged
-automatically: review each one. Minor and patch updates of the development
-tools and actions come together in one pull request. Major versions of
-service images are labelled `major`: projects keep the version they pinned
-(see [Versions](../catalog/services/README.md#versions)), but check the release
-notes for changes to the data format, and update the service's README if
-it needs migration steps. The Dependency Dashboard issue lists what is
-pending.
+Renovate groups compatible development tool and Actions updates; service
+major upgrades are labelled `major`. Review migration requirements before
+merging, and update the service's README when needed. Projects retain their
+pinned service versions; see [Versions](../catalog/services/README.md#versions).
+The Dependency Dashboard issue lists pending updates.
 
 Each version lives in one place, so an update changes everything: the
 services' READMEs point to their `compose.yaml` instead of repeating the
 default, and `compose.yaml` passes the `Dockerfile`'s build arguments only
 when they are set.
-
-Renovate runs as the [Mend Renovate app](https://github.com/apps/renovate),
-installed on the repository.
 
 ## Tests
 
@@ -190,9 +174,6 @@ The default `uvx pytest` run skips this suite. It remains usable inside
 roke's box, which has no Docker daemon. Each integration stack has a unique
 project name; teardown prints container logs and removes its containers,
 networks and test volumes, including after a test failure.
-
-The tests describe what roke does from the outside, so they do not depend on
-how it is written: any change to roke must keep them passing.
 
 ## Trying a change
 

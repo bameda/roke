@@ -1,10 +1,8 @@
 # Playwright (`playwright`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add playwright` (or `roke -s playwright` for one run).
+**Enable**: `roke service add playwright`.
 
 Browsers for [Playwright](https://playwright.dev/) tests. The box cannot run
 them: browsers need many system libraries, and it has no `sudo` to install
@@ -48,4 +46,4 @@ Dev servers that check the host name need to accept `box`, such as Vite's
 
 | Variable | Default |
 |---|---|
-| `PLAYWRIGHT_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml). Make it the project's `@playwright/test` version |
+| `PLAYWRIGHT_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project. Make it the project's `@playwright/test` version |

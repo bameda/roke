@@ -1,7 +1,7 @@
 # Coding agents
 
 The coding agents roke can run. Each one lives in its own directory
-under `agents/`, and none is the default: you choose one with `ROKE_AGENT`
+under `catalog/agents/`, and none is the default: you choose one with `ROKE_AGENT`
 (in `roke.env` or a project's `project.env`) or with `roke --agent`.
 
 See [switching between agents](#switching-between-agents) to change from
@@ -23,7 +23,6 @@ the project settings.
 # ~/.config/roke/roke.env
 ROKE_AGENT=claude                     # the agent to run
 ROKE_AGENTS="claude codex opencode"   # agents in the image (rebuild after changing)
-ROKE_AGENT_VERSIONS="opencode=2.2.5"  # optional versions (rebuild after changing)
 ```
 
 - **`ROKE_AGENT`** is required when the image has more than one agent. A
@@ -32,13 +31,13 @@ ROKE_AGENT_VERSIONS="opencode=2.2.5"  # optional versions (rebuild after changin
 - **`ROKE_AGENTS`** lists the agents installed in the image, all of them by
   default. Keep only the ones you use to make the image smaller.
 - **`ROKE_AGENT_VERSIONS`** pins versions as `agent=version` pairs. Each
-  agent's README explains which values it accepts and its default.
+  agent's README explains which values it accepts and its default. Run
+  `roke build` after changing versions, or `roke build --no-cache` to update
+  agents installed from a channel. Agent self-updates are disabled.
 
 ## Switching between agents
 
-There is a default agent, and any project can have its own, so different
-projects can use different agents with the same configuration. Switching
-takes one command:
+Choose a default, override it for a project, or switch for one session:
 
 ```fish
 roke agent use claude --global  # the default, for projects without their own
@@ -48,31 +47,13 @@ roke --agent opencode           # this run only
 roke agent                      # the agents, and which one runs here and why
 ```
 
-`roke agent use --global` writes `ROKE_AGENT` in `roke.env`, and `roke agent use` in
-the project's `project.env`; you can also edit them by hand. The agent must
-be in the image: if it is not, add it to `ROKE_AGENTS` and run
-`roke build`.
+The selected agent must be in `ROKE_AGENTS`; run `roke build` after adding one.
+Switching preserves the project's files, services, data, mise tools and
+shared instructions. Each agent keeps its own login, conversation history
+and native configuration. A session cannot continue in a different agent.
 
-**What carries over when you switch:**
-
-- the project, its services and their data, its tools (mise) and Serena;
-- the box's instructions, your `AGENTS.md` and the project's private one,
-  which every agent receives;
-- the project's own instructions, if they are in an `AGENTS.md`: Codex and
-  OpenCode read it, and so does Claude Code when the project has no
-  `CLAUDE.md`.
-  Prefer `AGENTS.md` in projects where you use several agents.
-
-**What does not:**
-
-- **Sessions and history.** Each agent keeps its own; a conversation started
-  with one cannot be continued with another. Start the new one with a short
-  summary of where you were, or ask the first agent to write one into the
-  project before switching.
-- **Login.** Each agent has its own, made once.
-- **Agent-specific configuration** in `~/.config/roke/agents/<agent>/`:
-  model, permissions, your own MCP servers, custom commands and skills use
-  each agent's format, so configure each agent separately.
+Prefer `AGENTS.md` for instructions shared by agents: Codex and OpenCode
+read it, and Claude Code reads it when the project has no `CLAUDE.md`.
 
 ## Several agents at once
 
@@ -86,14 +67,9 @@ ROKE_PARALLEL_AGENTS=claude,codex
 
 The project's network then allows the destinations of all of them, whichever
 starts, so starting the second does not change the network under the first.
-Without that line, each agent gets only its own destinations: working with a
-single agent keeps the network as narrow as possible.
 
-roke never cuts off a session that is running: if starting another one would
-recreate a container the first is using (the gateway, because of a
-different agent or different `-p` ports, or a service), it refuses and says
-why. Finish the first session, or stop the project with `roke down`, then
-start again.
+If a new session would recreate containers used by an open session, roke
+refuses to start it. Finish that session or run `roke down` first.
 
 Both agents edit the same files and share the services and the network, so
 give them tasks in different parts of the project, and do not start two dev
@@ -107,10 +83,7 @@ cd ../shop-experiment
 roke --agent codex
 ```
 
-Each worktree has its own registered ID. The default is its directory name;
-if that ID is already taken, choose one with `roke --id shop-experiment`.
-Settings live in `~/.config/roke/projects/<id>/`. See
-[project IDs and moves](../../docs/configuration.md#project-ids-and-moves).
+Each worktree needs a separate [project ID](../../docs/configuration.md#project-ids-and-moves).
 
 ## Instructions for the agent
 
@@ -122,7 +95,7 @@ this order:
 2. the agent's own, `catalog/agents/<agent>/AGENTS.md`, if it has one;
 3. yours, `~/.config/roke/AGENTS.md`, for every agent, followed by the
    `AGENTS.md` in `~/.config/roke/agents/<agent>/`, if any, for this agent;
-4. the project's private ones, `~/.config/roke/projects/<name>/AGENTS.md`.
+4. the project's private ones, `~/.config/roke/projects/<id>/AGENTS.md`.
 
 Each agent's `setup.sh` puts the result where that agent reads it. The
 project's own `AGENTS.md` or `CLAUDE.md`, in its repository, is read by the

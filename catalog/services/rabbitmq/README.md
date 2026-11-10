@@ -1,10 +1,8 @@
 # RabbitMQ (`rabbitmq`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add rabbitmq` (or `roke -s rabbitmq` for one run).
+**Enable**: `roke service add rabbitmq`.
 
 RabbitMQ message broker, for job queues and messaging between services.
 
@@ -31,6 +29,6 @@ curl -s -u dev:dev http://rabbitmq:15672/api/queues | jq '.[] | {name, messages}
 
 | Variable | Default |
 |---|---|
-| `RABBITMQ_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `RABBITMQ_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |
 | `RABBITMQ_USER` / `RABBITMQ_PASSWORD` | `dev` / `dev` |
 | `RABBITMQ_UI_PORT` | `15672` |

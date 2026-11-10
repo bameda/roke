@@ -23,9 +23,6 @@ Read the settings from the environment: `DATABASE_URL` works as is with
 pgx and lib/pq, and `NATS_URL` with nats.go. The service must listen on
 `0.0.0.0:8080` (or `:8080`) to be reachable at `http://127.0.0.1:8080`.
 
-Go's module and build caches are kept in the project's home volume, so dependencies
-are downloaded and packages compiled only once.
-
 ## Check it
 
 From `roke shell`:

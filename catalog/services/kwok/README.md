@@ -1,10 +1,8 @@
 # Kubernetes API (`kwok`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add kwok` (or `roke -s kwok` for one run).
+**Enable**: `roke service add kwok`.
 
 A Kubernetes API server simulated by [kwok](https://kwok.sigs.k8s.io/)
 (*Kubernetes WithOut Kubelet*). The API is real, so `kubectl` and `helm`
@@ -12,10 +10,7 @@ work against it and validate what you install, but no container ever runs:
 Pods are simulated. It is meant for testing Helm charts and manifests
 from inside the box.
 
-Why not a real cluster? kind and k3d need the Docker socket, and k3s needs
-a privileged container. An agent with admin rights on such a cluster could
-start a Pod that mounts the host's disks and escape the box. kwok needs no
-privileges. Test on a real cluster from your host, with kind or k3d.
+Test workloads on a real cluster from your host.
 
 **Inside the box**
 
@@ -51,7 +46,4 @@ forever. `helm test` is not meaningful either, since test Pods never run.
 
 | Variable | Default |
 |---|---|
-| `KWOK_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
-
-Other Kubernetes versions use the same kwok version with another suffix,
-for example `v0.8.0-k8s.v1.34.8`.
+| `KWOK_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

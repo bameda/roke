@@ -1,10 +1,8 @@
 # Jaeger (`jaeger`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add jaeger` (or `roke -s jaeger` for one run).
+**Enable**: `roke service add jaeger`.
 
 [Jaeger](https://www.jaegertracing.io/) collects
 [OpenTelemetry](https://opentelemetry.io/) traces from your app and shows
@@ -41,4 +39,4 @@ curl -s "$JAEGER_QUERY_URL/api/traces?service=my-app&limit=5" | jq '.data[].span
 | Variable | Default |
 |---|---|
 | `JAEGER_UI_PORT` | `16686` |
-| `JAEGER_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `JAEGER_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

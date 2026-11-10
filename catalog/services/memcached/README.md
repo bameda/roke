@@ -1,10 +1,8 @@
 # Memcached (`memcached`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add memcached` (or `roke -s memcached` for one run).
+**Enable**: `roke service add memcached`.
 
 Memcached, a simple key-value cache.
 
@@ -29,5 +27,5 @@ Send `flush_all` instead of `stats` to empty it.
 
 | Variable | Default |
 |---|---|
-| `MEMCACHED_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `MEMCACHED_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |
 | `MEMCACHED_MEMORY_MB` | `128` |

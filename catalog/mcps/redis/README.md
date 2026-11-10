@@ -2,7 +2,7 @@
 
 Part of the [MCP catalog](../README.md).
 
-**Enable**: `roke mcp add redis` (this project) or `roke mcp add redis --global`.
+**Enable**: `roke mcp add redis`.
 
 [Redis's official MCP server](https://github.com/redis/mcp-redis),
 connected to the project's [`redis`](../../services/redis/README.md)

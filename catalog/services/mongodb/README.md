@@ -1,10 +1,8 @@
 # MongoDB (`mongodb`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add mongodb` (or `roke -s mongodb` for one run).
+**Enable**: `roke service add mongodb`.
 
 MongoDB document database.
 
@@ -34,5 +32,5 @@ the [`mongodb` MCP](../../mcps/mongodb/README.md).
 
 | Variable | Default |
 |---|---|
-| `MONGO_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `MONGO_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |
 | `MONGO_USER` / `MONGO_PASSWORD` | `dev` / `dev` |

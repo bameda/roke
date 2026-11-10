@@ -2,7 +2,7 @@
 
 Part of the [MCP catalog](../README.md).
 
-**Enable**: `roke mcp add postgres` (this project) or `roke mcp add postgres --global`.
+**Enable**: `roke mcp add postgres`.
 
 [MCP Toolbox for Databases](https://github.com/googleapis/genai-toolbox),
 by Google, with its ready-made PostgreSQL tools, connected to the project's

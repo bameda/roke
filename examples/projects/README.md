@@ -12,9 +12,8 @@ cp -r ~/.local/share/roke/examples/projects/python-api ~/.config/roke/projects/m
 ```
 
 Then adapt it: every file is optional, so delete what you do not need. The
-README in each example explains what it sets up and what to add to the
-project itself (usually a `mise.toml`); it is only documentation, so you
-can delete it too.
+README in each example explains what to add to the project itself
+(usually a `mise.toml`).
 
 | Example | For | Services | Shows |
 |---|---|---|---|

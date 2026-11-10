@@ -1,10 +1,8 @@
 # OCI registry (`registry`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add registry` (or `roke -s registry` for one run).
+**Enable**: `roke service add registry`.
 
 A local OCI registry ([Distribution](https://distribution.github.io/distribution/)),
 for pushing and pulling Helm charts and other OCI artifacts without
@@ -32,8 +30,7 @@ installable with mise.
 
 **From your host**: the registry is also published on `127.0.0.1:5000`, so
 you can pull what the agent pushed (`helm pull
-oci://127.0.0.1:5000/charts/mychart --plain-http`). Docker trusts
-`127.0.0.1` over plain HTTP by default.
+oci://127.0.0.1:5000/charts/mychart --plain-http`).
 
 **Data**: persisted in the project's `registry-data` volume.
 
@@ -42,4 +39,4 @@ oci://127.0.0.1:5000/charts/mychart --plain-http`). Docker trusts
 | Variable | Default |
 |---|---|
 | `REGISTRY_PORT` | `5000` (host port) |
-| `REGISTRY_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `REGISTRY_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

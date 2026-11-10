@@ -2,7 +2,7 @@
 
 Part of the [MCP catalog](../README.md).
 
-**Enable**: `roke mcp add penpot` (this project) or `roke mcp add penpot --global`.
+**Enable**: `roke mcp add penpot`.
 
 [Penpot's hosted MCP server](https://help.penpot.app/mcp/) lets the agent
 read and change your Penpot designs: inspect a design to write its code,

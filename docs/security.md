@@ -18,18 +18,14 @@ full sandbox: read what it protects and what it does not.
 | `/run/roke/agent-config` | `~/.config/roke/agents/<agent>` | read-only |
 | `/run/roke/user-AGENTS.md` | `~/.config/roke/AGENTS.md`, if any | read-only |
 | `/run/roke/project-AGENTS.md` | the project's `AGENTS.md` in your configuration, if any | read-only |
-| `/opt/roke/agents` | the repository's `agents/` (setup scripts, the box's instructions) | read-only |
+| `/opt/roke/agents` | the repository's `catalog/agents/` (setup scripts, the box's instructions) | read-only |
 
 Nothing else from your host is mounted: not your `$HOME`, not your SSH keys,
 not your other projects, not your roke settings or secrets.
 
-Each project has its own home volume, shared with nothing else: not with
-other projects, not with your host. It holds the agents' logins and
-sessions, the tools installed with mise and the caches (npm, maven,
-cargo...). An agent working on one project therefore cannot read another
-project's sessions, nor leave anything behind (a shell profile, an MCP
-server in the agent's state, a poisoned cache) that another project would
-pick up. `roke purge` deletes it along with the project's other data.
+Each project has a separate home volume for agent logins, sessions, mise
+tools and caches. These are shared with neither other projects nor your
+host. `roke purge` deletes this volume along with the project's other data.
 
 ## The agent is not trusted
 
@@ -41,12 +37,10 @@ described here hold whether they work or not. Everything that keeps the
 agent away from your machine is enforced by Docker, from outside the
 container, with files the agent cannot modify.
 
-That is why roke turns off Codex's sandbox (`sandbox_mode =
-"danger-full-access"`): it could not run inside the box, which denies the
-Linux namespaces it needs, and making it work would weaken the box. Inside
-the box, "full access" means the project and the network destinations it
-allows. Codex's approvals do not change: it still asks before running
-commands. See [Codex](../catalog/agents/codex/README.md).
+roke disables Codex's inner sandbox (`sandbox_mode = "danger-full-access"`)
+because the box denies the Linux namespaces it needs. Docker still enforces
+the limits described here; Codex's command approval policy is unchanged.
+See [Codex](../catalog/agents/codex/README.md) for configuration overrides.
 
 ## How it is locked down
 
@@ -65,8 +59,7 @@ commands. See [Codex](../catalog/agents/codex/README.md).
 - **Project identity stays outside the project too.** The local ID registry
   lives in the protected configuration directory and is never mounted into
   the box. Files in the repository cannot select another project's identity,
-  settings or volumes. Reattaching an ID to a new path requires the explicit
-  `--id` option and the old path must no longer exist.
+  settings or volumes. See [project IDs and moves](configuration.md#project-ids-and-moves).
 - **The network is restricted by default.** The box only reaches the
   destinations you allow, and the services have no route out at all; see
   [Network](network.md).

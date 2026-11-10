@@ -1,10 +1,8 @@
 # Prometheus (`prometheus`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add prometheus` (or `roke -s prometheus` for one run).
+**Enable**: `roke service add prometheus`.
 
 [Prometheus](https://prometheus.io/) collects your app's metrics. It gets
 them in two ways:
@@ -57,4 +55,4 @@ Targets are reachable by name: `box:<port>` for the app, or any service.
 | Variable | Default |
 |---|---|
 | `PROMETHEUS_UI_PORT` | `9090` |
-| `PROMETHEUS_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `PROMETHEUS_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

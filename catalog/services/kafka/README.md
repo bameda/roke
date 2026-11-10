@@ -1,16 +1,11 @@
 # Kafka (`kafka`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add kafka` (or `roke -s kafka` for one run).
+**Enable**: `roke service add kafka`.
 
-A Kafka-compatible broker, using [Redpanda](https://www.redpanda.com/): a
-single binary without ZooKeeper or a JVM, which starts in seconds. It
-speaks the Kafka protocol, so Kafka clients and frameworks (Spring Kafka,
-franz-go, librdkafka, KafkaJS...) work unchanged. It also includes a
-Schema Registry.
+A Kafka-compatible broker using [Redpanda](https://www.redpanda.com/),
+with a Schema Registry.
 
 **Inside the box**
 
@@ -38,5 +33,5 @@ its container. Run it from your host: find the container with
 
 | Variable | Default |
 |---|---|
-| `REDPANDA_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `REDPANDA_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |
 | `KAFKA_MEMORY` | `1G` |

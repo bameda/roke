@@ -2,7 +2,7 @@
 
 Part of the [MCP catalog](../README.md).
 
-**Enable**: `roke mcp add mongodb` (this project) or `roke mcp add mongodb --global`.
+**Enable**: `roke mcp add mongodb`.
 
 [MongoDB's official MCP server](https://github.com/mongodb-js/mongodb-mcp-server),
 connected to the project's [`mongodb`](../../services/mongodb/README.md)

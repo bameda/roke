@@ -2,7 +2,7 @@
 
 Part of the [MCP catalog](../README.md).
 
-**Enable**: `roke mcp add grafana` (this project) or `roke mcp add grafana --global`.
+**Enable**: `roke mcp add grafana`.
 
 [Grafana's official MCP server](https://github.com/grafana/mcp-grafana),
 connected to the project's [`grafana`](../../services/grafana/README.md)

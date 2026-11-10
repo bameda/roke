@@ -1,10 +1,8 @@
 # MariaDB (`mariadb`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add mariadb` (or `roke -s mariadb` for one run).
+**Enable**: `roke service add mariadb`.
 
 MariaDB, a MySQL-compatible relational database.
 
@@ -44,7 +42,7 @@ the [`mariadb` MCP](../../mcps/mariadb/README.md).
 
 | Variable | Default |
 |---|---|
-| `MARIADB_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `MARIADB_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |
 | `MARIADB_USER` / `MARIADB_PASSWORD` | `dev` / `dev` |
 | `MARIADB_DATABASE` | `app` |
 | `MARIADB_ROOT_PASSWORD` | `root` |

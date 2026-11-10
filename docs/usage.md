@@ -16,28 +16,13 @@
 roke [COMMAND] [OPTIONS]
 ```
 
-roke works on the project in the current directory, or in `DIR` with
-`-C DIR`. Commands follow three rules, so you can guess the ones you do not
-remember:
+Commands apply to the current directory; `-C DIR` selects another project.
+Changes apply to that project unless you add `--global`.
+`roke help COMMAND` shows help for a command.
 
-1. **What you do with the project's box is a verb:** `roke shell`,
-   `roke down`, `roke build`.
-2. **What you manage is a noun and a verb:** `roke service add`,
-   `roke agent use`, `roke network add`. The noun alone lists it:
-   `roke service`.
-3. **Changes apply to the current project; `--global`, to every project.**
+Projects remember their ID. Use `--id NAME` on the first build or start to
+choose one, or to [reattach a moved project](configuration.md#project-ids-and-moves).
 
-`roke help` lists every command, and `roke help COMMAND` one of them.
-`roke version` (or `roke --version`) shows the installed roke version from
-any directory, without Docker or project configuration.
-
-`-C DIR` chooses the project's directory, for example `roke settings -C DIR`.
-The project ID is remembered for its directory. Use `roke --id acme-api`
-to choose an ID on the first start or reattach a moved project. Subsequent
-commands such as `roke continue`, `roke shell` and `roke exec CMD` find the
-ID automatically. To inspect another project's
-settings, use `roke settings show ID`. See
-[project IDs and moves](configuration.md#project-ids-and-moves).
 For `exec`, put roke options before the command to execute; for `logs`, put
 them before the arguments passed to Compose.
 
@@ -61,18 +46,9 @@ them before the arguments passed to Compose.
 | `roke purge` | Stop them and delete all the project's data |
 | `roke doctor [--yaml]` | Check prerequisites and report what needs fixing; `--yaml` produces a shareable report. Returns nonzero when something needs attention |
 
-Projects with the same box recipe and build arguments share an image. roke
-automatically assigns different image tags to different build settings, so
-building another project's agent versions does not replace yours. The gateway
-image is shared. `roke build` also
-builds selected services that have a Dockerfile and applies the current
-project's configuration. The first build registers the project automatically,
-using its directory name as the default ID. The optional `--id NAME` chooses
-a different initial ID, for example `roke build --id acme-api`.
-
-If Compose rejects a service name, `roke logs` shows the available names from
-the resolved Compose configuration. This includes the gateway, selected
-services and any services added in the project's `compose.yaml`.
+`roke build` builds the box, gateway and selected services that have a
+Dockerfile. It registers the project automatically; `--id NAME` optionally
+chooses a different initial ID. It does not start the agent.
 
 **Projects** (see [project IDs and moves](configuration.md#project-ids-and-moves))
 
@@ -136,7 +112,7 @@ services and any services added in the project's `compose.yaml`.
 |---|---|
 | `-a`, `--agent NAME` | Use another agent |
 | `-s`, `--services LIST` | Start these services instead, comma-separated |
-| `-p`, `--port PORT` | Publish a port of the box on `127.0.0.1` (repeatable) |
+| `-p`, `--port PORT` | Publish box ports on `127.0.0.1`; space-separated or repeatable |
 | `--network MODE` | `restricted` or `open` |
 | `--git-rw` | Let the agent write to `.git`, so it can commit |
 | `--serena`, `--no-serena` | Enable or disable [Serena](serena.md) |
@@ -145,50 +121,20 @@ To keep an option for a project, use its setting instead: `roke service add`
 for `-s`, and `ROKE_PORTS`, `ROKE_NETWORK`, `ROKE_GIT_RW` or `ROKE_SERENA` in
 its `project.env`.
 
-Examples:
-
-```fish
-roke continue               # resume the agent's last session
-roke exec -s postgres psql  # a single command, with a service
-roke urls -C ~/src/shop     # another project, from anywhere
-```
-
 ## Checking the settings
 
-`roke settings` inspects the current project. `roke settings show ID` uses a
-registered identity instead, from any directory, without changing its path
-or registration. It also works when the registered directory is missing.
+`roke settings` shows the current project's effective configuration and
+where each value comes from. `roke settings show ID` inspects another
+registered project from any directory, even if its path is missing.
+Neither command prints secret values.
 
-`roke settings` shows what applies to the current project and where each
-value comes from: the agent, the network mode, the services, the ports, the
-MCP servers, the settings files found, and the allowed network
-destinations, layer by layer.
-
-```text
-Project   /home/me/src/shop (running)
-ID        shop
-Compose   roke-shop-f39b23e3
-Settings  /home/me/.config/roke: roke.env secrets.env projects/shop/project.env
-Agent     claude (default agent, roke.env)
-Network   restricted (built-in default): 29 destinations allowed (roke network)
-Services  postgres 18, mailpit v1.33.0
-MCPs      github
-Secrets   GITHUB_PAT (global)
-Box ports 5173 (all published ports: roke urls)
-Serena    on
-.git      read-only
-```
-
-`Box ports` lists the configured ports of the box. `roke urls` includes the
-services' published ports too. `Compose` identifies the project in Docker.
-
-`roke network` shows the allowed outgoing destinations, and `roke agent` and
-`roke service` what is available and what the project uses.
+The ports listed here belong to the box. Use `roke urls` to include the
+services' published ports, and `roke network` for allowed outgoing destinations.
 
 ## Editing the settings
 
 `roke settings edit` opens a settings file of the current project in your
-editor, creating it from a commented template the first time:
+editor:
 
 | Command | File |
 |---|---|
@@ -205,101 +151,41 @@ syntax error, such as an unclosed quote, would stop roke until fixed.
 
 ## Finding the services and ports
 
-`roke urls` shows the ports published by the current project's running
-containers, their destinations and whether they bind only to your machine
-or also to a network interface:
-
-```text
-shop (running)
-
-Published ports (running containers)
-  app          http://127.0.0.1:5173 → box:5173 (tcp, local only)
-  mailpit      http://127.0.0.1:18025 → mailpit:8025 (tcp, local only)
-
-Reach from inside the box
-  postgres     postgres:5432
-  mailpit      mailpit:1025 · mailpit:8025
-
-The variables each service gives the box: roke service show NAME
+```fish
+roke urls                   # published ports and addresses inside the box
+roke service show postgres  # connection variables with your settings applied
 ```
 
-It includes ports published by custom containers in the project's
-`compose.yaml`. HTTP addresses are shown for the app and forwarded service
-UIs; other bindings use `tcp://` or `udp://` addresses. `network access`
-means the port binds to a non-loopback interface; host firewalls still apply.
+`roke urls` reads running containers, including custom services, and shows
+whether each port is local to your machine or bound to a network interface.
+Host firewalls still apply to network bindings.
 
-If the project is stopped, it shows configured ports instead. If the running
-bindings differ from the current configuration, a separate `Configured ports
-(next start)` section shows the expected bindings after restarting. Options
-such as `-s` and `-p` apply to that configuration, so `roke urls -s redis`
-shows what that run would look like without changing running containers.
-Docker and Compose are required; the project does not need to be running.
-
-The variables each service gives the box, with your settings applied, are
-in `roke service show NAME`, followed by the service's README:
-
-```text
-postgres: PostgreSQL · postgres:5432 · DATABASE_URL, PGHOST/PGUSER/PGPASSWORD/PGDATABASE
-
-In this project: used
-  POSTGRES_VERSION=18 (pinned)
-  inside the box: postgres:5432
-  variables in the box:
-    DATABASE_URL=postgres://dev:dev@postgres:5432/shop
-    PGDATABASE=shop
-    PGHOST=postgres
-    PGPASSWORD=dev
-    PGPORT=5432
-    PGUSER=dev
-  ...
-```
+For a stopped project it shows configured ports. When running bindings differ
+from the configuration, it shows both, so you can see what a restart will change.
+`-s` and `-p` preview configuration without changing running containers.
 
 ### Colours
 
-`roke service show`, `roke mcp show` and `roke agent show` print each entry's
-README rendered for the terminal: headings, emphasis, code, links, lists
-and tables in colour, through your pager when it does not fit. Colours
-follow `ROKE_COLOR` (in `roke.env`, or for one command): `auto`, the default,
-colours a terminal unless `NO_COLOR` is set or `TERM` is `dumb`; `always`
-colours even when piped (for example to `less -R`); `never` prints plain
-Markdown.
-
-```fish
-ROKE_COLOR=never roke service show postgres
-```
+Set `ROKE_COLOR=auto`, `always` or `never` to control colours in catalog
+READMEs. `auto` respects `NO_COLOR` and `TERM=dumb`.
 
 ## Choosing the agent
 
-No agent is the default. The one that runs comes from, in order of
-precedence:
-
-1. `--agent NAME` on the command line;
-2. `ROKE_AGENT` in the project's `project.env`;
-3. `ROKE_AGENT` in `roke.env`.
-
-If none is set and the image has a single agent, that one runs.
-`roke agent` shows which agent will run in the current project and where
-that choice comes from.
-
-To change the agent without editing files:
-
 ```fish
-roke agent use claude --global  # the default (roke.env)
-roke agent use opencode         # this project's own (project.env)
-roke agent reset                # this project uses the default again
+roke agent use claude --global  # default for projects without their own choice
+roke agent use opencode         # this project
+roke agent reset                # use the default again
+roke --agent codex              # this session only
 ```
 
-All the agents of a project share its home volume, so you can switch
-between them freely: each keeps its own login and sessions there. See
-[switching between agents](../catalog/agents/README.md#switching-between-agents) for
-what carries over and what does not.
+See [Agents](../catalog/agents/README.md) for installation, authentication
+and what carries over when switching.
 
 ## Projects and their services
 
-Each project gets its own set of containers and volumes. Its Compose name
-starts as `roke-<name>-<hash>`, calculated from the original path, and is then
-stored in the local ID registry. Reattaching the ID after a move keeps that
-name and its data. Two projects using `postgres` get separate databases.
+Each project has separate containers and volumes: two projects using
+`postgres` get separate databases. Its registered ID preserves settings and
+data when [moving the project](configuration.md#project-ids-and-moves).
 
 When you exit the agent, the project's services **keep running**, so the
 next session starts instantly with the same data. Stop them when you are
@@ -314,10 +200,6 @@ done:
 The box's home is the project's own volume with the agents' logins and
 sessions and the tools installed with mise, so after `roke purge` you log in
 again and tools are downloaded again.
-
-`roke down --all` attempts to stop every listed project, even if one fails.
-It returns a nonzero status and lists the failed projects when any could not
-be stopped. A failed Docker query is reported as an error.
 
 Some services do not keep data at all (Redis, Mailpit...); each
 [service's README](../catalog/services/README.md) says what it keeps.
@@ -339,8 +221,7 @@ ROKE_PORTS="5173 3000"
 ```
 
 Then open `http://127.0.0.1:5173` or `http://127.0.0.1:3000`. The server
-must listen on `0.0.0.0`, not `localhost` (for example `vite --host 0.0.0.0`);
-the box's instructions already tell the agent so.
+must listen on `0.0.0.0`, not `localhost` (for example `vite --host 0.0.0.0`).
 
 Services with a web UI (Mailpit, RustFS, Grafana...) publish it themselves;
 do not add their ports to `-p`. See the [service catalog](../catalog/services/README.md).
@@ -359,20 +240,18 @@ would run.
 
 ## Git workflow
 
-By default the project's `.git` is **read-only** inside the box. The agent
-can run `git status`, `git diff` or `git log`, but it cannot commit,
-switch branches, stash or change the git configuration. You review its
-changes and commit them from your host:
+By default the project's `.git` is **read-only** inside the box. Review and
+commit the agent's changes from your host:
 
 ```fish
 git diff
-git commit -am "feat: ..."
+git add <files>
+git commit -s -m "feat: ..."
 ```
 
-This also protects your host: hooks or settings planted in `.git` would run
-the next time you used git outside the box (see [Security](security.md)).
+See [Security](security.md#how-it-is-locked-down) for what this protects.
 
 To let the agent commit, use `--git-rw`, or `ROKE_GIT_RW=1` in the
 project's settings. Set your git identity in `roke.env` (`GIT_AUTHOR_NAME`
-and friends). There are no SSH keys in the box, so `git push` and
-`git pull` always happen on the host.
+and friends). Your host SSH keys are not mounted; use the host to push
+and pull with them.

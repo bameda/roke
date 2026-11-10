@@ -1,10 +1,8 @@
 # Grafana (`grafana`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add grafana` (or `roke -s grafana` for one run).
+**Enable**: `roke service add grafana`.
 
 [Grafana](https://grafana.com/), dashboards for your app's metrics and
 traces. It comes with two data sources already configured, which work when
@@ -15,9 +13,8 @@ their services are enabled too:
 
 For the full set: `ROKE_SERVICES=prometheus,grafana,jaeger`.
 
-**From your host**: <http://127.0.0.1:3001>, without login: it is local, so
-everyone is an administrator. The host port is 3001 rather than Grafana's
-usual 3000, which dev servers often use.
+**From your host**: <http://127.0.0.1:3001>, without login, with administrator
+access.
 
 **Inside the box**
 
@@ -46,4 +43,4 @@ the [`grafana` MCP](../../mcps/grafana/README.md).
 | Variable | Default |
 |---|---|
 | `GRAFANA_UI_PORT` | `3001` |
-| `GRAFANA_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `GRAFANA_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

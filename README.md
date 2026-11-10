@@ -10,8 +10,7 @@ inside a Docker container that **only sees the project you are working on**.
 Your `$HOME`, SSH keys, dotfiles and every other project stay out of the
 agent's reach.
 
-- **Any agent**: choose the agent per project or per run. Agents are
-  pluggable, so adding another one is a matter of adding a directory.
+- **Choose your agent** per project or per run.
 - **Isolated**: the project is the only host directory the agent can write
   to. Its `.git` is read-only, and the container runs without `sudo`,
   without capabilities and without access to Docker.
@@ -66,9 +65,6 @@ roke -s postgres -p 5173    # this time with a database and the dev server's por
 roke shell                  # bash inside the box
 roke exec psql              # a single command inside the box
 roke urls                   # where the app and the services are
-roke project                # registered project IDs and their paths
-roke settings show acme-api # another registered project's settings, from anywhere
-roke service show postgres  # a service: version, address, variables, docs
 roke settings edit          # edit the project's settings in your editor
 roke service add postgres   # add a service to the project, for good
 roke mcp add context7       # give the agent library documentation tools
@@ -77,11 +73,6 @@ roke network blocked        # what the network denied
 roke down                   # stop the project's containers (keeps data)
 roke help                   # every command
 ```
-
-Each project keeps its services, ports and other options in its own
-directory, `~/.config/roke/projects/<id>/`. The ID defaults to the directory
-name; use `roke --id NAME` to resolve a collision or reattach a moved project.
-See [project IDs and moves](docs/configuration.md#project-ids-and-moves).
 
 ## Documentation
 
@@ -98,7 +89,7 @@ See [project IDs and moves](docs/configuration.md#project-ids-and-moves).
 | [Serena](docs/serena.md) | Semantic code navigation and editing |
 | [Network](docs/network.md) | How the pieces fit, restricted and open mode, allowing destinations |
 | [Security](docs/security.md) | What the container can and cannot reach |
-| [Troubleshooting](docs/troubleshooting.md) | Common problems, known limitations and maintenance |
+| [Troubleshooting](docs/troubleshooting.md) | Common problems and known limitations |
 | [Development](docs/development.md) | Running the tests and trying changes |
 
 ## Security in a nutshell

@@ -7,8 +7,7 @@ out of reach: you apply the result from your host.
 
 ## What it sets up
 
-- **`project.env`**: the `ssh-target` service. Serena is off: it adds little
-  for YAML.
+- **`project.env`**: the `ssh-target` service.
 - **`compose.yaml`**: a second target host, so playbooks can be tested
   against a `web` and a `db` group.
 - **`AGENTS.md`**: the rules for the agent: test inventory only,

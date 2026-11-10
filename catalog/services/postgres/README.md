@@ -1,10 +1,8 @@
 # PostgreSQL (`postgres`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add postgres` (or `roke -s postgres` for one run).
+**Enable**: `roke service add postgres`.
 
 PostgreSQL relational database. Requires PostgreSQL 18 or newer.
 
@@ -39,13 +37,13 @@ the [`postgres` MCP](../../mcps/postgres/README.md).
 
 | Variable | Default |
 |---|---|
-| `POSTGRES_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `POSTGRES_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |
 | `POSTGRES_CLIENT_VERSION` | psql and pg_dump in the image: the [`Dockerfile`](../../../Dockerfile)'s by default; set it in `roke.env` and rebuild to change it |
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` | `dev` / `dev` |
 | `POSTGRES_DB` | `app` |
 
 **Initial SQL.** To run scripts when the database is created, mount them in
-`projects/<name>/compose.yaml`. They only run on an empty database:
+`projects/<id>/compose.yaml`. They only run on an empty database:
 
 ```yaml
 services:
@@ -68,11 +66,14 @@ re-run your migrations and seeds. To keep the data, dump it first:
 
 ```fish
 cd ~/src/my-project
-roke exec -s postgres pg_dumpall -f .pg-upgrade.sql       # with the old version
-# set POSTGRES_VERSION=19 and POSTGRES_CLIENT_VERSION=19 in roke.env, then:
-roke build -s postgres -- psql -d postgres -f .pg-upgrade.sql
-rm .pg-upgrade.sql
+roke exec -s postgres pg_dumpall -f .pg-upgrade.sql  # with the old version
+roke down
+roke settings edit   # set POSTGRES_VERSION and POSTGRES_CLIENT_VERSION to the new major
+roke build
+roke exec -s postgres psql -d postgres -f .pg-upgrade.sql
 ```
 
-Errors about the role or database already existing are expected. The old
-major's files stay in the volume until you run `roke purge`.
+Check the restore before deleting `.pg-upgrade.sql`; it contains your data
+and may include credentials. Errors about roles or databases already
+existing are expected, but investigate other errors. The old major's files
+stay in the volume until you run `roke purge`.

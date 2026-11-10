@@ -2,7 +2,7 @@
 
 Part of the [MCP catalog](../README.md).
 
-**Enable**: `roke mcp add fetch` (this project) or `roke mcp add fetch --global`.
+**Enable**: `roke mcp add fetch`.
 
 [Fetch](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch),
 one of the MCP project's reference servers, runs inside the box and lets

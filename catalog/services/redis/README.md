@@ -1,10 +1,8 @@
 # Redis (`redis`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add redis` (or `roke -s redis` for one run).
+**Enable**: `roke service add redis`.
 
 Redis in-memory store, for caches, sessions, queues and rate limiting.
 
@@ -26,12 +24,10 @@ redis-cli -u "$REDIS_URL" flushall  # empty it
 **MCP**: `roke mcp add redis` gives the agent tools for this service; see
 the [`redis` MCP](../../mcps/redis/README.md).
 
-**Data**: not persisted. It survives between sessions while the container
-runs, and is lost on `roke down`, which is usually what you want for a
-cache.
+**Data**: kept in memory; lost on `roke down`.
 
 **Settings**
 
 | Variable | Default |
 |---|---|
-| `REDIS_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `REDIS_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

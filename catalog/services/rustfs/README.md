@@ -1,14 +1,11 @@
 # RustFS (`rustfs`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add rustfs` (or `roke -s rustfs` for one run).
+**Enable**: `roke service add rustfs`.
 
 [RustFS](https://rustfs.com/), S3-compatible object storage with a web
-console, for uploads and files your app would store in S3. It replaces
-MinIO, whose open-source edition was archived in 2026.
+console, for uploads and files your app would store in S3.
 [`seaweedfs`](../seaweedfs/README.md) is an alternative: both give the box
 the same variables, so enable one or the other in a project, not both.
 
@@ -44,4 +41,4 @@ password `devdevdev`.
 |---|---|
 | `RUSTFS_ACCESS_KEY` / `RUSTFS_SECRET_KEY` | `dev` / `devdevdev` |
 | `RUSTFS_CONSOLE_PORT` | `9001` |
-| `RUSTFS_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `RUSTFS_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

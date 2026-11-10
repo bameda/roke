@@ -1,10 +1,8 @@
 # Ansible test host (`ssh-target`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add ssh-target` (or `roke -s ssh-target` for one run).
+**Enable**: `roke service add ssh-target`.
 
 A disposable Debian machine for **testing Ansible playbooks** (or any SSH
 automation) without touching real infrastructure.
@@ -34,12 +32,6 @@ Values set in your inventory take precedence over these defaults.
 The [`ansible` example project](../../../examples/projects/ansible/) has all
 of this ready to copy.
 
-In `projects/<name>/project.env`:
-
-```dotenv
-ROKE_SERVICES=ssh-target
-```
-
 In the project's `mise.toml`, so ansible is installed in the box:
 
 ```toml
@@ -56,8 +48,7 @@ And a test inventory in the project, for example `inventories/test/hosts.ini`:
 ssh-target
 ```
 
-The first `roke` builds the target's image; after that it starts in a
-couple of seconds.
+Run `roke build` to build the target's image before starting the session.
 
 ## Usage
 
@@ -82,14 +73,14 @@ the box.
 ## Several targets or another distribution
 
 To test against Ubuntu or another Debian release, set the base image in
-`projects/<name>/project.env` (it must use apt) and rebuild with `roke build`:
+`projects/<id>/project.env` (it must use apt) and rebuild with `roke build`:
 
 ```dotenv
 SSH_TARGET_BASE_IMAGE=ubuntu:24.04
 ```
 
 For several hosts (for example, a web and a db group), add more targets in
-`projects/<name>/compose.yaml`; they share the same test key:
+`projects/<id>/compose.yaml`; they share the same test key:
 
 ```yaml
 services:
@@ -99,7 +90,7 @@ services:
         condition: service_healthy
   ssh-target-2:
     build:
-      context: ./services/ssh-target
+      context: ./catalog/services/ssh-target
       args:
         BASE_IMAGE: ${SSH_TARGET_BASE_IMAGE:-debian:trixie-slim}
     environment:

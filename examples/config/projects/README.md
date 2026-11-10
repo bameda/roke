@@ -2,10 +2,9 @@
 
 One directory per project, named after its **project ID**, which defaults to
 the directory name: for `~/src/my-app`, `projects/my-app/`. Choose another ID
-with `roke --id NAME` before starting it. To add a project, copy one of the
-[example projects](https://github.com/bameda/roke/tree/main/examples/projects)
-and adapt it, or create the directory with only the files you need. All of
-them are optional:
+with `roke --id NAME` on the first start. roke creates the configuration
+when you edit it with `roke settings edit` or add services and MCP servers.
+All files are optional:
 
 ```
 projects/my-app/
@@ -21,11 +20,7 @@ In compose files, refer to files in the project's directory with
 `${ROKE_PROJECT_CONFIG}`; relative paths resolve against the roke
 repository.
 
-These files live in your configuration, not in the project itself, on
-purpose: a compose file can mount any host path, so if `roke` read one from
-the project, the agent could write one and escape the container. For the
-same reason, only `AGENTS.md` is visible inside the box; the rest of the
-directory, secrets included, is not.
+Keep Compose overrides here, outside the agent's writable project.
 
 Full documentation:
 [per-project settings](https://github.com/bameda/roke/blob/main/docs/configuration.md#per-project-settings).

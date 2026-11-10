@@ -17,11 +17,6 @@ categories, not version increments.
 | Minor | New functionality that preserves existing usage. | Adding a command, an optional flag, or support for a new service or agent. |
 | Patch | Compatible fixes and maintenance, without new functionality. | Fixing argument parsing, correcting documentation, or updating dependencies without changing supported usage. |
 
-Patch increments the last component. Minor increments the middle component
-and resets patch; major increments the first component and resets both
-others. For a version with a `-dev` suffix, patch finalizes that numeric
-version by removing the suffix.
-
 Breaking changes use a minor increment below `1.0.0` and a major increment
 from `1.0.0` onward. Their commits carry `!` and a `BREAKING CHANGE:` footer
 with migration instructions, following the repository's commit conventions.
@@ -42,8 +37,7 @@ complete range of changes.
 
 Preparation records the source commit in a comment in the changelog.
 Repeated preparation regenerates the notes from the current `main` and
-updates the same PR, using a Git lease to detect concurrent branch changes.
-Edits to generated notes are replaced during regeneration.
+updates the same PR, replacing edits to generated notes.
 
 ## Validation
 
@@ -57,6 +51,8 @@ The preparation workflow explicitly dispatches CI for the generated branch.
 Publication is a final CI job, dependent on both the normal checks and the
 real Docker tests. Only pushes to `main` can publish; the tag references the
 exact commit tested by that run.
+Publication requires pending release metadata; ordinary contributions do
+not create a release on their own.
 
 ## Publication and recovery
 
@@ -76,11 +72,6 @@ An unpublished version whose notes are stale can be refreshed with patch
 preparation, retaining its version number. This recovery applies before
 a tag has been created. Once a tag exists, the original publication run
 must finish before preparing another release.
-
-Preparation and publication use the repository's `GITHUB_TOKEN`.
-Preparation needs repository contents, pull request and Actions write
-permissions; publication needs contents write permission. Test jobs retain
-read-only access.
 
 ## Implementation and tests
 

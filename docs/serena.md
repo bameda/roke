@@ -1,42 +1,30 @@
 # Serena
 
-[Serena](https://github.com/oraios/serena) is an MCP server that runs the
-project's language servers and gives the agent symbol-level tools: find a
-definition, list references, inspect a file's structure or replace the body
-of a specific function. In large repositories it saves a lot of context
-compared to `grep` and reading whole files. It works with every agent, and
-is especially useful with those that do not run language servers themselves,
+[Serena](https://github.com/oraios/serena) gives every agent language-server
+tools to find definitions and references, inspect symbols and edit functions.
+It also provides code navigation for agents without native language servers,
 such as OpenCode 2.
 
 ## Enabling it
 
-Serena is installed in the image, under `/opt` and out of the agent's reach,
-and **enabled per project**:
+Serena is installed in the image. Enable it for a project, or for one session:
 
 ```fish
-roke --serena                      # once
+roke mcp add serena   # save for this project
+roke --serena         # this session only
 ```
 
-To enable it for good, add `ROKE_SERENA=1` to the project's settings,
-`~/.config/roke/projects/<name>/project.env`.
-
-When enabled, the box registers Serena as an MCP server for the selected
-agent, pinned to the current project and with the Serena context that suits
-that agent. It is done on every start, so there is nothing to add to your
-agent's configuration. Each [agent's README](../catalog/agents/README.md) explains
-how it is registered there.
+Use `roke mcp rm serena` to disable it. Tool approvals use the same
+[`allow` and `ask` commands](../catalog/mcps/README.md#tool-approvals) as
+other MCP servers. No native agent configuration is needed.
 
 ## Usage statistics
 
-On every start, Serena sends its developers, Oraios, a few anonymous usage
-statistics: the operating system, Serena's version, its code backend and
-context, and whether its dashboard is on. roke turns them off, and the
-restricted network would block them anyway. To send them, set
+Usage reporting is disabled by default. To opt in, set
 `ROKE_SERENA_USAGE_REPORTING=1` and allow `oraios-software.de`.
 
-Serena's dashboard also downloads news from the same domain, which cannot
-be turned off: `roke network blocked` lists it, marked as blocked on
-purpose. Blocking it changes nothing in how Serena works.
+Dashboard news requests to that domain may still appear in
+`roke network blocked`; leaving them blocked does not affect Serena's tools.
 
 ## Details
 
@@ -49,7 +37,7 @@ purpose. Blocking it changes nothing in how Serena works.
 - **Project data.** Serena stores `project.yml` and its "memories" (notes
   the agent writes about the project) in `.serena/` inside the project.
   Decide whether to commit it or add it to `.gitignore`.
-- **Dashboard.** Disabled, since there is no browser in the box. To use it,
+- **Dashboard.** Disabled by default. To use it,
   set `ROKE_SERENA_DASHBOARD=1` and open
   `http://127.0.0.1:24282/dashboard/` (the port can be changed with
   `ROKE_SERENA_DASHBOARD_PORT`).

@@ -19,9 +19,7 @@ Add a `mise.toml`:
 java = "temurin-21"
 ```
 
-Build with the project's wrapper (`./mvnw` or `./gradlew`). Maven's and
-Gradle's caches are kept in the project's home volume, so dependencies are
-downloaded only once.
+Build with the project's wrapper (`./mvnw` or `./gradlew`).
 
 Spring Boot reads `SPRING_DATASOURCE_URL`, `SPRING_KAFKA_BOOTSTRAP_SERVERS`
 and the rest from the environment, so `compose.yaml` connects the app to

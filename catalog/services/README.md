@@ -2,7 +2,7 @@
 
 The catalog of auxiliary services: databases, caches, mail, storage, queues
 and test infrastructure. Each one lives in its own directory under
-`services/`, with a `compose.yaml` that defines it and a `README.md` that
+`catalog/services/`, with a `compose.yaml` that defines it and a `README.md` that
 explains how to use it. `roke service` shows what is available.
 
 ## Catalog
@@ -34,21 +34,18 @@ explains how to use it. `roke service` shows what is available.
 
 ## How services work
 
-Paths such as `projects/<name>/project.env` refer to your configuration
+Paths such as `projects/<id>/project.env` refer to your configuration
 directory, `~/.config/roke` (see [Configuration](../../docs/configuration.md)).
 
-**Enable** services per project in `projects/<name>/project.env` (or one-off
-with `roke -s`):
+**Enable** services for the project, or use `roke -s postgres,redis` for one run:
 
-```dotenv
-ROKE_SERVICES=postgres,redis,mailpit
+```fish
+roke service add postgres redis mailpit
 ```
 
-**Each service runs in its own container**, from its official image, and is
+**Each service runs in its own container** and is
 reachable from the box by its name (`postgres`, `redis`...). Its connection
-details are set as environment variables in the box, so your
-app and the agent find them without configuration. Run `env` in
-`roke shell` to see them all.
+details are set as environment variables in the box.
 
 **`roke service show NAME`** shows, for the current project, the
 service's version, its address inside the box, its web UI and the
@@ -56,11 +53,11 @@ variables it gives the box, with your settings applied, followed by its
 README. `roke urls` lists the addresses and URLs of all the project's
 services.
 
-**Credentials** default to `dev`/`dev`: everything is local and never exposed
-beyond your machine.
+**Credentials** are for development; each service lists its defaults.
+Published ports bind to `127.0.0.1` unless you override their mappings.
 
 **Settings** (versions, credentials, ports) are changed through variables:
-in `roke.env` for every project, or in `projects/<name>/project.env` for
+in `roke.env` for every project, or in `projects/<id>/project.env` for
 one. Each service's README lists them with their defaults.
 
 **Data** is per project: two projects using `postgres` get separate
@@ -85,8 +82,7 @@ RedisInsight...), publish the port as shown below.
 Each project keeps the versions of its services: updating roke never
 changes them. The first time a project uses a service (`roke service add`,
 or starting it), roke writes its version in the project's `project.env`,
-for example `POSTGRES_VERSION=18`. A version you set yourself, there or in
-`roke.env`, is kept as it is.
+using its `*_VERSION` variable. Versions you set yourself are kept.
 
 When roke's default moves on, `roke service` shows it next to the project's
 version, and you move the project on when you choose:
@@ -96,15 +92,14 @@ roke service upgrade postgres      # one service
 roke service upgrade               # every service of the project
 ```
 
-A major version of a service that keeps data (PostgreSQL 18 to 19,
-MongoDB, MariaDB...) may change the format of that data, so `upgrade`
+A major version of a service that keeps data (PostgreSQL, MongoDB, MariaDB...) may change the format of that data, so `upgrade`
 skips it with a warning unless you add `--major`. Back the data up and read
 the service's README first.
 
 ### Publishing a service's port
 
 The project's network is internal, so a service cannot publish ports
-itself: it asks the gateway to forward one. In `projects/<name>/compose.yaml`,
+itself: it asks the gateway to forward one. In `projects/<id>/compose.yaml`,
 or in the service's own compose file:
 
 ```yaml
@@ -119,6 +114,7 @@ services:
 Use a gateway port that nothing else in the project uses (the catalog's
 services use ports from 45000 up), and a host port that does not clash with
 other projects or with services running on your machine.
+
 ## Adding your own service
 
 Any image can become a service. Copy `catalog/services/_template/` and fill in its
@@ -127,7 +123,7 @@ Where you put the copy decides who can use it:
 
 | Location | Available to |
 |---|---|
-| `~/.config/roke/projects/<project>/services/<name>/` | that project only |
+| `~/.config/roke/projects/<id>/services/<name>/` | that project only |
 | `~/.config/roke/services/<name>/` | all your projects |
 | `catalog/services/<name>/` in this repository | everyone using roke (send a pull request) |
 
@@ -150,13 +146,11 @@ The rules are few:
    default: `image: example/thing:${THING_VERSION:-1.2.3}`. roke pins it in
    each project (see [Versions](#versions)), and a fixed version rather than
    `latest` is what makes that useful.
-6. Relative paths resolve against the roke repository. To refer to
+7. Relative paths resolve against the roke repository. To refer to
    files in your configuration, use `${ROKE_CONFIG_DIR}` or, for the
    project's directory, `${ROKE_PROJECT_CONFIG}`.
-7. Document it in its `README.md`, following the structure of the existing
+8. Document it in its `README.md`, following the structure of the existing
    ones. In the catalog, also add a row to the table above.
 
-This way you can add Keycloak, Elasticsearch/OpenSearch, Kafka, NATS,
-ClickHouse, Meilisearch, an API mock or whatever you need. The
-[`reference`](../../examples/projects/reference/services/elasticsearch/) example
-project has a complete one.
+The [`reference`](../../examples/projects/reference/services/elasticsearch/)
+example has a complete custom service.

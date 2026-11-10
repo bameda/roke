@@ -1,13 +1,11 @@
 # SeaweedFS (`seaweedfs`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add seaweedfs` (or `roke -s seaweedfs` for one run).
+**Enable**: `roke service add seaweedfs`.
 
-[SeaweedFS](https://github.com/seaweedfs/seaweedfs), a mature distributed
-storage system with an S3-compatible API, here as a single node. It is an
+[SeaweedFS](https://github.com/seaweedfs/seaweedfs), single-node storage
+with an S3-compatible API. It is an
 alternative to [`rustfs`](../rustfs/README.md): both give the box the same
 variables, so enable one or the other in a project, not both.
 
@@ -43,4 +41,4 @@ uvx --from awscli aws s3 cp README.md s3://uploads/
 |---|---|
 | `SEAWEEDFS_ACCESS_KEY` / `SEAWEEDFS_SECRET_KEY` | `dev` / `devdevdev` |
 | `SEAWEEDFS_UI_PORT` | `8888` |
-| `SEAWEEDFS_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `SEAWEEDFS_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

@@ -13,10 +13,6 @@ against its published fingerprint. The version is
 - `latest`: every release as soon as it ships;
 - an exact package version from the latest channel.
 
-Run `roke build --no-cache` to fetch a newer release of the channel. Claude Code's
-own updates are disabled (`DISABLE_UPDATES`), since the image decides the
-version.
-
 ## Log in
 
 Run `claude` and follow the login prompts: it shows a URL to open in your
@@ -61,4 +57,3 @@ Claude Code's precedence. See [Tool approvals](../../mcps/README.md#tool-approva
   inside the box, which runs without Linux capabilities. The box itself is
   the sandbox: the agent cannot reach anything on your machine beyond the
   project, so its permission prompts guard the project, not your system.
-- Resume the last session with `roke continue`.

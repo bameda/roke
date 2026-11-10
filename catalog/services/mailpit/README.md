@@ -1,10 +1,8 @@
 # Mailpit (`mailpit`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add mailpit` (or `roke -s mailpit` for one run).
+**Enable**: `roke service add mailpit`.
 
 Mailpit catches every email your app sends, so nothing reaches real
 recipients, and shows it in a web inbox.
@@ -28,16 +26,6 @@ curl -s "$MAILPIT_API/v1/messages" | jq '.messages[] | {Subject, To: [.To[].Addr
 curl -s -X DELETE "$MAILPIT_API/v1/messages"     # empty the inbox
 ```
 
-To send a test email:
-
-```bash
-python3 -c "
-import smtplib; from email.message import EmailMessage
-m = EmailMessage(); m['From'] = 'app@example.com'; m['To'] = 'user@example.com'
-m['Subject'] = 'Test'; m.set_content('Hello from the box')
-smtplib.SMTP('mailpit', 1025).send_message(m)"
-```
-
 **Data**: not persisted; the inbox is emptied on `roke down`.
 
 **Settings**
@@ -45,4 +33,4 @@ smtplib.SMTP('mailpit', 1025).send_message(m)"
 | Variable | Default |
 |---|---|
 | `MAILPIT_UI_PORT` | `8025` (change it if another project uses mailpit at the same time) |
-| `MAILPIT_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `MAILPIT_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

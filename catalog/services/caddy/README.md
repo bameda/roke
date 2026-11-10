@@ -1,10 +1,8 @@
 # Caddy (`caddy`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add caddy` (or `roke -s caddy` for one run).
+**Enable**: `roke service add caddy`.
 
 Caddy reverse proxy. You do not need it just to open your app: `ROKE_PORTS`
 already publishes the dev server. Use it to serve several backends under one
@@ -23,7 +21,7 @@ must listen on `0.0.0.0`.
 
 **Routing.** The configuration is in `catalog/services/caddy/Caddyfile` and is shared
 by every project. For a project-specific one, mount your own in
-`projects/<name>/compose.yaml`:
+`projects/<id>/compose.yaml`:
 
 ```yaml
 services:
@@ -54,4 +52,4 @@ Any service is reachable by name as an upstream (`mailpit:8025`,
 |---|---|
 | `CADDY_PORT` | `8080` |
 | `PROXY_UPSTREAM` | `box:3000` |
-| `CADDY_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `CADDY_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

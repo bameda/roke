@@ -40,8 +40,8 @@ password...):
 | [`redis`](redis/README.md) | `redis` | Keys, values and commands |
 | [`valkey`](valkey/README.md) | `valkey` | Keys, values and commands |
 
-[Serena](../../docs/serena.md) is an MCP server too, but it is installed in the
-image and enabled with `ROKE_SERENA` or `--serena`.
+[Serena](../../docs/serena.md) is installed in the image; enable it with
+`roke mcp add serena` or `--serena` for one run.
 
 ## Tool approvals
 
@@ -56,38 +56,22 @@ roke mcp ask serena
 roke mcp show serena
 ```
 
-`allow` preauthorizes the server's tools; `ask` requests confirmation and
-revokes roke's preauthorization while keeping the server enabled. Both
-commands accept several names. `add --allow` or `add --ask` applies the
-policy to every name being added; the flags are mutually exclusive.
-Adding a server without either flag preserves its approval preference.
+`allow` preauthorizes tools; `ask` requests confirmation and revokes roke's
+preauthorization. Neither command enables a server on its own. Adding a
+server without either flag preserves its preference.
 
-Preferences are per project. `--global` sets defaults for every project;
-an explicit project preference wins for that server, so `roke mcp ask NAME`
-can override a global `allow`. `roke mcp show NAME` displays the effective
-policy and its source. With no preference, the agent's own defaults apply.
-Removing a server clears its approval preference at the same scope.
-If it remains enabled globally, project approval overrides are kept.
+Preferences apply to the project; `--global` sets defaults. A project's
+preference wins for that server. Removing a server clears the preference
+at the same scope, except overrides for a server still enabled globally.
+`roke mcp show NAME` shows the effective policy and source.
 
-Serena supports the same commands: `roke mcp add serena --allow` enables
-the built-in server and preauthorizes its tools. `roke mcp rm serena`
-disables it in that scope. `allow` and `ask` alone do not enable a server.
-The existing `--serena` and `ROKE_SERENA` settings remain available.
+Changes apply on the next session start. They also work for Serena:
+`roke mcp add serena --allow` enables it and preauthorizes its tools;
+`roke mcp rm serena` disables it.
 
-Changes apply on the next session start. roke stores preferences outside
-the project repository and translates them into Codex server approval
-settings, Claude Code permission rules, and OpenCode 2 permission rules.
-Separately configured tool rules and managed policies retain their agent's
-native precedence. MCP authentication and interactive server requests use
-their own flows. To clear a native permission saved independently by an
-agent, use that agent's permission controls.
-
-Approval preferences require current agents supporting these settings.
-Names must use letters, digits, hyphens and underscores. If server names
-produce overlapping tool patterns, the adapter reports the ambiguity
-instead of authorizing another server's tools.
-
-The native mechanisms are documented in
+Agent-native rules retain their precedence. These commands do not revoke
+permissions saved independently by the agent or replace MCP authentication;
+use the agent's permission controls for those. See
 [Codex MCP configuration](https://learn.chatgpt.com/docs/extend/mcp),
 [Claude Code permissions](https://code.claude.com/docs/en/permissions) and
 [OpenCode permissions](https://opencode.ai/docs/permissions/).
@@ -121,8 +105,7 @@ the agent:
 `command` must be a non-empty list of strings; `url` must be a non-empty
 string. Use `env` only with `command` and `headers` only with `url`; both
 are maps of names to strings. `requires`, `allow` and `services` are lists
-of strings. roke checks these fields when it reads the definition and
-reports the file and field if one is malformed.
+of strings.
 
 When the project starts, roke replaces each `${VAR}` with the variable's
 value from your settings, usually a token in `~/.config/roke/secrets.env`
@@ -130,9 +113,7 @@ value from your settings, usually a token in `~/.config/roke/secrets.env`
 `${VAR:-default}` works as in compose files: the services' MCP servers use
 it to follow the project's settings with the same defaults as the service. An
 `env` entry or a header whose variables are not set is left out, which
-makes optional keys possible (see `context7`). Then each agent's `setup.sh`
-translates the servers into its format: OpenCode's system configuration,
-Claude Code's `--mcp-config`, and Codex's system `config.toml`.
+makes optional keys possible (see `context7`).
 
 **Security.** The box keeps the agent away from your machine, but not from
 what a token allows: an MCP server with a GitHub token can do in GitHub
@@ -143,7 +124,7 @@ whatever the token allows. Give each token only the access the agent needs.
 Copy [`_template/`](_template/) to one of these places, then fill in its
 `mcp.json` and `README.md`:
 
-- `~/.config/roke/projects/<name>/mcps/<mcp>/`: for one project;
+- `~/.config/roke/projects/<id>/mcps/<mcp>/`: for one project;
 - `~/.config/roke/mcps/<mcp>/`: for all your projects;
 - `catalog/mcps/<mcp>/` in this repository: for everyone (see
   [CONTRIBUTING.md](../../CONTRIBUTING.md)).

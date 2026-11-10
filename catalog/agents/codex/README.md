@@ -6,10 +6,7 @@
 
 Installed from the `@openai/codex` npm package. The version is
 `ROKE_AGENT_VERSIONS="codex=..."`: an npm version or tag, `latest` by
-default. With `latest`, run `roke build --no-cache` to fetch a newer one.
-
-The box turns off Codex's update check on startup
-(`check_for_update_on_startup`), since the image decides the version.
+default.
 
 ## Log in
 
@@ -53,18 +50,10 @@ Codex settings and per-tool overrides keep their native precedence.
 
 ## Notes
 
-- **Codex's sandbox is off, and that is safe.** roke sets
-  `sandbox_mode = "danger-full-access"` in Codex's system configuration.
-  The name sounds alarming, but inside roke's box "full access" means the
-  project and the network destinations it allows, and nothing else: the box
-  is the security boundary (see [Security](../../../docs/security.md#the-agent-is-not-trusted)).
-  Codex's sandbox could not run in the box anyway: it uses bubblewrap, which
-  needs Linux namespaces the box denies on purpose, and making it work would
-  weaken the box. Your approvals do not change: Codex still asks before
-  running commands, as your `approval_policy` says. To use another mode, set
-  `sandbox_mode` in your own `config.toml`, which wins.
+- roke sets `sandbox_mode = "danger-full-access"`; the
+  [box provides isolation](../../../docs/security.md#the-agent-is-not-trusted).
+  Your command approval policy is unchanged. An explicit `sandbox_mode` in
+  your own `config.toml` overrides this setting.
 - **The project is trusted**, so Codex does not ask "Trust this folder?":
   whatever the project's own Codex settings run, they run in the box too. To
   treat a project as untrusted, set its `trust_level` in your `config.toml`.
-- Resume the last session with `roke continue`, which runs
-  `codex resume --last`.

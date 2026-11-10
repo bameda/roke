@@ -1,10 +1,8 @@
 # Valkey (`valkey`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add valkey` (or `roke -s valkey` for one run).
+**Enable**: `roke service add valkey`.
 
 Valkey, the open-source fork of Redis. It speaks the same protocol, so Redis
 clients and `redis-cli` work with it unchanged.
@@ -15,7 +13,7 @@ clients and `redis-cli` work with it unchanged.
 |---|---|
 | `VALKEY_URL` | `redis://valkey:6379/0` |
 
-If your app expects `REDIS_URL`, map it in `projects/<name>/compose.yaml`:
+If your app expects `REDIS_URL`, map it in `projects/<id>/compose.yaml`:
 
 ```yaml
 services:
@@ -35,4 +33,4 @@ the [`valkey` MCP](../../mcps/valkey/README.md).
 
 | Variable | Default |
 |---|---|
-| `VALKEY_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `VALKEY_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

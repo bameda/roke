@@ -14,9 +14,6 @@
   ships (on Arch, `pacman -S python git`).
 - Your user in the `docker` group, or [rootless Docker](#rootless-docker).
 
-roke and its scripts are started through their shebang, so they work the
-same from fish, zsh or any other shell.
-
 ## Install Docker
 
 ### Arch Linux, CachyOS, Manjaro, EndeavourOS
@@ -28,40 +25,9 @@ sudo systemctl enable --now docker.service
 
 ### Debian and Ubuntu
 
-The Docker packages in the distribution repositories (`docker.io`,
-`docker-compose`...) can be too old, so use Docker's official repository.
-This block works on both, since it reads the distribution and release from
-`/etc/os-release`. Run it in **bash** (from fish, type `bash` first):
-
-```bash
-# Remove unofficial packages that conflict with Docker's own
-sudo apt remove $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc 2>/dev/null | cut -f1)
-
-# Add Docker's repository
-sudo apt update
-sudo apt install -y ca-certificates curl git
-. /etc/os-release
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL "https://download.docker.com/linux/$ID/gpg" -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/$ID
-Suites: ${UBUNTU_CODENAME:-$VERSION_CODENAME}
-Components: stable
-Architectures: $(dpkg --print-architecture)
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
-
-# Install Docker Engine and the Compose plugin
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-```
-
-On derivatives such as Linux Mint or Pop!_OS, `$ID` is not `ubuntu`:
-replace `$ID` with `ubuntu` in the two URLs, and
-`${UBUNTU_CODENAME:-$VERSION_CODENAME}` with the Ubuntu release it is based
-on (for example `noble`).
+Follow [Docker's installation guide](https://docs.docker.com/engine/install/)
+for your distribution, including the Compose plugin. On derivatives, follow
+its instructions for the base distribution.
 
 ### Other distributions
 
@@ -93,17 +59,11 @@ host; [rootless Docker](#rootless-docker) avoids that.
 curl -fsSL https://github.com/bameda/roke/releases/latest/download/install.sh | bash
 ```
 
-The installer:
+The installer puts roke in `~/.local/share/roke`, links the command into
+`~/.local/bin` and creates `~/.config/roke` without overwriting existing
+settings. Add `~/.local/bin` to your `PATH` if needed.
 
-- installs the latest published stable release into `~/.local/share/roke`;
-- links the `roke` command into `~/.local/bin`, and tells you how to add it
-  to your `PATH` if it is not there;
-- creates your configuration directory, `~/.config/roke`, from the examples
-  (see [Configuration](configuration.md)), never overwriting existing files;
-- checks that Docker and its Compose plugin are installed.
-
-The whole script runs from its last line, so a download cut halfway runs
-nothing. To read it before running it:
+To inspect the installer and verify its checksum before running it:
 
 ```fish
 curl -fsSL https://github.com/bameda/roke/releases/latest/download/install.sh -o install.sh
@@ -136,38 +96,10 @@ curl -fsSL https://raw.githubusercontent.com/bameda/roke/main/install.sh \
 
 Use `ROKE_VERSION=vX.Y.Z` to install a specific release. Subsequent updates
 follow the stable channel rather than keeping that version pinned.
-The installer checks published releases through `api.github.com`; drafts,
-prereleases and tags without a release are not selected. If the lookup fails
-or no stable release exists, installation stops instead of falling back to
-`main`. An explicit branch other than `main` is treated as a development
-clone and updated manually with Git.
+An explicit branch other than `main` is updated manually with Git.
 
-Then choose your default agent:
-
-```fish
-roke agent use claude --global      # or codex, or opencode; see catalog/agents/README.md
-```
-
-The image installs every agent by default. To make it smaller, keep only
-the ones you use in `ROKE_AGENTS` (see [Agents](../catalog/agents/README.md)).
-
-Then build the image and start the agent in a project:
-
-```fish
-cd ~/src/my-project
-roke build
-roke
-```
-
-`roke build` prepares the images; `roke` starts the agent. If the agent needs
-authentication with its provider, follow its README
-([Claude Code](../catalog/agents/claude/README.md#log-in),
-[Codex](../catalog/agents/codex/README.md#log-in),
-[OpenCode](../catalog/agents/opencode/README.md#log-in)). roke itself has no
-account. The agent's login is stored in the
-project's own home volume, not in your real `$HOME`, so you log in once
-per project. An API key in `~/.config/roke/secrets.env` works for every
-project instead.
+Continue with [First steps](first-steps.md) to choose an agent, build the
+images and start your project.
 
 ### On another machine, with your configuration repository
 
@@ -192,9 +124,7 @@ roke update
 roke build          # in each project, to rebuild its images
 ```
 
-`roke update` follows the installation's saved channel. New installations
-default to `stable`; existing installations on `main` continue to follow
-`main`. Switch channels explicitly with:
+`roke update` follows the saved channel, `stable` by default. Switch with:
 
 ```fish
 roke update --main       # follow development; remembered for later updates
@@ -205,8 +135,7 @@ Switching from `main` to `stable` can install an older version. An ordinary
 `roke update` refuses to downgrade to an older release. Local changes and
 unpushed commits are preserved: resolve them with Git before updating.
 If you have checked out a different branch yourself, the updater stops
-instead of switching it silently. Releases are checked out at their tags,
-so a detached HEAD in a stable installation is expected.
+instead of switching it silently.
 
 Running the installer again follows the same channel unless `ROKE_VERSION`
 is set explicitly. Your configuration is not touched, and neither are the

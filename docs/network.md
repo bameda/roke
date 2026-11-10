@@ -50,9 +50,7 @@ flowchart LR
   firewall, and it has no capabilities to change it.
 - **The services** (databases, caches, Mailpit...) are on the project's
   internal network, which has no route out at all, in either mode. They can
-  talk to the box and to each other, but not to the internet. This matters:
-  a service the agent controls could otherwise be the way out, for example
-  PostgreSQL running `COPY ... TO PROGRAM 'curl ...'`.
+  talk to the box and to each other, but not to the internet.
 
 ## Restricted and open mode
 
@@ -102,14 +100,7 @@ Each entry is one of:
 | `10.20.0.0/16:22` | that range, on that port only |
 | `host:4401` | that port of your machine, the host (see [a port of your machine](#a-port-of-your-machine)) |
 
-Ports must be between 1 and 65535. IPv4 addresses and CIDR ranges must be
-valid; domain labels cannot be empty or start or end with a hyphen.
-roke checks destinations from every layer when it loads the project, including
-entries added by hand in settings or catalog files. An invalid entry stops
-the command and identifies the file to fix before the gateway starts.
-
-`roke settings` shows the resulting list for the current project, layer
-by layer, so you can see where each entry comes from.
+`roke network` shows allowed destinations and their sources.
 
 The quickest way to add one to the current project:
 
@@ -158,31 +149,10 @@ can reach, such as `0.0.0.0`, not only on `127.0.0.1`.
 
 ## When something cannot connect
 
-Run `roke network blocked` in the project, while it is running or right after:
-
-```text
-Domains the project looked up and were not allowed:
-  registry.example.org                                 3 lookups
-
-Addresses the project tried to connect to and were not allowed (last hour):
-  203.0.113.7  tcp port 5432
-```
-
-Then allow what you need with `roke network add`, and start the project again.
-
-The agent knows the policy: the box tells it the network mode and the
-allowed destinations, and its instructions say that a domain that does not
-resolve is most likely blocked. Instead of reporting a DNS error or looking
-for a workaround, it should tell you which domain it needs, so you can
-decide.
-
-Some tools look up destinations on their own, which roke blocks on purpose,
-such as Serena's dashboard news. `roke network blocked` marks them with the
-reason, so you can tell them from what you need. They are listed in
-`docker/gateway/expected.txt`, for the tools in the box, and in an agent's
-`catalog/agents/<agent>/expected.txt`.
-If a project needs to reach many changing destinations, consider
-`ROKE_NETWORK=open` in its `project.env`.
+Run `roke network blocked` while the project is running or right after it
+stops. Allow destinations you need with `roke network add`, then start the
+project again. Known optional requests, such as dashboard news, are marked
+with a reason and can stay blocked.
 
 ## Publishing ports
 
@@ -190,7 +160,7 @@ Since the box and the services have no ports of their own, the gateway
 publishes them on `127.0.0.1`:
 
 - **The box's**, with `-p` or `ROKE_PORTS`: the dev server listens in the
-  gateway's network namespace, so `roke -p 5173` works as before.
+  gateway's network namespace; publish it with `roke -p 5173`.
 - **The services' web UIs** (Mailpit, RustFS, Grafana, Jaeger...): each
   service's compose file asks the gateway to forward a port to it. See
   [publishing a service's port](../catalog/services/README.md#publishing-a-services-port).

@@ -6,7 +6,7 @@ managed with [uv](https://docs.astral.sh/uv/).
 ## What it sets up
 
 - **`project.env`**: `postgres` and `redis`, port 8000 for the dev server,
-  and Serena (it pays off in Python projects of any size).
+  and Serena.
 - **`compose.yaml`**: database URLs in the forms SQLAlchemy expects (see
   below), plus a separate database URL for the tests.
 - **`AGENTS.md`**: how to run, test and migrate the project.

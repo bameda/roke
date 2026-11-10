@@ -61,12 +61,8 @@ body:
     id: environment
     attributes:
       label: Environment
-      description: Run these commands and paste their output.
+      description: Your distribution and any environment details not covered by the diagnostic report.
       value: |
-        roke commit:    (git -C ~/.local/share/roke log -1 --oneline, or in your clone)
-        distribution:   (cat /etc/os-release | grep PRETTY_NAME)
-        docker:         (docker version --format '{{.Server.Version}}')
-        docker compose: (docker compose version --short)
-        python:         (python3 --version)
+        distribution: (cat /etc/os-release)
     validations:
       required: true

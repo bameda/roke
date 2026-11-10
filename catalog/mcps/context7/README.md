@@ -2,7 +2,7 @@
 
 Part of the [MCP catalog](../README.md).
 
-**Enable**: `roke mcp add context7` (this project) or `roke mcp add context7 --global`.
+**Enable**: `roke mcp add context7`.
 
 [Context7](https://context7.com/) gives the agent up-to-date documentation
 and code examples for the libraries a project uses, instead of what the

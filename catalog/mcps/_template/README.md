@@ -2,7 +2,7 @@
 
 Part of the [MCP catalog](../README.md).
 
-**Enable**: `roke mcp add myname` (this project) or `roke mcp add myname --global`.
+**Enable**: `roke mcp add myname`.
 
 What it gives the agent, with a link to the server.
 

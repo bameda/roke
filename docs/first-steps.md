@@ -1,8 +1,7 @@
 # First steps with your project
 
-Start in your own project's directory and add what you need as you go.
-roke registers the project automatically; you do not need to copy an example
-or create configuration files first.
+Run these commands on your host, in your project's directory. roke
+registers the project automatically; add services and tools as you need them.
 
 ## 1. Start your first session
 
@@ -14,8 +13,7 @@ not chosen a default agent yet, choose one once:
 roke agent use claude --global   # or codex, or opencode
 ```
 
-Run these commands in your terminal on the host, in the directory containing
-your code:
+Build the images and start the agent:
 
 ```bash
 cd ~/src/my-project
@@ -51,13 +49,10 @@ directory, resume its last session with:
 roke continue
 ```
 
-Use `roke` instead to start a new conversation. You do not need to repeat
-the project ID, agent choice or saved settings each time.
+Use `roke` instead to start a new conversation.
 
-The following sections show optional additions. Run their `roke` commands
-in your host terminal, after leaving the agent. Changes apply on the next
-start: use `roke continue` to resume your conversation with the updated
-environment, or `roke` for a new one.
+Configuration changes below apply on the next session start. Leave the
+agent, make the change, then use `roke continue` to resume.
 
 ## 3. Add a service
 
@@ -117,20 +112,20 @@ to apply the change. `roke network` shows the allowed destinations; the
 
 ## 6. Open your app in the browser
 
-If the agent runs a web app on port 5173, publish that port when starting
-the session:
+Publish the app's ports when starting a session, for example a frontend
+on 5173 and an API on 3000:
 
 ```bash
-roke continue -p 5173
+roke continue -p "5173 3000"
 ```
 
 Ask the agent to make the dev server listen on `0.0.0.0`. Then open
 `http://127.0.0.1:5173` in your browser. From another host terminal in the
-project directory, `roke urls -p 5173` shows that address and any service
+project directory, `roke urls` shows published ports, including service
 web UIs.
 
-To save the port for future sessions, run `roke settings edit` and set
-`ROKE_PORTS="5173"`. Services such as Mailpit publish their own web UIs;
+To save the ports for future sessions, run `roke settings edit` and set
+`ROKE_PORTS="5173 3000"`. Services such as Mailpit publish their own web UIs;
 their ports do not need `-p`.
 
 ## 7. Check the environment and finish for the day
@@ -160,12 +155,9 @@ cd ~/src/another-project
 roke
 ```
 
-Projects with the same box build settings reuse its image, so you usually
-do not need to build it again. Different build settings use separate variants.
-Some services have their own image build; their README explains what they
-need. Each project has separate services, data, agent credentials and sessions.
-Add its services, MCP servers and allowed destinations using the same commands
-as above. `roke continue` resumes the session of the project you are in.
+Projects with the same build settings reuse the box image. Run `roke build`
+if the new project needs different build settings or services with a Dockerfile.
+Each project keeps separate services, data, credentials and sessions.
 
 `roke project` lists registered IDs and paths. From any directory,
 `roke settings show ID` shows a registered project's settings.
@@ -179,4 +171,4 @@ optional semantic code navigation.
 
 The [example projects](../examples/projects/README.md) show configurations
 for common stacks. Use them as references, or copy one if it matches what
-you need. They are optional; the commands above are enough to get started.
+you need.

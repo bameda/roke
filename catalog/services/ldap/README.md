@@ -1,15 +1,12 @@
 # OpenLDAP for tests (`ldap`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add ldap` (or `roke -s ldap` for one run).
+**Enable**: `roke service add ldap`.
 
 An [OpenLDAP server for tests](https://github.com/rroemhild/docker-test-openldap),
 loaded with the `planetexpress.com` example domain and its Futurama users,
-for apps that log in with LDAP. It is the same one Penpot's development
-environment uses.
+for apps that log in with LDAP.
 
 **Inside the box**
 
@@ -34,4 +31,4 @@ when the container is recreated.
 
 | Variable | Default |
 |---|---|
-| `LDAP_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `LDAP_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

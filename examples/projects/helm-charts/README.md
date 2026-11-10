@@ -7,8 +7,7 @@ real cluster stays on your host, with kind or k3d.
 
 ## What it sets up
 
-- **`project.env`**: the `kwok` and `registry` services. Serena is off: it
-  adds little for YAML and templates.
+- **`project.env`**: the `kwok` and `registry` services.
 - **`AGENTS.md`**: the validation steps the agent must follow, and what not
   to expect from a simulated cluster.
 

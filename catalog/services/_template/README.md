@@ -1,10 +1,8 @@
 # Service name (`myservice`)
 
-Part of the [service catalog](../README.md). See
-[How services work](../README.md#how-services-work) for what is common
-to every service: enabling, data, `roke down`/`roke purge` and host access.
+See [common service settings](../README.md#how-services-work).
 
-**Enable**: `roke service add myservice` (or `roke -s myservice` for one run).
+**Enable**: `roke service add myservice`.
 
 One or two sentences: what the service is and what a project uses it for.
 
@@ -32,4 +30,4 @@ persisted.
 
 | Variable | Default |
 |---|---|
-| `MYSERVICE_VERSION` | pinned per project; new projects get the default in [`compose.yaml`](compose.yaml) |
+| `MYSERVICE_VERSION` | see [`compose.yaml`](compose.yaml); pinned per project |

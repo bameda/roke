@@ -2,7 +2,7 @@
 
 Part of the [MCP catalog](../README.md).
 
-**Enable**: `roke mcp add github` (this project) or `roke mcp add github --global`.
+**Enable**: `roke mcp add github`.
 
 GitHub's official [remote MCP server](https://github.com/github/github-mcp-server):
 repositories, issues, pull requests, Actions and more, acting as the user
