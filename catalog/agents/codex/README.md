@@ -13,27 +13,38 @@ default.
 The box has no browser, so use the device-code flow: run
 
 ```fish
-roke exec codex login --device-auth
+roke exec -a codex codex login --device-auth
 ```
 
 and follow it: it shows a URL and a code to enter in your browser, on your
 host. The credentials are kept in `~/.codex/auth.json`, in the project's
 home volume, so you log in once per project. Alternatively, put
 `OPENAI_API_KEY` in `~/.config/roke/secrets.env` and log in with it from
-`roke shell`: `printenv OPENAI_API_KEY | codex login --with-api-key`.
+`roke shell -a codex`: `printenv OPENAI_API_KEY | codex login --with-api-key`.
+
+## Terminal
+
+The terminal is the default. From the project directory on your host, run
+`roke -a codex` to start a session or `roke continue -a codex` to resume the
+last one. Omit `-a codex` if the project already uses Codex.
 
 ## Web, desktop and editors
 
-To try the Codex panel in VS Code, attach to the project's `box` with
-`roke shell -a codex` running and install the Codex extension in the attached
-window. For setup and the integrated terminal option, see
-[Using a graphical editor](../README.md#using-a-graphical-editor).
-[Codex IDE extension](https://learn.chatgpt.com/docs/codex/ide)
+`--ui` is currently specific to OpenCode. To use Codex inside the box with
+a graphical interface, try the editor workflow below.
 
-The ChatGPT desktop app can start Codex on an SSH destination. To run the
-agent inside roke, that destination would need to be the project's box.
-The standard box has no SSH server. Codex cloud sessions run on OpenAI's
-infrastructure. [Desktop SSH connections](https://learn.chatgpt.com/docs/remote-connections#connect-to-an-ssh-host)
+### VS Code
+
+Start `roke shell -a codex` and leave it running. Attach VS Code to the
+project's box with Dev Containers, open the project directory in the attached
+window and install the Codex extension there. The terminal commands also
+work in your editor's integrated terminal. [Using a graphical editor](../README.md#using-a-graphical-editor) · [Codex IDE extension](https://learn.chatgpt.com/docs/codex/ide)
+
+### ChatGPT desktop app and Codex web
+
+The desktop app requires an SSH endpoint to run Codex in the box. The
+standard box has no SSH server. Codex cloud sessions use a separate cloud
+environment. [Desktop SSH connections](https://learn.chatgpt.com/docs/remote-connections#connect-to-an-ssh-host)
 
 ## Your configuration
 

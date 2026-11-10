@@ -16,24 +16,41 @@ in the project's home volume (`~/.local/share/opencode/auth.json`), not in your 
 has its own home and login. Alternatively, put the provider's API
 key in `~/.config/roke/secrets.env`.
 
+## Terminal
+
+The terminal is the default. From the project directory on your host, run
+`roke -a opencode` to start a session or `roke continue -a opencode` to resume
+the last one. Omit `-a opencode` if the project already uses OpenCode.
+
 ## Web, desktop and editors
 
-From the project directory, start the OpenCode 2 server inside the box:
+Add the optional `--ui` flag to start a server inside the box for the
+browser or OpenCode Desktop.
+
+### Browser
 
 ```bash
 roke -a opencode --ui
 ```
 
-Keep it running and open `http://127.0.0.1:4096` on your host. Use the
-password printed by OpenCode. Choose an earlier conversation from the
-interface's session list. The UI uses port 4096 on host loopback. If another
-roke project is using it, run `roke down` in that project to free the port.
-To use OpenCode Desktop, connect it to the same server with the app's server
-connection controls. [OpenCode server and web interface](https://opencode.ai/docs/cli/web/) · [Desktop downloads](https://opencode.ai/docs/#desktop)
+Leave the command running and open `http://127.0.0.1:4096` in your browser.
+Use the password printed by OpenCode. [OpenCode web interface](https://opencode.ai/docs/cli/web/)
 
-You can also run OpenCode from your editor's integrated terminal. To use
-the editor's terminal and other tools inside the box, attach to it with
-`roke shell -a opencode` running. [Using a graphical editor](../README.md#using-a-graphical-editor)
+### OpenCode Desktop
+
+Run the same `roke -a opencode --ui` command and leave it running. In
+OpenCode Desktop on your host, use the server connection controls to connect
+to `http://127.0.0.1:4096` with the server password. [Desktop downloads](https://opencode.ai/docs/#desktop)
+
+In either graphical client, choose a previous conversation from the session
+list. The server uses port 4096 on host loopback. If another roke project is
+using it, run `roke down` in that project to free the port.
+
+### Editors
+
+The terminal commands also work in your editor's integrated terminal. To
+run the editor's tools inside the box, start `roke shell -a opencode` and
+attach to the running box. [Using a graphical editor](../README.md#using-a-graphical-editor)
 
 ## Your configuration
 

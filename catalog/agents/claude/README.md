@@ -15,8 +15,8 @@ against its published fingerprint. The version is
 
 ## Log in
 
-Run `claude` and follow the login prompts: it shows a URL to open in your
-browser, on your host, and asks you to paste the code back into the
+Run `roke -a claude` and follow the login prompts. Claude shows a URL to
+open in your host's browser and asks you to paste the code back into the
 terminal. The credentials are kept in the project's home volume (`~/.claude/` and
 `~/.claude.json`), not in your real `$HOME`, and persist for later sessions
 of this project. A separate project has its own home and login.
@@ -24,22 +24,33 @@ Claude Code needs a Pro, Max, Team, Enterprise or Console account.
 Alternatively, put `ANTHROPIC_API_KEY` in `~/.config/roke/secrets.env`;
 Claude Code asks once whether to use it.
 
+## Terminal
+
+The terminal is the default. From the project directory on your host, run
+`roke -a claude` to start a session or `roke continue -a claude` to resume
+the last one. Omit `-a claude` if the project already uses Claude Code.
+
 ## Web, desktop and editors
 
-To control a box session from your browser, start `roke -a claude`, enter
-`/remote-control` in Claude Code and open the URL it prints. You can also
-select the connected session in Claude Desktop with the same account. Sign
-in to Claude Code with your Claude account and leave the box session running.
-Remote Control relays the session through Anthropic. [Claude Code Remote Control](https://code.claude.com/docs/en/remote-control)
+### Browser and Claude Desktop
+
+Start or resume a terminal session with the commands above and sign in with
+your Claude account. Enter `/remote-control` and keep the box session running.
+Open the URL that Claude prints in your browser, or select the connected
+session in Claude Desktop with the same account. Remote Control relays the
+session through Anthropic. [Claude Code Remote Control](https://code.claude.com/docs/en/remote-control)
 
 To start a session directly from Claude Desktop, the **Code** tab supports
 SSH. Running one in roke would require an SSH endpoint in the project's box.
 The standard box has no SSH server. [Claude Desktop SSH sessions](https://code.claude.com/docs/en/desktop#ssh-sessions)
 
-To try the Claude Code panel in VS Code, attach with `roke shell -a claude`
-running and install the extension in the attached window. Use the integrated
-terminal or Remote Control when you need the MCP configuration and tool
-approval arguments that roke passes when it starts Claude Code.
+### VS Code
+
+Start `roke shell -a claude` and leave it running. Attach VS Code to the
+project's box with Dev Containers, open the project directory in the attached
+window and install the Claude Code extension there. Use the terminal commands
+or Remote Control when you need the MCP configuration and tool approval
+arguments that roke passes when it starts Claude Code.
 [Using a graphical editor](../README.md#using-a-graphical-editor) · [Claude Code in VS Code](https://code.claude.com/docs/en/vs-code)
 
 ## Your configuration
