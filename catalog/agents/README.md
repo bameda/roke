@@ -55,6 +55,25 @@ and native configuration. A session cannot continue in a different agent.
 Prefer `AGENTS.md` for instructions shared by agents: Codex and OpenCode
 read it, and Claude Code reads it when the project has no `CLAUDE.md`.
 
+## Using a graphical editor
+
+Open the project on your host and run `roke -a NAME` in your editor's
+integrated terminal. The editor can see the agent's changes through the
+shared project directory. Use `roke continue -a NAME` to resume.
+
+To try running editor extensions inside the box, start `roke shell -a NAME`
+from the project directory and leave it open. In VS Code with Dev Containers,
+choose **Dev Containers: Attach to Running Container…**, select the project's
+`box` container, then open the project at the same path as on the host.
+Install the agent extension in the attached window. The same approach applies
+to editors that can attach to an existing Docker container. [VS Code guide](https://code.visualstudio.com/docs/devcontainers/attach-container)
+
+Before attaching, check how your editor shares Git credentials and the host's
+SSH agent. Use the integrated terminal approach if you can't keep those
+credentials out of the box. Editor extensions can start their own agent
+processes, so check that the extension runs inside the box and picks up the
+MCP servers and settings you expect. [VS Code credential sharing](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials)
+
 ## Several agents at once
 
 Each project runs one agent at a time by default. To have two agents work

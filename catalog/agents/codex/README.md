@@ -22,6 +22,19 @@ home volume, so you log in once per project. Alternatively, put
 `OPENAI_API_KEY` in `~/.config/roke/secrets.env` and log in with it from
 `roke shell`: `printenv OPENAI_API_KEY | codex login --with-api-key`.
 
+## Web, desktop and editors
+
+To try the Codex panel in VS Code, attach to the project's `box` with
+`roke shell -a codex` running and install the Codex extension in the attached
+window. For setup and the integrated terminal option, see
+[Using a graphical editor](../README.md#using-a-graphical-editor).
+[Codex IDE extension](https://learn.chatgpt.com/docs/codex/ide)
+
+The ChatGPT desktop app can start Codex on an SSH destination. To run the
+agent inside roke, that destination would need to be the project's box.
+The standard box has no SSH server. Codex cloud sessions run on OpenAI's
+infrastructure. [Desktop SSH connections](https://learn.chatgpt.com/docs/remote-connections#connect-to-an-ssh-host)
+
 ## Your configuration
 
 `~/.config/roke/agents/codex/` is linked into `~/.codex`: `config.toml`

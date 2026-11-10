@@ -16,6 +16,23 @@ in the project's home volume (`~/.local/share/opencode/auth.json`), not in your 
 has its own home and login. Alternatively, put the provider's API
 key in `~/.config/roke/secrets.env`.
 
+## Web, desktop and editors
+
+From the project directory, start the OpenCode 2 server inside the box:
+
+```bash
+roke exec -a opencode -p 4096 opencode serve --hostname 0.0.0.0 --port 4096
+```
+
+Keep it running and open `http://127.0.0.1:4096` on your host. Use the
+password printed by OpenCode. Roke publishes `-p 4096` on host loopback.
+To use OpenCode Desktop, connect it to the same server with the app's server
+connection controls. [OpenCode server and web interface](https://opencode.ai/docs/cli/web/) · [Desktop downloads](https://opencode.ai/docs/#desktop)
+
+You can also run OpenCode from your editor's integrated terminal. To use
+the editor's terminal and other tools inside the box, attach to it with
+`roke shell -a opencode` running. [Using a graphical editor](../README.md#using-a-graphical-editor)
+
 ## Your configuration
 
 `~/.config/roke/agents/opencode/` is linked into `~/.config/opencode`:
