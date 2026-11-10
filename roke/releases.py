@@ -81,6 +81,11 @@ def installation() -> dict[str, str]:
     )
 
 
+def describe() -> str:
+    """Nearest reachable tag and commit distance, or the short hash without tags."""
+    return git("describe", "--tags", "--always", "--abbrev=12", "HEAD")
+
+
 def update(selected: str = "") -> int:
     if not (BOX_DIR / ".git").exists():
         die(f"{BOX_DIR} is not a Git clone; reinstall roke to update it")
@@ -99,9 +104,12 @@ def update(selected: str = "") -> int:
     target = (
         "main" if wanted == "main" else latest_release(git("config", "--get", "remote.origin.url"))
     )
-    info(f"updating {BOX_DIR}: {version.current()} → {target} ({wanted})")
     if wanted == "main":
-        git("fetch", "--no-tags", "origin", "refs/heads/main:refs/remotes/origin/main")
+        info(f"updating {BOX_DIR}: {describe()} → main")
+    else:
+        info(f"updating {BOX_DIR}: {version.current()} → {target} ({wanted})")
+    if wanted == "main":
+        git("fetch", "--tags", "origin", "refs/heads/main:refs/remotes/origin/main")
         ref = "refs/remotes/origin/main"
         local = git("rev-parse", "--verify", "refs/heads/main", check=False)
         if local and git("merge-base", local, ref) != local:
@@ -126,6 +134,9 @@ def update(selected: str = "") -> int:
     git("config", "--local", "roke.channel", wanted)
     after = git("rev-parse", "HEAD")
     status = "already up to date" if before == after else "updated"
-    info(f"{status}: {target} ({after[:12]}; {wanted})")
+    if wanted == "main":
+        info(f"{status}: {describe()} (main)")
+    else:
+        info(f"{status}: {target} ({after[:12]}; {wanted})")
     info("Rebuild the images in your projects with: roke build")
     return 0

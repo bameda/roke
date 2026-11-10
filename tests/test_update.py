@@ -185,3 +185,42 @@ def test_failed_fetch_keeps_checkout_and_channel(release_repo):
     assert "could not update roke" in result.stderr
     assert repo.git(repo.installed, "rev-parse", "HEAD") == before
     assert repo.git(repo.installed, "config", "--get", "roke.channel") == "main"
+
+
+def test_main_update_shows_tag_distance_before_and_after(release_repo):
+    repo = release_repo
+    assert repo.install("main").returncode == 0
+    before = repo.git(repo.installed, "rev-parse", "HEAD")
+    repo.commit_version("0.3.0-dev")
+    repo.publish()
+    after = repo.git(repo.source, "rev-parse", "HEAD")
+    result = repo.roke("update")
+    assert result.returncode == 0, result.stderr
+    assert f"v0.1.0-1-g{before[:12]} → main" in result.stderr
+    assert f"updated: v0.1.0-2-g{after[:12]} (main)" in result.stderr
+
+
+def test_main_update_fetches_new_tags_even_when_main_has_not_moved(release_repo):
+    repo = release_repo
+    repo.commit_version("0.2.0")
+    repo.publish()
+    assert repo.install("main").returncode == 0
+    before = repo.git(repo.installed, "rev-parse", "HEAD")
+    repo.git(repo.source, "tag", "-a", "v0.2.0", "-m", "Second release")
+    repo.publish()
+    result = repo.roke("update")
+    assert result.returncode == 0, result.stderr
+    assert "already up to date: v0.2.0 (main)" in result.stderr
+    assert repo.git(repo.installed, "rev-parse", "HEAD") == before
+
+
+def test_main_update_without_tags_falls_back_to_short_hash(release_repo):
+    repo = release_repo
+    repo.git(repo.source, "tag", "-d", "v0.1.0")
+    repo.git(repo.source, "push", "origin", ":refs/tags/v0.1.0")
+    assert repo.install("main").returncode == 0
+    sha = repo.git(repo.installed, "rev-parse", "HEAD")
+    result = repo.roke("update")
+    assert result.returncode == 0, result.stderr
+    assert f"{sha[:12]} → main" in result.stderr
+    assert f"already up to date: {sha[:12]} (main)" in result.stderr
