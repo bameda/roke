@@ -60,6 +60,7 @@ class Request:
     network: str = ""
     git_rw: bool = False
     serena: bool | None = None
+    ui: bool = False  # run --ui
     cmd: list = field(default_factory=list)  # shell, exec and logs
     values: list = field(default_factory=list)  # names or destinations
     is_global: bool = False
@@ -122,6 +123,11 @@ def _run_options(req: Request, args: list) -> list:
             i += 1
         elif a == "--no-serena":
             req.serena = False
+            i += 1
+        elif a == "--ui" and req.command == "continue":
+            die("use roke --ui and select the conversation in the OpenCode interface")
+        elif a == "--ui" and req.command == "run":
+            req.ui = True
             i += 1
         elif a in ("-h", "--help"):
             req.help = req.command

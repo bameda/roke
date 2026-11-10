@@ -1,4 +1,5 @@
 import hashlib
+import json
 from pathlib import Path
 
 import pytest
@@ -44,6 +45,54 @@ def test_continue_shell_exec(env):
     assert after(call, "box") == ["psql", "-c", "select 1"]
     call = env.roke("exec", "-s", "postgres", "psql", cwd=shop).last("run")
     assert after(call, "box") == ["psql"] and call["env"]["ROKE_SERVICES"] == "postgres"
+
+
+@pytest.mark.parametrize(
+    ("args", "agent", "ports"),
+    [(("--ui",), "opencode", "3000"), (("run", "-a", "opencode", "--ui"), "claude", "3000 4096")],
+)
+def test_opencode_ui_uses_project_and_publishes_on_loopback(env, args, agent, ports):
+    shop = env.project()
+    env.write_project_env(f'ROKE_AGENT={agent}\nROKE_SERVICES=postgres\nROKE_PORTS="{ports}"\n')
+
+    result = env.roke(*args, cwd=shop)
+
+    assert result.code == 0, result.text
+    call = result.last("run")
+    assert after(call, "box") == ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "4096"]
+    assert call["env"]["ROKE_SERVICES"] == "postgres"
+    assert "ROKE_GIT_READONLY=1" in call["args"]
+    ports = Path(compose_files(call)[-1]).read_text()
+    assert ports.count('"127.0.0.1:4096:4096"') == 1
+    assert '"127.0.0.1:3000:3000"' in ports
+    assert "http://127.0.0.1:4096" in result.text
+
+
+@pytest.mark.parametrize(
+    ("args", "message"),
+    [
+        (("--ui",), "--ui is available for OpenCode"),
+        (("continue", "--ui"), "select the conversation"),
+        (("shell", "--ui"), "unknown option"),
+    ],
+)
+def test_ui_rejects_unsupported_invocations(env, args, message):
+    result = env.roke(*args, cwd=env.project())
+    assert result.code != 0 and message in result.err
+    assert not result.compose_calls("run")
+
+
+def test_ui_rejects_public_port_mapping(env):
+    config = {"services": {"gateway": {"ports": [{"target": 4096, "published": "9000"}]}}}
+    result = env.roke(
+        "-a",
+        "opencode",
+        "--ui",
+        cwd=env.project(),
+        env={"FAKE_CONFIG_JSON": json.dumps(config)},
+    )
+    assert result.code != 0 and "must be published on loopback only" in result.err
+    assert not result.compose_calls("run")
 
 
 def test_ports_are_published_by_the_gateway(env):

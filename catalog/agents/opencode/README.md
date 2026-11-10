@@ -21,11 +21,13 @@ key in `~/.config/roke/secrets.env`.
 From the project directory, start the OpenCode 2 server inside the box:
 
 ```bash
-roke exec -a opencode -p 4096 opencode serve --hostname 0.0.0.0 --port 4096
+roke -a opencode --ui
 ```
 
 Keep it running and open `http://127.0.0.1:4096` on your host. Use the
-password printed by OpenCode. Roke publishes `-p 4096` on host loopback.
+password printed by OpenCode. Choose an earlier conversation from the
+interface's session list. The UI uses port 4096 on host loopback. If another
+roke project is using it, run `roke down` in that project to free the port.
 To use OpenCode Desktop, connect it to the same server with the app's server
 connection controls. [OpenCode server and web interface](https://opencode.ai/docs/cli/web/) · [Desktop downloads](https://opencode.ai/docs/#desktop)
 

@@ -116,6 +116,7 @@ chooses a different initial ID. It does not start the agent.
 | `--network MODE` | `restricted` or `open` |
 | `--git-rw` | Let the agent write to `.git`, so it can commit |
 | `--serena`, `--no-serena` | Enable or disable [Serena](serena.md) |
+| `--ui` | Start OpenCode's graphical interface with `roke` or `roke run`. [OpenCode guide](../catalog/agents/opencode/README.md#web-desktop-and-editors) |
 
 To keep an option for a project, use its setting instead: `roke service add`
 for `-s`, and `ROKE_PORTS`, `ROKE_NETWORK`, `ROKE_GIT_RW` or `ROKE_SERENA` in

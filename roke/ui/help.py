@@ -11,6 +11,7 @@ roke run is the explicit form of roke; both start a new agent session.
 
 The project's box
   roke [run]                 Start the agent
+                             (--ui starts the OpenCode web interface)
   roke continue              Resume the agent's last session
   roke shell                 Open bash in the box
   roke exec CMD...           Run a command in the box

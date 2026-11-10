@@ -1,6 +1,7 @@
 """The project's box: run (also continue, shell and exec), urls, settings,
 build, down and purge."""
 
+import ipaddress
 import re
 import sys
 
@@ -16,12 +17,23 @@ from roke.docker import (
 from roke.ui import die, info
 from roke.workspace import Workspace
 
+OPENCODE_UI_PORT = "4096"
+
 
 def run(req) -> int:
     ws = Workspace(req).open(docker=True, register_project=True)
     ws.load_all(required_agent=True)
+    command = req.cmd
+    if req.ui:
+        if ws.agent != "opencode":
+            die("--ui is available for OpenCode. Use roke -a opencode --ui")
+        if OPENCODE_UI_PORT not in ws.ports:
+            ws.ports.append(OPENCODE_UI_PORT)
+        command = ["opencode", "serve", "--hostname", "0.0.0.0", "--port", OPENCODE_UI_PORT]
     ws.pin_versions(ws.selected)
     compose = ws.prepare_compose(publish=True)
+    if req.ui:
+        check_ui_binding(compose.config())
     p = ws.project
     args = ["--rm"]
     if req.command == "continue":
@@ -45,7 +57,25 @@ def run(req) -> int:
         f".git: {'rw' if ws.git_rw else 'ro'}  ·  serena: {'yes' if ws.serena else 'no'}"
     )
     protect_running_sessions(ws, compose)
-    return compose.call("run", *args, "box", *req.cmd).returncode
+    if req.ui:
+        info(f"OpenCode UI: http://127.0.0.1:{OPENCODE_UI_PORT} (use the server password)")
+    return compose.call("run", *args, "box", *command).returncode
+
+
+def check_ui_binding(config: dict) -> None:
+    """Reject mappings that would publish the UI beyond the host loopback."""
+    if OPENCODE_UI_PORT in urls_output.forwards(config):
+        die(f"OpenCode UI port {OPENCODE_UI_PORT} is already forwarded to a service")
+    gateway = config.get("services", {}).get("gateway", {})
+    for binding in gateway.get("ports") or []:
+        if (
+            str(binding.get("target")) != OPENCODE_UI_PORT
+            or binding.get("protocol", "tcp") != "tcp"
+        ):
+            continue
+        address = ipaddress.ip_address(binding.get("host_ip") or "0.0.0.0")
+        if not address.is_loopback:
+            die(f"OpenCode UI port {OPENCODE_UI_PORT} must be published on loopback only")
 
 
 def urls(req) -> int:
