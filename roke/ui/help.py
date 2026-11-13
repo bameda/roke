@@ -11,10 +11,26 @@ SECTIONS: tuple[tuple[str, tuple[Entry, ...]], ...] = (
     (
         "Sessions",
         (
-            ("run", "roke [run]", ("Start the agent", "(--ui starts the OpenCode web interface)")),
+            (
+                "run",
+                "roke [run]",
+                (
+                    "Start the agent",
+                    "(--ui: OpenCode's web interface, or Claude Code's",
+                    "Remote Control)",
+                ),
+            ),
             ("continue", "roke continue", ("Resume the agent's last session",)),
             ("shell", "roke shell", ("Open bash in the box",)),
             ("exec", "roke exec CMD...", ("Run a command in the box",)),
+            (
+                "acp",
+                "roke acp",
+                (
+                    "Serve the agent to an editor over the Agent Client",
+                    "Protocol: the editor starts it",
+                ),
+            ),
         ),
     ),
     (
@@ -207,7 +223,7 @@ roke settings -C DIR):
                              (remembered for subsequent commands)"""
 
 RUN_OPTIONS = """\
-Options for run, continue, shell and exec, for this time only (-s and -p
+Options for run, continue, shell, exec and acp, for this time only (-s and -p
 also apply to roke urls):
   -a, --agent NAME           Use another agent
   -s, --services LIST        Start these services instead (commas or spaces)
@@ -220,7 +236,7 @@ also apply to roke urls):
       --serena, --no-serena  Enable or disable Serena"""
 
 # The commands with options of their own, and those that work on a project.
-WITH_RUN_OPTIONS = ("run", "continue", "shell", "exec", "urls")
+WITH_RUN_OPTIONS = ("run", "continue", "shell", "exec", "acp", "urls")
 ON_A_PROJECT = (
     *WITH_RUN_OPTIONS,
     "logs",

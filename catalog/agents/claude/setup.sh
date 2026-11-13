@@ -5,6 +5,8 @@
 AGENT_COMMAND=(claude)
 # Arguments that resume the last session (roke continue).
 AGENT_CONTINUE=(--continue)
+# The adapter editors talk to (roke acp); see below for how it starts claude.
+ACP_COMMAND=(claude-agent-acp)
 
 # The image decides the version.
 export DISABLE_UPDATES=1
@@ -38,4 +40,24 @@ if [[ "$permissions" != "{}" ]]; then
   permissions_file="$ROKE_RUNTIME/claude-permissions.json"
   printf '%s\n' "$permissions" > "$permissions_file"
   AGENT_ARGS+=(--settings "$permissions_file")
+fi
+
+# roke acp: the adapter starts Claude Code itself, and has no way to pass it
+# the MCP servers and tool approvals above. It is pointed to a wrapper that
+# adds them to the sessions it starts, but not to its own calls such as
+# "claude auth status", which take no such options.
+if [[ "${ROKE_ACP:-0}" == 1 ]]; then
+  acp_claude="$ROKE_RUNTIME/claude-acp"
+  {
+    echo '#!/usr/bin/env bash'
+    if ((${#AGENT_ARGS[@]})); then
+      # shellcheck disable=SC2016  # ${1:-} is for the generated script
+      printf 'if [[ "${1:-}" == --* ]]; then exec claude'
+      printf ' %q' "${AGENT_ARGS[@]}"
+      echo ' "$@"; fi'
+    fi
+    echo 'exec claude "$@"'
+  } > "$acp_claude"
+  chmod 700 "$acp_claude"
+  ACP_COMMAND=(env "CLAUDE_CODE_EXECUTABLE=$acp_claude" claude-agent-acp)
 fi

@@ -3,6 +3,14 @@
 # given). The agent-specific part lives in catalog/agents/<agent>/setup.sh.
 set -euo pipefail
 
+# roke acp: an editor reads this process's standard output as the protocol, so
+# nothing but the agent's adapter may write to it. Everything the box prints
+# while preparing, including what mise and the setup scripts print, goes to
+# standard error; the real standard output comes back for the final exec.
+if [[ "${ROKE_ACP:-0}" == 1 ]]; then
+  exec 3>&1 1>&2
+fi
+
 log() { printf '[roke] %s\n' "$*" >&2; }
 die() { log "ERROR: $*"; exit 1; }
 
@@ -147,14 +155,22 @@ AGENT_CONFIG=/run/roke/agent-config
 AGENT_COMMAND=()
 AGENT_ARGS=()
 AGENT_CONTINUE=()
+ACP_COMMAND=()
 # shellcheck source=/dev/null
 source "$agent_dir/setup.sh"
 ((${#AGENT_COMMAND[@]})) || die "catalog/agents/$agent/setup.sh did not set AGENT_COMMAND"
 
+# roke acp: run the agent's Agent Client Protocol adapter, which the editor
+# talks to, instead of the agent.
+if [[ "${ROKE_ACP:-0}" == 1 ]]; then
+  ((${#ACP_COMMAND[@]})) \
+    || die "catalog/agents/$agent does not support the Agent Client Protocol (ACP_COMMAND in its setup.sh)"
+  (($# == 0)) || die "roke acp takes no command"
+  set -- "${ACP_COMMAND[@]}"
 # No command: run the agent. When the agent is run explicitly (for example
 # "roke exec claude --print ..."), its extra arguments are added too.
 # With ROKE_CONTINUE=1 (roke continue), resume the last session instead.
-if (($# == 0)); then
+elif (($# == 0)); then
   set -- "${AGENT_COMMAND[@]}"
   if [[ "${ROKE_CONTINUE:-0}" == "1" ]]; then
     ((${#AGENT_CONTINUE[@]})) \
@@ -167,4 +183,7 @@ if ((${#AGENT_ARGS[@]})) && [[ "$1" == "${AGENT_COMMAND[0]}" ]]; then
   set -- "${AGENT_COMMAND[0]}" "${AGENT_ARGS[@]}" "$@"
 fi
 
+if [[ "${ROKE_ACP:-0}" == 1 ]]; then
+  exec 1>&3 3>&-
+fi
 exec "$@"

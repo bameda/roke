@@ -80,6 +80,7 @@ def test_recipe_changes_require_new_image_but_mounted_setup_does_not(tmp_path):
         tmp_path / "Dockerfile",
         tmp_path / "docker" / "entrypoint.sh",
         tmp_path / "catalog" / "agents" / "fixture" / "install.sh",
+        tmp_path / "catalog" / "agents" / "install-acp.sh",
     ]
     for path in recipe:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -89,7 +90,7 @@ def test_recipe_changes_require_new_image_but_mounted_setup_does_not(tmp_path):
         path.write_text("changed")
         assert box_image(tmp_path, {}) != original
         path.write_text("original")
-    recipe[-1].with_name("setup.sh").write_text("mounted at runtime")
+    recipe[2].with_name("setup.sh").write_text("mounted at runtime")
     assert box_image(tmp_path, {}) == original
 
 

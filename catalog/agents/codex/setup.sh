@@ -5,6 +5,9 @@
 AGENT_COMMAND=(codex)
 # Arguments that resume the last session (roke continue).
 AGENT_CONTINUE=(resume --last)
+# The adapter editors talk to (roke acp). It runs the codex installed in the
+# image, which reads the same configuration as a normal session.
+ACP_COMMAND=(env "CODEX_PATH=$(command -v codex || echo codex)" codex-acp)
 
 # Your configuration (config.toml, prompts/, skills/...) is linked into
 # ~/.codex, where Codex keeps its own state too (auth.json, sessions...), in

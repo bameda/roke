@@ -9,6 +9,8 @@ can be tuned with environment variables:
   FAKE_NO_IMAGE=1         `docker image inspect` fails (image not built)
   FAKE_IMAGES="a,b"       the tags `docker images roke` lists
   FAKE_RMI_FAIL="a"       `docker rmi` refuses these tags (a container uses them)
+  FAKE_RUN_SCRIPT=PATH    `docker compose run` becomes this Python script, with
+                          the caller's standard input and output (a fake agent)
   FAKE_COMPOSE_LS="a b"   projects listed by `docker compose ls -q`
   FAKE_REAL_COMPOSE=PATH  pass `docker compose ... config` to a real
                           docker-compose binary, to validate configurations
@@ -101,6 +103,8 @@ if args[:1] == ["run"]:
     sys.exit(subprocess.run([sys.executable, "-c", script]).returncode)
 if args[:1] == ["compose"]:
     rest = args[1:]
+    if "run" in rest and os.environ.get("FAKE_RUN_SCRIPT"):
+        os.execv(sys.executable, [sys.executable, os.environ["FAKE_RUN_SCRIPT"]])
     if "logs" in rest and os.environ.get("FAKE_LOGS_ERROR"):
         if os.environ["FAKE_LOGS_ERROR"] == "service":
             print("no such service: missing", file=sys.stderr)

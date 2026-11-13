@@ -122,9 +122,8 @@ class Env:
         with path.open("a") as f:
             f.write(text)
 
-    def roke(self, *args, cwd=None, env=None):
-        if self.log.exists():
-            self.log.unlink()
+    def environment(self, env=None):
+        """The environment roke runs in: the fake docker first in the PATH."""
         environ = {
             "PATH": f"{FAKES}:{os.environ['PATH']}",
             "HOME": str(self.home),
@@ -134,14 +133,20 @@ class Env:
         }
         environ.update(self.extra_env)
         environ.update(env or {})
+        return environ
+
+    def roke(self, *args, cwd=None, env=None, input=None):
+        if self.log.exists():
+            self.log.unlink()
+        environ = self.environment(env)
         proc = subprocess.run(
             [str(ROKE), *args],
             cwd=cwd or self.src,
             env=environ,
             capture_output=True,
             text=True,
-            stdin=subprocess.DEVNULL,
             timeout=60,
+            **({"input": input} if input is not None else {"stdin": subprocess.DEVNULL}),
         )
         calls = []
         if self.log.exists():

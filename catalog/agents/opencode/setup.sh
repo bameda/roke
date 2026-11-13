@@ -5,6 +5,8 @@
 AGENT_COMMAND=(opencode)
 # Arguments that resume the last session (roke continue).
 AGENT_CONTINUE=(--continue)
+# OpenCode speaks the Agent Client Protocol itself (roke acp).
+ACP_COMMAND=(opencode acp)
 
 # Your configuration (opencode.jsonc, agents/, commands/, skills/...) is
 # linked into ~/.config/opencode, where the TUI can still write its own

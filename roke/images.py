@@ -19,7 +19,8 @@ BOX_BUILD_ARGS = (
 
 def box_image(repo: Path, env: dict[str, str]) -> str:
     recipe = [repo / "Dockerfile", repo / "docker" / "entrypoint.sh"]
-    recipe += sorted((repo / "catalog" / "agents").glob("*/install.sh"))
+    agents = repo / "catalog" / "agents"
+    recipe += sorted(agents.glob("*/install.sh")) + [agents / "install-acp.sh"]
     contents = {
         str(path.relative_to(repo)): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in recipe

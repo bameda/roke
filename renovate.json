@@ -87,6 +87,16 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+[^\\n]*\\$\\{[A-Z0-9_]+_VERSION:-(?<currentValue>[^}]+)\\}"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "The version of an npm package installed by an agent's install.sh, marked with a renovate comment",
+      "managerFilePatterns": [
+        "/(^|/)catalog/agents/[^/]+/install\\.sh$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+[A-Z_]+=(?<currentValue>\\S+)"
+      ]
     }
   ],
   "packageRules": [

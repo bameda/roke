@@ -5,6 +5,7 @@ import ipaddress
 import re
 import sys
 
+from roke import acp
 from roke import urls as urls_output
 from roke.docker import (
     container_env,
@@ -23,22 +24,19 @@ OPENCODE_UI_PORT = "4096"
 def run(req) -> int:
     ws = Workspace(req).open(docker=True, register_project=True)
     ws.load_all(required_agent=True)
-    command = req.cmd
-    if req.ui:
-        if ws.agent != "opencode":
-            die("--ui is available for OpenCode. Use roke -a opencode --ui")
-        if OPENCODE_UI_PORT not in ws.ports:
-            ws.ports.append(OPENCODE_UI_PORT)
-        command = ["opencode", "serve", "--hostname", "0.0.0.0", "--port", OPENCODE_UI_PORT]
+    command = ui_command(ws, req) if req.ui else req.cmd
     ws.pin_versions(ws.selected)
     compose = ws.prepare_compose(publish=True)
-    if req.ui:
+    if req.ui and ws.agent == "opencode":
         check_ui_binding(compose.config())
     p = ws.project
     args = ["--rm"]
     if req.command == "continue":
         args += ["-e", "ROKE_CONTINUE=1"]
-    if not (sys.stdin.isatty() and sys.stdout.isatty()):
+    if req.command == "acp":
+        # The editor speaks to the adapter on standard input and output.
+        args += ["-e", "ROKE_ACP=1", "-T"]
+    elif not (sys.stdin.isatty() and sys.stdout.isatty()):
         args.append("-T")
     if (ws.config / "AGENTS.md").is_file():
         args += ["-v", f"{ws.config / 'AGENTS.md'}:/run/roke/user-AGENTS.md:ro"]
@@ -57,9 +55,41 @@ def run(req) -> int:
         f".git: {'rw' if ws.git_rw else 'ro'}  ·  serena: {'yes' if ws.serena else 'no'}"
     )
     protect_running_sessions(ws, compose)
-    if req.ui:
+    if req.command == "acp":
+        # Quiet progress: nothing from Compose may reach the editor's stream.
+        session = compose.command("--progress", "quiet", "run", *args, "box")
+        return acp.serve(session, compose.env, p.dir)
+    if req.ui and ws.agent == "opencode":
         info(f"OpenCode UI: http://127.0.0.1:{OPENCODE_UI_PORT} (use the server password)")
+    elif req.ui:
+        info(
+            "Remote Control: open the session URL Claude Code prints, or find the session "
+            "at claude.ai/code or in the Claude app"
+        )
     return compose.call("run", *args, "box", *command).returncode
+
+
+def ui_command(ws, req) -> list[str]:
+    """What --ui runs: OpenCode's web interface, or Claude Code with Remote
+    Control, which also keeps the session in the terminal."""
+    if ws.agent == "opencode":
+        if req.command == "continue":
+            die("use roke --ui and select the conversation in the OpenCode interface")
+        if OPENCODE_UI_PORT not in ws.ports:
+            ws.ports.append(OPENCODE_UI_PORT)
+        return ["opencode", "serve", "--hostname", "0.0.0.0", "--port", OPENCODE_UI_PORT]
+    if ws.agent == "claude":
+        if ws.env.get("ANTHROPIC_API_KEY"):
+            info(
+                "Remote Control needs a claude.ai login: with ANTHROPIC_API_KEY set, Claude "
+                "Code uses the API key and refuses it; remove the key from secrets.env"
+            )
+        resume = ["--continue"] if req.command == "continue" else []
+        return ["claude", *resume, "--remote-control", ws.project.name]
+    die(
+        f"--ui is available for OpenCode (its web interface) and Claude Code (Remote "
+        f"Control), not for {ws.agent}: to use it from an editor, see roke acp"
+    )
 
 
 def check_ui_binding(config: dict) -> None:

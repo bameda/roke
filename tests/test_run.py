@@ -71,8 +71,8 @@ def test_opencode_ui_uses_project_and_publishes_on_loopback(env, args, agent, po
 @pytest.mark.parametrize(
     ("args", "message"),
     [
-        (("--ui",), "--ui is available for OpenCode"),
-        (("continue", "--ui"), "select the conversation"),
+        (("--ui", "-a", "codex"), "--ui is available for OpenCode"),
+        (("continue", "--ui", "-a", "opencode"), "select the conversation"),
         (("shell", "--ui"), "unknown option"),
     ],
 )
@@ -232,3 +232,26 @@ def test_a_bad_port_setting_does_not_block_fixing_or_stopping_the_project(env):
         assert env.roke(*args, cwd=shop).code == 0, args
     r = env.roke("urls", cwd=shop)
     assert r.code != 0 and "invalid port 'oops' in ROKE_PORTS" in r.err
+
+
+def test_claude_ui_starts_remote_control_and_publishes_nothing(env):
+    shop = env.project()
+    result = env.roke("--ui", "-a", "claude", cwd=shop)
+    assert result.code == 0, result.text
+    call = result.last("run")
+    assert after(call, "box") == ["claude", "--remote-control", "shop"]
+    assert not any(path.endswith(".ports.yaml") for path in compose_files(call))
+    assert "claude.ai/code" in result.err and "4096" not in result.err
+
+
+def test_claude_continue_ui_resumes_the_last_session(env):
+    call = env.roke("continue", "--ui", "-a", "claude", cwd=env.project()).last("run")
+    assert after(call, "box") == ["claude", "--continue", "--remote-control", "shop"]
+
+
+def test_remote_control_warns_about_an_api_key(env):
+    shop = env.project()
+    env.append(env.config / "secrets.env", "ANTHROPIC_API_KEY=sk-secret\n")
+    result = env.roke("--ui", "-a", "claude", cwd=shop)
+    assert result.code == 0
+    assert "needs a claude.ai login" in result.err and "sk-secret" not in result.text

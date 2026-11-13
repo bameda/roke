@@ -8,7 +8,7 @@ from roke.commands.settings import EDITABLE
 from roke.ui import Fail, die
 from roke.ui.help import USAGE, help_for
 
-RUN_LIKE = ("run", "continue", "shell", "exec", "urls")
+RUN_LIKE = ("run", "continue", "shell", "exec", "acp", "urls")
 GROUPS: dict[str, dict[str, tuple[int, int | None]]] = {
     "project": {"list": (0, 0), "show": (1, 1), "rename": (2, 2), "rm": (1, 1)},
     "agent": {"list": (0, 0), "show": (1, 1), "use": (1, 1), "reset": (0, 0)},
@@ -127,9 +127,7 @@ def _run_options(req: Request, args: list) -> list:
         elif a == "--no-serena":
             req.serena = False
             i += 1
-        elif a == "--ui" and req.command == "continue":
-            die("use roke --ui and select the conversation in the OpenCode interface")
-        elif a == "--ui" and req.command == "run":
+        elif a == "--ui" and req.command in ("run", "continue"):
             req.ui = True
             i += 1
         elif a in ("-h", "--help"):

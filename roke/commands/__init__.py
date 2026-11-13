@@ -22,6 +22,7 @@ HANDLERS = {
     ("continue", ""): box.run,
     ("shell", ""): box.run,
     ("exec", ""): box.run,
+    ("acp", ""): box.run,
     ("urls", ""): box.urls,
     ("settings", ""): settings.show,
     ("settings", "edit"): settings.edit,

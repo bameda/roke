@@ -18,3 +18,8 @@ AGENT_CONTINUE=(--continue)
 #   ... write an MCP configuration using "${SERENA_CMD[@]}" ...
 #   AGENT_ARGS=(--mcp-config "$ROKE_RUNTIME/mcp.json")
 # fi
+
+# The program an editor talks to over the Agent Client Protocol (roke acp),
+# if the agent can be used from editors; ROKE_ACP is 1 in that case, and
+# nothing may be printed on standard output before it starts:
+# ACP_COMMAND=(myagent acp)
