@@ -4,6 +4,7 @@ catalog, looked up in that order."""
 import re
 from pathlib import Path
 
+from roke import settings
 from roke.paths import entries, first_line, valid_name
 
 VERSION_DEFAULT = re.compile(r"\$\{([A-Z][A-Z0-9_]*_VERSION):-([^}]+)\}")
@@ -43,8 +44,8 @@ class Services:
         return None
 
     def render(self, used_text: str) -> str:
-        """The services available, marking those in USED_TEXT (comma-separated)."""
-        used = {s.strip() for s in used_text.split(",")}
+        """The services available, marking those in USED_TEXT (a list setting)."""
+        used = set(settings.split_list(used_text))
         lines = ["Services (roke service add NAME; * = used by this project):"]
         for name in self.names():
             desc = first_line(self.file(name))

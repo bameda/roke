@@ -93,7 +93,7 @@ class Workspace:
         self.mcp_approvals = {**self.global_mcp_approvals, **self.project_mcp_approvals}
         self.env = env
         self.services_text = r.services if r.services is not None else env.get("ROKE_SERVICES", "")
-        self.ports = list(r.ports) or split_list(env.get("ROKE_PORTS", ""))
+        self.ports = list(r.ports) or settings.split_list(env.get("ROKE_PORTS", ""))
         self.git_rw = r.git_rw or env.get("ROKE_GIT_RW", "0") == "1"
         self.serena = r.serena if r.serena is not None else env.get("ROKE_SERENA", "0") == "1"
         env["ROKE_SERENA"] = "1" if self.serena else "0"
@@ -131,7 +131,7 @@ class Workspace:
         self.installed = installed
         self.agent = agent
         env["ROKE_AGENT"] = agent
-        self.parallel_agents = split_list(env.get("ROKE_PARALLEL_AGENTS", ""))
+        self.parallel_agents = settings.split_list(env.get("ROKE_PARALLEL_AGENTS", ""))
         for name in self.parallel_agents:
             if not self.agents.exists(name):
                 die(
@@ -142,9 +142,7 @@ class Workspace:
     # --- the services ------------------------------------------------------------------
     def select_services(self) -> None:
         self.selected: list[str] = []
-        for name in (s.strip() for s in self.services_text.split(",")):
-            if not name:
-                continue
+        for name in settings.split_list(self.services_text):
             if not self.services.exists(name):
                 print(self.services.render(self.services_text), file=sys.stderr)
                 die(f"unknown service: '{name}'")
@@ -152,7 +150,7 @@ class Workspace:
                 self.selected.append(name)
         # Services the project's MCP servers need, such as the server they talk to.
         self.mcp_services: dict[str, str] = {}
-        for mcp in split_list(self.global_mcps) + split_list(self.project_mcps):
+        for mcp in settings.split_list(self.global_mcps) + settings.split_list(self.project_mcps):
             if not self.mcps.exists(mcp):
                 continue
             for name in self.mcps.definition(mcp).get("services", []):
@@ -192,7 +190,7 @@ class Workspace:
         """The project's MCP servers, global ones first; those whose required
         variables are not set are left out, with a warning."""
         names: list[str] = []
-        for name in split_list(self.global_mcps) + split_list(self.project_mcps):
+        for name in settings.split_list(self.global_mcps) + settings.split_list(self.project_mcps):
             if not self.mcps.exists(name):
                 die(f"unknown MCP server: '{name}' (see roke mcp)")
             if name not in names:
@@ -376,11 +374,6 @@ class Workspace:
         self.select_services()
         self.select_mcps()
         self.choose_network()
-
-
-def split_list(text: str) -> list[str]:
-    """The names in a comma-separated setting."""
-    return [n.strip() for n in text.replace(" ", ",").split(",") if n.strip()]
 
 
 def network_agents(agent: str, parallel: list[str]) -> list[str]:

@@ -1,3 +1,4 @@
+import pytest
 from helpers import compose_files, env_value
 
 
@@ -72,3 +73,25 @@ def test_own_services_precedence(env):
     assert "[yours]" in [line for line in out.splitlines() if " keycloak " in line][0]
     files = compose_files(env.roke("-s", "mailpit", cwd=shop).last("run"))
     assert any("projects/shop/services/mailpit/" in f for f in files)
+
+
+@pytest.mark.parametrize(
+    "value", ["postgres redis", "postgres,redis", "postgres, redis", "  postgres  redis "]
+)
+def test_service_lists_accept_spaces_or_commas(env, value):
+    shop = env.project()
+    env.write_project_env(f'ROKE_SERVICES="{value}"\n')
+    assert env.roke(cwd=shop).last("run")["env"]["ROKE_SERVICES"] == "postgres,redis"
+    assert env.roke("-s", value, cwd=shop).last("run")["env"]["ROKE_SERVICES"] == "postgres,redis"
+    out = env.roke("service", cwd=shop).out
+    assert "* postgres" in out and "* redis" in out
+
+
+def test_changing_a_space_separated_list_keeps_its_names(env):
+    """roke service add used to join the names of a list written with spaces."""
+    shop = env.project()
+    env.write_project_env('ROKE_SERVICES="postgres redis"\n')
+    assert env.roke("service", "add", "mailpit", cwd=shop).code == 0
+    assert env_value(env.project_env(), "ROKE_SERVICES") == "postgres,redis,mailpit"
+    assert env.roke("service", "rm", "redis", cwd=shop).code == 0
+    assert env_value(env.project_env(), "ROKE_SERVICES") == "postgres,mailpit"

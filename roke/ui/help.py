@@ -210,7 +210,7 @@ RUN_OPTIONS = """\
 Options for run, continue, shell and exec, for this time only (-s and -p
 also apply to roke urls):
   -a, --agent NAME           Use another agent
-  -s, --services LIST        Start these services instead, comma-separated
+  -s, --services LIST        Start these services instead (commas or spaces)
   -p, --port PORT            Publish ports of the box on 127.0.0.1 (several:
                              3000,5173, or repeat the option); HOST:PORT picks
                              the host port, IP:HOST:PORT another address

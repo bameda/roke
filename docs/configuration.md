@@ -243,12 +243,12 @@ documented in its README in [services](../catalog/services/README.md).
 | Variable | Default | Description |
 |---|---|---|
 | `ROKE_AGENT` | — | The coding agent to run (`--agent`); required when several are installed |
-| `ROKE_SERVICES` | — | Services to start, comma-separated (`-s`) |
+| `ROKE_SERVICES` | — | Services to start, separated by commas or spaces (`-s`) |
 | `ROKE_COLOR` | `auto` | Colours in `roke ... show`: `auto` colours a terminal unless `NO_COLOR` is set or `TERM` is `dumb`; `always`; `never` |
 | `ROKE_SERENA_USAGE_REPORTING` | `0` | 1 = let Serena send its anonymous usage statistics (allow `oraios-software.de` too); see [Serena](serena.md#usage-statistics) |
 | `ROKE_EDITOR` | `$VISUAL`, `$EDITOR` | The editor `roke settings edit` opens, such as `code --wait` |
-| `ROKE_PARALLEL_AGENTS` | — | Agents that may run at the same time in the project, comma-separated; see [several agents at once](../catalog/agents/README.md#several-agents-at-once) |
-| `ROKE_MCPS` | — | MCP servers, comma-separated; the project's add to the global ones (`roke mcp add`) |
+| `ROKE_PARALLEL_AGENTS` | — | Agents that may run at the same time in the project, separated by commas or spaces; see [several agents at once](../catalog/agents/README.md#several-agents-at-once) |
+| `ROKE_MCPS` | — | MCP servers, separated by commas or spaces; the project's add to the global ones (`roke mcp add`) |
 | `ROKE_MCP_APPROVALS` | — | Comma-separated `NAME=allow` or `NAME=ask` preferences, managed with `roke mcp allow/ask/reset`; project entries override global entries per name |
 | `ROKE_NETWORK` | `restricted` | `restricted` or `open` (`--network`); see [Network](network.md) |
 | `ROKE_NETWORK_ALLOW` | — | Allowed destinations, one per line with a `# note`, or space-separated; the project's add to the global ones (`roke network add`, see [Network](network.md#allowing-destinations)) |
@@ -262,8 +262,8 @@ documented in its README in [services](../catalog/services/README.md).
 | `ROKE_HOST_UID` / `ROKE_HOST_GID` | your UID/GID | Container user; `0` for rootless Docker |
 | `ROKE_CONFIG_DIR` | `~/.config/roke` | Configuration directory (set it in your shell, not in these files) |
 | `ROKE_PROJECT_CONFIG` | set by `roke` | The project's configuration directory, for paths in compose files |
-| `ROKE_AGENTS` | `claude codex opencode` | Agents installed in the image (rebuild after changing) |
-| `ROKE_AGENT_VERSIONS` | — | Agent versions as `agent=version` pairs (rebuild after changing) |
+| `ROKE_AGENTS` | `claude codex opencode` | Agents installed in the image, separated by spaces, since it is a build argument (rebuild after changing) |
+| `ROKE_AGENT_VERSIONS` | — | Agent versions as `agent=version` pairs, separated by spaces (rebuild after changing) |
 | `POSTGRES_CLIENT_VERSION` | see [`Dockerfile`](../Dockerfile) | PostgreSQL client tools in the image (rebuild after changing) |
 | `SERENA_VERSION` | see [`Dockerfile`](../Dockerfile) | Serena version in the image (rebuild after changing) |
 | `INSTALL_SERENA` | `1` | `0` builds the image without Serena |

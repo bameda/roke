@@ -4,14 +4,17 @@ in the project or in every project."""
 from roke import mcp_permissions, settings
 from roke.commands.common import readme_section
 from roke.ui import die, info, page
-from roke.workspace import Workspace, split_list
+from roke.workspace import Workspace
 
 
 def show(req) -> None:
     ws = Workspace(req).open(guards=False)
     ws.load_settings()
     print(
-        ws.mcps.render(split_list(ws.global_mcps) + split_list(ws.project_mcps), serena=ws.serena)
+        ws.mcps.render(
+            settings.split_list(ws.global_mcps) + settings.split_list(ws.project_mcps),
+            serena=ws.serena,
+        )
     )
 
 
@@ -47,7 +50,11 @@ def approval(req) -> None:
         save_approvals(path, policies)
         info(f"MCP tool approvals back to the agent's default: {', '.join(req.values)}")
         return
-    enabled = split_list(ws.global_mcps) + split_list(ws.project_mcps) + ["serena"] * ws.serena
+    enabled = (
+        settings.split_list(ws.global_mcps)
+        + settings.split_list(ws.project_mcps)
+        + ["serena"] * ws.serena
+    )
     for name in req.values:
         policies[name] = req.sub
         if not req.is_global and name not in enabled:
@@ -66,7 +73,7 @@ def change(req) -> None:
         path, where = ws.global_env, "every project"
     else:
         path, where = ws.project.env_file, ws.project.name
-    current = split_list(settings.value_of(path, "ROKE_MCPS"))
+    current = settings.split_list(settings.value_of(path, "ROKE_MCPS"))
     if adding:
         validate(ws, req.values, policy=bool(req.mcp_approval))
     ws.load_settings()
@@ -74,7 +81,7 @@ def change(req) -> None:
     for name in req.values:
         if req.mcp_approval:
             policies[name] = req.mcp_approval
-        elif not adding and (req.is_global or name not in split_list(ws.global_mcps)):
+        elif not adding and (req.is_global or name not in settings.split_list(ws.global_mcps)):
             policies.pop(name, None)
         if name == "serena" and not ws.mcps.exists(name):
             settings.set_value(path, "ROKE_SERENA", "1" if adding else "0")
@@ -95,7 +102,7 @@ def change(req) -> None:
         elif name in current:
             current.remove(name)
             info(f"removed from {where}: {name}")
-        elif not req.is_global and name in split_list(ws.global_mcps):
+        elif not req.is_global and name in settings.split_list(ws.global_mcps):
             info(f"{name} is enabled in every project: roke mcp rm {name} --global")
         else:
             info(f"{name} is not in {where}")
@@ -127,9 +134,9 @@ def show_one(req) -> None:
     if not ws.mcps.exists(name):
         die(f"unknown MCP server: '{name}' (see roke mcp)")
     d = ws.mcps.definition(name)
-    if name in split_list(ws.project_mcps):
+    if name in settings.split_list(ws.project_mcps):
         used = f"used (roke mcp rm {name} to remove it)"
-    elif name in split_list(ws.global_mcps):
+    elif name in settings.split_list(ws.global_mcps):
         used = f"used, in every project (roke mcp rm {name} --global)"
     else:
         used = f"not used (roke mcp add {name})"

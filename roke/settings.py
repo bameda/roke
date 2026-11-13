@@ -156,3 +156,8 @@ def noted_entries(text: str) -> list[tuple[str, str]]:
 
 def file_noted_entries(path: Path) -> list[tuple[str, str]]:
     return noted_entries(path.read_text()) if path.is_file() else []
+
+
+def split_list(text: str) -> list[str]:
+    """The names in a list setting, separated by commas or spaces."""
+    return [n.strip() for n in text.replace(" ", ",").split(",") if n.strip()]

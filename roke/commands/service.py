@@ -13,7 +13,7 @@ def project_services(ws) -> list[str]:
     """The project's services: its own list, or the global one."""
     p = ws.project
     source = p.env_file if settings.defines(p.env_file, "ROKE_SERVICES") else ws.global_env
-    return [s for s in settings.value_of(source, "ROKE_SERVICES").replace(" ", "").split(",") if s]
+    return settings.split_list(settings.value_of(source, "ROKE_SERVICES"))
 
 
 def show(req) -> None:
