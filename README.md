@@ -81,6 +81,7 @@ roke help                   # every command
 | [Installation](docs/installation.md) | Docker on each distribution, installing and updating roke, rootless Docker |
 | [First steps](docs/first-steps.md) | Start in your project, continue sessions and add services, MCP tools and network access |
 | [Usage](docs/usage.md) | Every `roke` option, ports, git workflow, stopping and resetting |
+| [Editors, the web and your phone](docs/editors.md) | Zed, JetBrains and VS Code with `roke acp`, and Claude Code's Remote Control |
 | [Agents](catalog/agents/README.md) | The available agents, choosing one, how each logs in and is configured, adding another |
 | [Configuration](docs/configuration.md) | `~/.config/roke`, keeping it in a private repo, per-project settings, tools, settings reference |
 | [Services](catalog/services/README.md) | The service catalog, how to use each one and how to add your own |

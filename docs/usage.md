@@ -37,6 +37,7 @@ them before the arguments passed to Compose.
 | `roke continue` | Resume the agent's last session |
 | `roke shell` | Open bash in the box |
 | `roke exec CMD...` | Run a command in the box |
+| `roke acp` | Serve the agent to an editor over the Agent Client Protocol; the editor starts it (see [editors](editors.md)) |
 
 **The project**
 
@@ -126,7 +127,7 @@ built by versions of roke before images per configuration, is listed as unused.
 | `roke update [--stable\|--main]` | Update within the saved channel, or switch it; then `roke build` rebuilds the images |
 | `roke help [COMMAND]` | The help |
 
-**Options** for `run`, `continue`, `shell` and `exec`, for this time only
+**Options** for `run`, `continue`, `shell`, `exec` and `acp`, for this time only
 (`-s` and `-p` also apply to `roke urls`):
 
 | Option | Description |
@@ -137,7 +138,7 @@ built by versions of roke before images per configuration, is listed as unused.
 | `--network MODE` | `restricted` or `open` |
 | `--git-rw` | Let the agent write to `.git`, so it can commit |
 | `--serena`, `--no-serena` | Enable or disable [Serena](serena.md) |
-| `--ui` | Start OpenCode's graphical interface with `roke` or `roke run`. [OpenCode guide](../catalog/agents/opencode/README.md#web-desktop-and-editors) |
+| `--ui` | With `roke` or `roke continue`: OpenCode's web interface, or Claude Code's Remote Control, to continue the session from claude.ai/code or your phone. See [editors, the web and your phone](editors.md) |
 
 To keep an option for a project, use its setting instead: `roke service add`
 for `-s`, and `ROKE_PORTS`, `ROKE_NETWORK`, `ROKE_GIT_RW` or `ROKE_SERENA` in

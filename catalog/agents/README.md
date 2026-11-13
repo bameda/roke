@@ -55,24 +55,28 @@ and native configuration. A session cannot continue in a different agent.
 Prefer `AGENTS.md` for instructions shared by agents: Codex and OpenCode
 read it, and Claude Code reads it when the project has no `CLAUDE.md`.
 
-## Using a graphical editor
+## Web, phone and editors
 
-Open the project on your host and run `roke -a NAME` in your editor's
-integrated terminal. The editor can see the agent's changes through the
-shared project directory. Use `roke continue -a NAME` to resume.
+Besides the terminal, any agent can be used from an editor with `roke acp`,
+and Claude Code and OpenCode from a browser or a phone with `roke --ui`. See
+[Editors, the web and your phone](../../docs/editors.md).
 
-To try running editor extensions inside the box, start `roke shell -a NAME`
-from the project directory and leave it open. In VS Code with Dev Containers,
-choose **Dev Containers: Attach to Running Container…**, select the project's
-`box` container, then open the project at the same path as on the host.
-Install the agent extension in the attached window. The same approach applies
-to editors that can attach to an existing Docker container. [VS Code guide](https://code.visualstudio.com/docs/devcontainers/attach-container)
+## How roke configures each agent
 
-Before attaching, check how your editor shares Git credentials and the host's
-SSH agent. Use the integrated terminal approach if you can't keep those
-credentials out of the box. Editor extensions can start their own agent
-processes, so check that the extension runs inside the box and picks up the
-MCP servers and settings you expect. [VS Code credential sharing](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials)
+On every start, each agent's `setup.sh` gives it the same three things, in
+the form that agent reads:
+
+| | Instructions | MCP servers and Serena | Tool approvals |
+|---|---|---|---|
+| Claude Code | the managed `/etc/claude-code/CLAUDE.md` | a `--mcp-config` file, passed on every start (Serena's `claude-code` context) | a `--settings` file with `permissions.allow` or `ask` rules |
+| Codex CLI | `~/.codex/AGENTS.md` | the system configuration `/etc/codex/config.toml`, regenerated on every start (context `codex`) | `default_tools_approval_mode` for each server, in that file |
+| OpenCode 2 | `~/.config/opencode/AGENTS.md` | the system configuration `/etc/opencode/opencode.json`, regenerated on every start (context `ide`) | permission rules, in that file |
+
+The project's [MCP servers](../mcps/README.md) and Serena are registered in the
+same place. MCP servers you configure yourself keep working alongside them.
+In an editor (`roke acp`) the agent gets the same: Codex and OpenCode read the
+same files, and Claude Code's adapter starts `claude` through a wrapper that adds
+the `--mcp-config` and `--settings` arguments.
 
 ## Several agents at once
 
@@ -126,7 +130,7 @@ Copy [`_template/`](_template/) to `catalog/agents/<name>/` and fill in its file
 
 | File | Runs | Does |
 |---|---|---|
-| `install.sh` | at build time, as root | Installs the agent. Receives the version from `ROKE_AGENT_VERSIONS`, or `default` |
+| `install.sh` | at build time, as root | Installs the agent. Receives the version from `ROKE_AGENT_VERSIONS`, or `default`. An agent that needs an ACP adapter can install it with `install-acp.sh PACKAGE VERSION COMMAND`, which gives it a Node.js 22 of its own |
 | `setup.sh` | on every start, as the box's user, sourced by the entrypoint | Links your configuration, places the instructions, registers Serena, and sets `AGENT_COMMAND` |
 | `AGENTS.md` | — | Optional: instructions for this agent only |
 | `allow.txt` | — | Destinations the agent needs in restricted network mode: its API, its login (see [Network](../../docs/network.md)) |
@@ -144,6 +148,7 @@ Copy [`_template/`](_template/) to `catalog/agents/<name>/` and fill in its file
 | `python3 /opt/roke/agents/mcp.py FORMAT` | Prints the project's [MCP servers](../mcps/README.md) in an agent's format (`opencode`, `claude` or `codex`); add a format there for a new agent |
 | `roke_link_config SRC DEST` | Links every entry of `SRC` into `DEST`, keeping `DEST` writable for the agent's own files |
 | `ROKE_RUNTIME` | A per-container directory for generated files |
+| `ROKE_ACP` | `1` when the box was started by `roke acp`, which an editor reads on standard output: print nothing there |
 
 and must set:
 
@@ -152,5 +157,6 @@ and must set:
 | `AGENT_COMMAND` | Array: the command that starts the agent, for example `(claude)` |
 | `AGENT_ARGS` | Optional array: arguments added whenever the agent runs, for example an MCP configuration file |
 | `AGENT_CONTINUE` | Optional array: arguments that resume the last session, for `roke continue`; for example `(--continue)` |
+| `ACP_COMMAND` | Optional array: the program an editor talks to over the Agent Client Protocol, for `roke acp`; for example `(opencode acp)`, or an adapter such as `claude-agent-acp`. Without it, `roke acp` refuses the agent |
 
 Then add it to `ROKE_AGENTS` and run `roke build`.

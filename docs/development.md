@@ -15,6 +15,7 @@ standard library, so it only needs Python 3.10 or newer on the host.
 | `roke/settings.py` | Reads and edits `roke.env`, `project.env` and `secrets.env`, and splits list settings |
 | `roke/destination.py` | Validates the destinations accepted by the gateway's allow list |
 | `roke/ports.py` | Validates and normalises the ports the box publishes |
+| `roke/acp.py` | `roke acp`: the proxy between an editor and the agent's adapter, which keeps the editor's files and terminal out of the agent's reach |
 | `roke/mcp_permissions.py` | The MCP tool approval preferences, kept apart from enabling a server |
 | `roke/version.py`, `roke/releases.py` | The application version, and the stable and main update channels |
 | `roke/project.py` | The project, its stable ID and registry (rename, forget), its compose name and the guards against mounting too much |

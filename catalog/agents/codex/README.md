@@ -6,7 +6,7 @@
 
 Installed from the `@openai/codex` npm package. The version is
 `ROKE_AGENT_VERSIONS="codex=..."`: an npm version or tag, `latest` by
-default.
+default. The image also gets `codex-acp`, the adapter editors use (see below).
 
 ## Log in
 
@@ -22,29 +22,11 @@ home volume, so you log in once per project. Alternatively, put
 `OPENAI_API_KEY` in `~/.config/roke/secrets.env` and log in with it from
 `roke shell -a codex`: `printenv OPENAI_API_KEY | codex login --with-api-key`.
 
-## Terminal
+## Web and editors
 
-The terminal is the default. From the project directory on your host, run
-`roke -a codex` to start a session or `roke continue -a codex` to resume the
-last one. Omit `-a codex` if the project already uses Codex.
-
-## Web, desktop and editors
-
-`--ui` is currently specific to OpenCode. To use Codex inside the box with
-a graphical interface, try the editor workflow below.
-
-### VS Code
-
-Start `roke shell -a codex` and leave it running. Attach VS Code to the
-project's box with Dev Containers, open the project directory in the attached
-window and install the Codex extension there. The terminal commands also
-work in your editor's integrated terminal. [Using a graphical editor](../README.md#using-a-graphical-editor) · [Codex IDE extension](https://learn.chatgpt.com/docs/codex/ide)
-
-### ChatGPT desktop app and Codex web
-
-The desktop app requires an SSH endpoint to run Codex in the box. The
-standard box has no SSH server. Codex cloud sessions use a separate cloud
-environment. [Desktop SSH connections](https://learn.chatgpt.com/docs/remote-connections#connect-to-an-ssh-host)
+Codex has no `--ui`. `roke acp -a codex` serves it to an editor through the
+`codex-acp` adapter, which runs the image's `codex`, with the same
+configuration as a terminal session. See [editors](../../../docs/editors.md).
 
 ## Your configuration
 
@@ -53,24 +35,8 @@ environment. [Desktop SSH connections](https://learn.chatgpt.com/docs/remote-con
 them. It is mounted read-only, so edit it on your host. An `AGENTS.md` there
 holds instructions for Codex only, added to the combined instructions.
 
-## Instructions, MCP servers and Serena
-
-Use `roke mcp allow NAME` or `roke mcp ask NAME` to manage server tool
-approvals, including Serena, without editing Codex configuration. See
-[Tool approvals](../../mcps/README.md#tool-approvals). Explicit preferences
-map to `default_tools_approval_mode = "approve"` or `"prompt"`; personal
-Codex settings and per-tool overrides keep their native precedence.
-
-- **Instructions**: the combined instructions (see
-  [agents](../README.md#instructions-for-the-agent)) become
-  `~/.codex/AGENTS.md`, Codex's global instructions file. The project's own
-  `AGENTS.md` is read as usual.
-- **MCP servers**: those of the project (`roke mcp`) are registered next to
-  Serena, in the same place; see [MCP servers](../../mcps/README.md).
-- **Serena**: registered as an MCP server in Codex's system configuration
-  (`/etc/codex/config.toml`, regenerated on every start), with Serena's
-  `codex` context. MCP servers in your `config.toml` keep working alongside
-  it.
+How roke gives Codex the instructions, MCP servers and approvals is in
+[how roke configures each agent](../README.md#how-roke-configures-each-agent).
 
 ## Notes
 
@@ -81,3 +47,6 @@ Codex settings and per-tool overrides keep their native precedence.
 - **The project is trusted**, so Codex does not ask "Trust this folder?":
   whatever the project's own Codex settings run, they run in the box too. To
   treat a project as untrusted, set its `trust_level` in your `config.toml`.
+- The approvals `roke mcp allow` and `ask` generate also cover Serena; your
+  personal settings and per-tool overrides keep their native precedence. See
+  [tool approvals](../../mcps/README.md#tool-approvals).

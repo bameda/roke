@@ -69,6 +69,10 @@ See [Codex](../catalog/agents/codex/README.md) for configuration overrides.
 
 ## What it does NOT protect
 
+- **What your editor shows and edits.** From an editor (`roke acp`), the
+  agent works in the box and the editor's own file and terminal methods are
+  not offered to it; but the editor shares the project's directory with the
+  box, like the terminal does. See [editors](editors.md#what-roke-keeps-in-the-box).
 - **Tokens you give to MCP servers.** An MCP server can do outside the box
   whatever its token allows, for example in GitHub. Give each token only
   the access the agent needs; see [MCP servers](../catalog/mcps/README.md).

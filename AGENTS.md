@@ -11,7 +11,7 @@ does, `docs/` how, and [CONTRIBUTING.md](CONTRIBUTING.md) how to contribute.
 |---|---|
 | `bin/roke` | Launcher: checks Python 3.10 or newer and runs the `roke` package |
 | `roke/` | The `roke` command. `cli.py` parses the arguments, `commands/` has one module per group of `roke help`, `workspace.py` the steps every command shares, `catalog/` the agents, services and MCP servers |
-| `catalog/agents/<agent>/` | Each coding agent: `install.sh` (at image build), `setup.sh` (on every start, in the box), `allow.txt` and a README. `catalog/agents/AGENTS.md` holds the box's instructions to the agents, and `catalog/agents/mcp.py` translates MCP servers into each agent's format |
+| `catalog/agents/<agent>/` | Each coding agent: `install.sh` (at image build), `setup.sh` (on every start, in the box), `allow.txt` and a README. `catalog/agents/AGENTS.md` holds the box's instructions to the agents, and `catalog/agents/mcp.py` translates MCP servers into each agent's format, and `install-acp.sh` installs the adapters editors use |
 | `catalog/services/<name>/` | The service catalog: a compose fragment and a README each |
 | `catalog/mcps/<name>/` | The MCP catalog: an `mcp.json` and a README each |
 | `Dockerfile`, `compose.yaml` | The box's image, and the base Compose file: the box and the gateway |
