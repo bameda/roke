@@ -14,9 +14,12 @@ does, `docs/` how, and [CONTRIBUTING.md](CONTRIBUTING.md) how to contribute.
 | `catalog/agents/<agent>/` | Each coding agent: `install.sh` (at image build), `setup.sh` (on every start, in the box), `allow.txt` and a README. `catalog/agents/AGENTS.md` holds the box's instructions to the agents, and `catalog/agents/mcp.py` translates MCP servers into each agent's format |
 | `catalog/services/<name>/` | The service catalog: a compose fragment and a README each |
 | `catalog/mcps/<name>/` | The MCP catalog: an `mcp.json` and a README each |
-| `docker/` | The box's `Dockerfile` and entrypoint, and the gateway (the project's network policy) |
+| `Dockerfile`, `compose.yaml` | The box's image, and the base Compose file: the box and the gateway |
+| `docker/` | The box's entrypoint, and the gateway (the project's network policy) |
+| `scripts/release.py` | Prepares and publishes releases, in CI; see `docs/releases.md` |
+| `CHANGELOG.md`, `VERSION` | The release notes, written by the release script, and the current version |
 | `examples/` | The configuration template (`roke init`) and example projects |
-| `tests/` | Black-box tests of the `roke` command, against a fake `docker` |
+| `tests/` | Black-box tests of the `roke` command, against a fake `docker`; `tests/integration/` runs against a real Docker daemon, in CI |
 | `docs/` | The user guides, and `development.md` for contributors |
 
 ## Commands

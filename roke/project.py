@@ -25,7 +25,7 @@ INVALID_ID = (
 class Project:
     dir: Path  # the project's directory, resolved
     name: str  # stable project ID
-    config: Path  # ~/.config/roke/projects/<name>/
+    config: Path  # ~/.config/roke/projects/<id>/
     compose_name: str
 
     @property

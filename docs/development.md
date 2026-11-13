@@ -9,12 +9,17 @@ standard library, so it only needs Python 3.10 or newer on the host.
 | Module | What it does |
 |---|---|
 | `roke/cli.py` | Parses the arguments into a request and runs it |
-| `roke/commands/` | Command handlers: `box.py` (sessions, logs, lifecycle), `doctor.py`, `settings.py`, `agent.py`, `service.py`, `mcp.py`, `network.py` and `setup.py` (init, update) |
+| `roke/commands/` | Command handlers, one module per group in `roke help`: `box.py` (sessions, urls, logs, lifecycle), `settings.py`, `doctor.py`, `project.py`, `image.py`, `agent.py`, `service.py`, `mcp.py`, `network.py` and `setup.py` (init, update), with what they share in `common.py` |
 | `roke/workspace.py` | A `Workspace`: the project, your configuration and what follows from them for a command. Its steps, in order: open (configuration, project, guards), settings, agent, services, network, docker compose |
 | `roke/catalog/` | roke's catalogs: `agents.py` (the coding agents in `catalog/agents/`), `services.py` (the services) and `mcps.py` (the MCP servers, and how their definitions are resolved), each looked up in the project's configuration, yours and the repository |
-| `roke/settings.py` | Reads and edits `roke.env`, `project.env` and `secrets.env` |
-| `roke/project.py` | The project, its compose name and the guards against mounting too much |
-| `roke/docker.py` | Everything that talks to Docker: checking it is there, the running projects, docker compose |
+| `roke/settings.py` | Reads and edits `roke.env`, `project.env` and `secrets.env`, and splits list settings |
+| `roke/destination.py` | Validates the destinations accepted by the gateway's allow list |
+| `roke/ports.py` | Validates and normalises the ports the box publishes |
+| `roke/mcp_permissions.py` | The MCP tool approval preferences, kept apart from enabling a server |
+| `roke/version.py`, `roke/releases.py` | The application version, and the stable and main update channels |
+| `roke/project.py` | The project, its stable ID and registry (rename, forget), its compose name and the guards against mounting too much |
+| `roke/docker.py` | Everything that talks to Docker: checking it is there, the running projects, the images, docker compose |
+| `roke/images.py` | The box image's tag, derived from roke's recipe and the build settings |
 | `roke/paths.py` | Where roke and your configuration are, and helpers to read the catalog directories |
 | `roke/urls.py` | The output of `roke urls` |
 | `roke/ui/` | How roke presents things: messages, errors, the pager and colours (`__init__.py`), the help text (`help.py`) and the terminal Markdown renderer for the READMEs (`markdown.py`) |
@@ -132,7 +137,9 @@ when they are set.
 The tests run the real `roke` command against a fake `docker`
 (`tests/fakes/docker`), which records every call instead of running it, so
 they need neither Docker nor any container. Each test gets an isolated home,
-configuration and projects in a temporary directory.
+configuration and projects in a temporary directory. A few run the agents'
+`setup.sh` scripts, which use `jq`: install it on your machine (it is already
+in roke's box).
 
 ```fish
 uvx pytest                 # with uv
