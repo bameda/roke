@@ -17,9 +17,10 @@ def _valid_ip(text: str) -> bool:
 
 
 def normalize(entries: list[str], source: str) -> list[str]:
-    """Docker's mapping for each entry. A bare PORT is published on 127.0.0.1;
-    HOST_PORT:PORT and IP:HOST_PORT:PORT, each with an optional /tcp or /udp,
-    are passed on as written, so that you can choose another address."""
+    """Docker's mapping for each entry. PORT and HOST_PORT:PORT are published
+    on 127.0.0.1; IP:HOST_PORT:PORT is passed on as written, so that you can
+    choose another address, such as 0.0.0.0 for every interface. Each form
+    takes an optional /tcp or /udp at the end."""
     mappings = []
     for entry in entries:
         body, slash, protocol = entry.partition("/")
@@ -30,7 +31,7 @@ def normalize(entries: list[str], source: str) -> list[str]:
             mapping = f"127.0.0.1:{parts[0]}:{parts[0]}"
         elif len(parts) == 2:
             valid = valid and all(_port(p) for p in parts)
-            mapping = entry
+            mapping = f"127.0.0.1:{entry}"
         elif len(parts) == 3:
             valid = valid and _valid_ip(parts[0]) and all(_port(p) for p in parts[1:])
             mapping = entry

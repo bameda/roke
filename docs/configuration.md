@@ -252,7 +252,7 @@ documented in its README in [services](../catalog/services/README.md).
 | `ROKE_MCP_APPROVALS` | — | Comma-separated `NAME=allow` or `NAME=ask` preferences, managed with `roke mcp allow/ask/reset`; project entries override global entries per name |
 | `ROKE_NETWORK` | `restricted` | `restricted` or `open` (`--network`); see [Network](network.md) |
 | `ROKE_NETWORK_ALLOW` | — | Allowed destinations, one per line with a `# note`, or space-separated; the project's add to the global ones (`roke network add`, see [Network](network.md#allowing-destinations)) |
-| `ROKE_PORTS` | — | Ports to publish on 127.0.0.1, separated by spaces or commas (`-p`); `HOST_PORT:PORT` and `IP:HOST_PORT:PORT` choose the address |
+| `ROKE_PORTS` | — | Ports to publish on 127.0.0.1, separated by spaces or commas (`-p`); `HOST_PORT:PORT` publishes on 127.0.0.1 too; `IP:HOST_PORT:PORT` chooses the address, such as `0.0.0.0:3000:3000` for every interface |
 | `ROKE_GIT_RW` | `0` | `1` mounts `.git` read-write (`--git-rw`) |
 | `ROKE_SERENA` | `0` | `1` enables Serena (`--serena`) |
 | `ROKE_SERENA_DASHBOARD` | `0` | `1` publishes Serena's web dashboard |

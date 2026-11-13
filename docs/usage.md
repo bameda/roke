@@ -130,7 +130,7 @@ built by versions of roke before images per configuration, is listed as unused.
 |---|---|
 | `-a`, `--agent NAME` | Use another agent |
 | `-s`, `--services LIST` | Start these services instead, comma-separated |
-| `-p`, `--port PORT` | Publish box ports on `127.0.0.1`: one, several separated by spaces or commas (`-p 3000,5173`), or repeated. `HOST_PORT:PORT` and `IP:HOST_PORT:PORT` are passed on as written, so `0.0.0.0:3000:3000` publishes on every interface. Invalid ports are refused before Docker starts |
+| `-p`, `--port PORT` | Publish box ports on `127.0.0.1`: one, several separated by spaces or commas (`-p 3000,5173`), or repeated. `HOST_PORT:PORT` also publishes on `127.0.0.1`; `IP:HOST_PORT:PORT` is passed on as written, so `0.0.0.0:3000:3000` publishes on every interface. Invalid ports are refused before Docker starts |
 | `--network MODE` | `restricted` or `open` |
 | `--git-rw` | Let the agent write to `.git`, so it can commit |
 | `--serena`, `--no-serena` | Enable or disable [Serena](serena.md) |

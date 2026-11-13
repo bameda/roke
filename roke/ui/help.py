@@ -212,7 +212,8 @@ also apply to roke urls):
   -a, --agent NAME           Use another agent
   -s, --services LIST        Start these services instead, comma-separated
   -p, --port PORT            Publish ports of the box on 127.0.0.1 (several:
-                             3000,5173, or repeat the option)
+                             3000,5173, or repeat the option); HOST:PORT picks
+                             the host port, IP:HOST:PORT another address
       --network MODE         restricted or open
       --git-rw               Let the agent write to .git, so it can commit
       --serena, --no-serena  Enable or disable Serena"""

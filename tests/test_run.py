@@ -210,15 +210,16 @@ def test_invalid_ports_are_refused_before_docker(env, value):
 @pytest.mark.parametrize(
     "value,mapping",
     [
-        ("9000:8000", "9000:8000"),
+        ("9000:8000", "127.0.0.1:9000:8000"),
         ("127.0.0.1:9000:8000", "127.0.0.1:9000:8000"),
         ("0.0.0.0:3000:3000", "0.0.0.0:3000:3000"),
-        ("5353:5353/udp", "5353:5353/udp"),
+        ("5353:5353/udp", "127.0.0.1:5353:5353/udp"),
+        ("192.168.1.5:9000:8000", "192.168.1.5:9000:8000"),
         ("1", "127.0.0.1:1:1"),
         ("65535", "127.0.0.1:65535:65535"),
     ],
 )
-def test_valid_port_forms_are_published_as_written(env, value, mapping):
+def test_valid_port_forms_are_published_on_loopback_unless_an_ip_is_given(env, value, mapping):
     shop = env.project()
     text = Path(compose_files(env.roke("-p", value, cwd=shop).last("run"))[-1]).read_text()
     assert f'"{mapping}"' in text
