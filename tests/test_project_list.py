@@ -43,7 +43,7 @@ def test_show_details_and_rejects_unknown_ids(env):
 
 def test_inventory_help_and_invalid_arguments(env):
     for args in (("project", "--help"), ("help", "project")):
-        assert "Projects" in env.roke(*args).out
+        assert "roke project rename OLD NEW" in env.roke(*args).out
     for args in (("project", "--global"), ("project", "extra"), ("project", "list", "extra")):
         assert env.roke(*args).code != 0
     for args in (("project", "--id", "first"), ("--id", "first", "project")):

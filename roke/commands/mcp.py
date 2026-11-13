@@ -38,9 +38,23 @@ def approval(req) -> None:
     ws.load_settings()
     validate(ws, req.values, policy=True)
     path = ws.global_env if req.is_global else ws.project.env_file
+    where = "every project" if req.is_global else ws.project.name
     policies = mcp_permissions.parse(settings.value_of(path, mcp_permissions.SETTING))
+    if req.sub == "reset":
+        for name in req.values:
+            if policies.pop(name, None) is None:
+                info(f"{name} has no tool approval set in {where}")
+        save_approvals(path, policies)
+        info(f"MCP tool approvals back to the agent's default: {', '.join(req.values)}")
+        return
+    enabled = split_list(ws.global_mcps) + split_list(ws.project_mcps) + ["serena"] * ws.serena
     for name in req.values:
         policies[name] = req.sub
+        if not req.is_global and name not in enabled:
+            info(
+                f"note: {name} is not enabled here (roke mcp add {name}); "
+                "the approval applies once it is"
+            )
     save_approvals(path, policies)
     info(f"MCP tool approvals: {', '.join(req.values)} = {req.sub}; applies from the next start")
 

@@ -271,3 +271,36 @@ def test_builtin_serena_cannot_silently_replace_an_authorized_custom_server(tmp_
     result = adapter("codex", path, "--serena", "serena")
     assert result.returncode != 0
     assert "conflicts with built-in Serena" in result.stderr
+
+
+def test_reset_goes_back_to_the_agent_default_in_the_project_only(env):
+    shop = env.project()
+    env.roke("mcp", "add", "fetch", "context7", "--global", cwd=shop)
+    env.roke("mcp", "allow", "fetch", "context7", "--global", cwd=shop)
+    env.roke("mcp", "ask", "fetch", cwd=shop)
+    r = env.roke("mcp", "reset", "fetch", cwd=shop)
+    assert r.code == 0 and "back to the agent's default: fetch" in r.err
+    assert env_value(env.project_env(), "ROKE_MCP_APPROVALS") is None
+    assert "tool approvals: allow (global)" in env.roke("mcp", "show", "fetch", cwd=shop).out
+    r = env.roke("mcp", "reset", "fetch", "--global", cwd=shop)
+    assert r.code == 0
+    assert env_value(env.config / "roke.env", "ROKE_MCP_APPROVALS") == "context7=allow"
+    assert "tool approvals: agent default" in env.roke("mcp", "show", "fetch", cwd=shop).out
+
+
+def test_reset_says_when_there_was_nothing_to_reset(env):
+    shop = env.project()
+    r = env.roke("mcp", "reset", "fetch", cwd=shop)
+    assert r.code == 0 and "fetch has no tool approval set in shop" in r.err
+    r = env.roke("mcp", "reset", "nope", cwd=shop)
+    assert r.code != 0 and "unknown MCP server: 'nope'" in r.err
+
+
+def test_an_approval_for_a_server_that_is_not_enabled_says_so(env):
+    shop = env.project()
+    r = env.roke("mcp", "allow", "context7", cwd=shop)
+    assert r.code == 0
+    assert "note: context7 is not enabled here (roke mcp add context7)" in r.err
+    env.roke("mcp", "add", "context7", cwd=shop)
+    assert "not enabled here" not in env.roke("mcp", "ask", "context7", cwd=shop).err
+    assert "not enabled here" not in env.roke("mcp", "allow", "fetch", "--global", cwd=shop).err

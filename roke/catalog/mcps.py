@@ -119,7 +119,7 @@ class Mcps:
             lines.append(
                 f"{'*' if serena else ' '} serena       Built-in semantic tools (roke --serena)"
             )
-        lines += ["", "Tool approvals: roke mcp allow/ask NAME"]
+        lines += ["", "Tool approvals: roke mcp allow/ask/reset NAME"]
         lines += ["", "More about each one: roke mcp show NAME"]
         return "\n".join(lines)
 

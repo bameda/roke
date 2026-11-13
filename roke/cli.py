@@ -26,6 +26,7 @@ GROUPS: dict[str, dict[str, tuple[int, int | None]]] = {
         "rm": (1, None),
         "allow": (1, None),
         "ask": (1, None),
+        "reset": (1, None),
     },
     "network": {"list": (0, 0), "add": (1, 1), "rm": (1, 1), "blocked": (0, 0)},
     "image": {"list": (0, 0), "prune": (0, 0)},
@@ -44,6 +45,7 @@ USAGES = {
     "mcp rm": "roke mcp rm NAME... [--global]",
     "mcp allow": "roke mcp allow NAME... [--global]",
     "mcp ask": "roke mcp ask NAME... [--global]",
+    "mcp reset": "roke mcp reset NAME... [--global]",
     "network add": "roke network add DEST [--global] [--note TEXT]",
     "network rm": "roke network rm DEST [--global]",
 }

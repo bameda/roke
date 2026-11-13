@@ -53,6 +53,7 @@ roke mcp add context7 --allow
 roke mcp add github --ask
 roke mcp allow serena
 roke mcp ask serena
+roke mcp reset serena      # back to the agent's default
 roke mcp show serena
 ```
 

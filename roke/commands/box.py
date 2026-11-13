@@ -1,5 +1,5 @@
-"""The project's box: run (also continue, shell and exec), urls, settings,
-build, down and purge."""
+"""The project's box: run (also continue, shell and exec), urls, logs, build,
+down and purge."""
 
 import ipaddress
 import re

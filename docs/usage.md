@@ -27,7 +27,7 @@ project to choose it the first time, or to
 For `exec`, put roke options before the command to execute; for `logs`, put
 them before the arguments passed to Compose.
 
-**The project's box**
+**Sessions**
 
 `roke run` is the explicit form of `roke`: both start a new agent session.
 
@@ -37,20 +37,25 @@ them before the arguments passed to Compose.
 | `roke continue` | Resume the agent's last session |
 | `roke shell` | Open bash in the box |
 | `roke exec CMD...` | Run a command in the box |
-| `roke urls` | Where the app and the services are |
-| `roke logs [OPTIONS] [SERVICE...]` | Show project logs; passes arguments to [`docker compose logs`](https://docs.docker.com/reference/cli/docker/compose/logs/) |
+
+**The project**
+
+| Command | Description |
+|---|---|
 | `roke settings` | The project's settings and where they come from |
 | `roke settings edit [FILE]` | Edit them in your editor; see [editing the settings](#editing-the-settings) |
+| `roke urls` | Where the app and the services are |
+| `roke logs [OPTIONS] [SERVICE...]` | Show project logs; passes arguments to [`docker compose logs`](https://docs.docker.com/reference/cli/docker/compose/logs/) |
+| `roke doctor [--yaml]` | Check Docker, your configuration and the project, and report what needs fixing; every check that can run does, whatever failed before. `--yaml` produces a shareable report. Returns nonzero when something needs attention |
 | `roke build [--no-cache]` | Build the images; `--no-cache` also updates the agents |
 | `roke down [--all]` | Stop the project's containers, or every project's; their data is kept |
 | `roke purge` | Stop them and delete all the project's data |
-| `roke doctor [--yaml]` | Check Docker, your configuration and the project, and report what needs fixing; every check that can run does, whatever failed before. `--yaml` produces a shareable report. Returns nonzero when something needs attention |
 
 `roke build` builds the box, gateway and selected services that have a
 Dockerfile. It registers the project automatically. It does not start the
 agent.
 
-**Projects** (see [project IDs and moves](configuration.md#project-ids-and-moves))
+**Projects and images, on this machine** (see [project IDs and moves](configuration.md#project-ids-and-moves) and [Updating](installation.md#updating))
 
 | Command | Description |
 |---|---|
@@ -58,11 +63,6 @@ agent.
 | `roke project show ID` | A registered project's settings, as `roke settings` shows them, from any directory; marks a missing directory |
 | `roke project rename OLD NEW` | Give a project another ID: its settings move to the new ID's directory, and its containers and data are kept |
 | `roke project rm ID` | Forget a project's registration; its settings and Docker data are kept, and roke prints how to delete them |
-
-**Images** (see [Updating](installation.md#updating))
-
-| Command | Description |
-|---|---|
 | `roke image` | The box images on this machine, and which registered projects use each one |
 | `roke image prune` | Remove the images no registered project uses; Docker keeps any that a container still uses |
 
@@ -103,6 +103,7 @@ built by versions of roke before images per configuration, is listed as unused.
 | `roke mcp rm NAME...` | Take them away; with `--global`, from every project |
 | `roke mcp allow NAME...` | Authorize their tools without prompting; with `--global`, by default in every project |
 | `roke mcp ask NAME...` | Request confirmation for their tools; with `--global`, by default in every project |
+| `roke mcp reset NAME...` | Back to the agent's default approval; with `--global`, by default in every project |
 
 **Network** (see [Network](network.md))
 

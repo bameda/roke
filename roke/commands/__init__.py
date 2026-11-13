@@ -45,6 +45,7 @@ HANDLERS = {
     ("mcp", "rm"): mcp.change,
     ("mcp", "allow"): mcp.approval,
     ("mcp", "ask"): mcp.approval,
+    ("mcp", "reset"): mcp.approval,
     ("image", "list"): image.show,
     ("image", "prune"): image.prune,
     ("network", "list"): network.show,
