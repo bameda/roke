@@ -72,6 +72,11 @@ See [Codex](../catalog/agents/codex/README.md) for configuration overrides.
 - **Tokens you give to MCP servers.** An MCP server can do outside the box
   whatever its token allows, for example in GitHub. Give each token only
   the access the agent needs; see [MCP servers](../catalog/mcps/README.md).
+- **Ports you open to your network.** roke publishes the box's ports on
+  `127.0.0.1`. If you write an address such as `-p 0.0.0.0:3000:3000`,
+  anyone on your network can reach whatever listens there, and the restricted
+  network does not limit who connects in. See
+  [who can reach the port](usage.md#who-can-reach-the-port).
 - **Ports of your machine you allow.** `roke network add host:PORT` lets
   the box reach that port of your machine; whatever listens there is then
   within the agent's reach. See [Network](network.md#a-port-of-your-machine).

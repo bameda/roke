@@ -245,6 +245,29 @@ ROKE_PORTS="5173 3000"
 Then open `http://127.0.0.1:5173` or `http://127.0.0.1:3000`. The server
 must listen on `0.0.0.0`, not `localhost` (for example `vite --host 0.0.0.0`).
 
+### Who can reach the port
+
+roke publishes ports on `127.0.0.1`, so only your machine can open them. There
+are two ways to write a port, and the address is what decides who can reach it:
+
+| You write | Published on | Reachable from |
+|---|---|---|
+| `-p 5173` | `127.0.0.1:5173`, to the box's 5173 | your machine |
+| `-p 9000:8000` | `127.0.0.1:9000`, to the box's 8000 | your machine |
+| `-p 0.0.0.0:9000:8000` | every interface, port 9000, to the box's 8000 | your whole network |
+| `-p 192.168.1.5:9000:8000` | that address only | whoever reaches that address |
+
+To open a port to your network, for example to test from a phone, you have to
+say so with the address, as in the last two rows. `ROKE_PORTS` takes the same
+forms. Until `roke` stops, anyone on that network can reach whatever listens
+there: the restricted network limits what the box can reach, not who can
+connect to a port you publish. Open it for as long as you need it, and use
+`roke down` when you are done.
+
+In roke 0.1.0 and earlier, `-p 9000:8000` published on every interface too,
+contrary to what these guides said; to keep that, write
+`-p 0.0.0.0:9000:8000`.
+
 Services with a web UI (Mailpit, RustFS, Grafana...) publish it themselves;
 do not add their ports to `-p`. See the [service catalog](../catalog/services/README.md).
 

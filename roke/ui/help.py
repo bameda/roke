@@ -213,7 +213,8 @@ also apply to roke urls):
   -s, --services LIST        Start these services instead (commas or spaces)
   -p, --port PORT            Publish ports of the box on 127.0.0.1 (several:
                              3000,5173, or repeat the option); HOST:PORT picks
-                             the host port, IP:HOST:PORT another address
+                             the host port; 0.0.0.0:HOST:PORT opens it to your
+                             whole network
       --network MODE         restricted or open
       --git-rw               Let the agent write to .git, so it can commit
       --serena, --no-serena  Enable or disable Serena"""
