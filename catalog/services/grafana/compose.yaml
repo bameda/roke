@@ -16,7 +16,7 @@ services:
         condition: service_started
 
   grafana:
-    image: grafana/grafana:${GRAFANA_VERSION:-13.3.0}
+    image: grafana/grafana:${GRAFANA_VERSION:-13.3.1}
     environment:
       # Local use only: no login, everyone is an administrator.
       GF_AUTH_ANONYMOUS_ENABLED: "true"
