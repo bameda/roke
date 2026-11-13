@@ -10,7 +10,7 @@ services:
         condition: service_healthy
 
   kafka:
-    image: docker.redpanda.com/redpandadata/redpanda:${REDPANDA_VERSION:-v26.2.6}
+    image: docker.redpanda.com/redpandadata/redpanda:${REDPANDA_VERSION:-v26.2.7}
     command:
       - redpanda
       - start
