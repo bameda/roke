@@ -3,6 +3,47 @@
 Each release lists its commits, grouped by type, with migration notes for
 breaking changes.
 
+## [0.2.0] - 2026-11-13
+
+<!-- roke-release-base: 1246ed3b504d1d7a57449f6bb34c66eb01e14aad -->
+
+### Breaking changes
+
+- feat!: let --id name the project in every command, and rename or forget projects ([afe7c0e8](https://github.com/bameda/roke/commit/afe7c0e80cf5a3956b454db9ded479f0c6bc39cc))
+  roke settings show ID is now roke project show ID.
+- fix!: publish HOST\_PORT:PORT on loopback, like every other port ([4e6bbbbb](https://github.com/bameda/roke/commit/4e6bbbbb7ec9689cddcae4096bdae2262e1fbfbe))
+  -p HOST_PORT:PORT and the same form in ROKE_PORTS no longer
+  publish on every interface. To keep that, write the address: 0.0.0.0:HOST_PORT:PORT.
+
+### Features
+
+- feat: manage MCP tool approvals across agents ([28b27c1f](https://github.com/bameda/roke/commit/28b27c1fa6257a82cd18d34d779a50fceb95cc3d))
+- feat: show Git descriptions when updating main ([b8a5a883](https://github.com/bameda/roke/commit/b8a5a883be088fa69bacec1eee2592e40b614ac6))
+- feat: add a web UI mode for OpenCode ([a12dadb0](https://github.com/bameda/roke/commit/a12dadb049fe1a7656b4c70fc6fee15a4256e82b))
+- feat!: let --id name the project in every command, and rename or forget projects ([afe7c0e8](https://github.com/bameda/roke/commit/afe7c0e80cf5a3956b454db9ded479f0c6bc39cc))
+- feat: add roke image, to list and remove unused box images ([238c074b](https://github.com/bameda/roke/commit/238c074bff1e3e7051e9a2c629ba18aeb038fb08))
+- feat(image): also remove the unused images of catalog services ([57ce747e](https://github.com/bameda/roke/commit/57ce747e40e2fde3a96d578eda1afdddc9b05980))
+
+### Fixes
+
+- fix: validate ports before Docker, and make doctor report instead of abort ([3eeac57b](https://github.com/bameda/roke/commit/3eeac57b8a95119b4e35f087d8da864d994ed585))
+- fix!: publish HOST\_PORT:PORT on loopback, like every other port ([4e6bbbbb](https://github.com/bameda/roke/commit/4e6bbbbb7ec9689cddcae4096bdae2262e1fbfbe))
+- fix: accept spaces or commas in every list setting ([4592c7bf](https://github.com/bameda/roke/commit/4592c7bfd9928199363a4ad6402c6cad4ae5b1bb))
+
+### Documentation
+
+- docs: streamline user and contributor documentation ([338a4fb8](https://github.com/bameda/roke/commit/338a4fb8c83be11076353e2978354d382cb1b4a7))
+- docs: explain how to use roke agents from graphical clients ([931ba51a](https://github.com/bameda/roke/commit/931ba51aba9c49aa73411b097f5f2306cf22cd61))
+- docs: clarify terminal and graphical agent workflows ([b2f08c0d](https://github.com/bameda/roke/commit/b2f08c0d70457849c2ca3a368ac15b3a55d34602))
+- docs: bring the module tables and the settings template up to date ([df94f087](https://github.com/bameda/roke/commit/df94f0875bbec8a4d93dc9f86562a45279a2d43f))
+- docs: explain who can reach a published port, and the two ways to write it ([1246ed3b](https://github.com/bameda/roke/commit/1246ed3b504d1d7a57449f6bb34c66eb01e14aad))
+
+### Refactoring
+
+- refactor: group the commands in roke help by what they act on, and add mcp reset ([91a90ab5](https://github.com/bameda/roke/commit/91a90ab5b2575760de4387da4bd058a32351bdbe))
+
+[All commits](https://github.com/bameda/roke/compare/v0.1.0...v0.2.0)
+
 ## [0.1.0] - 2026-11-10
 
 <!-- roke-release-base: 6f6f5869b4359faae811b66a4aae26e777e24bc6 -->
