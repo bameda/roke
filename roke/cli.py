@@ -10,8 +10,7 @@ from roke.ui.help import USAGE, help_for
 
 RUN_LIKE = ("run", "continue", "shell", "exec", "urls")
 GROUPS: dict[str, dict[str, tuple[int, int | None]]] = {
-    "settings": {"show": (1, 1)},
-    "project": {"list": (0, 0), "show": (1, 1)},
+    "project": {"list": (0, 0), "show": (1, 1), "rename": (2, 2), "rm": (1, 1)},
     "agent": {"list": (0, 0), "show": (1, 1), "use": (1, 1), "reset": (0, 0)},
     "service": {
         "list": (0, 0),
@@ -31,8 +30,9 @@ GROUPS: dict[str, dict[str, tuple[int, int | None]]] = {
     "network": {"list": (0, 0), "add": (1, 1), "rm": (1, 1), "blocked": (0, 0)},
 }
 USAGES = {
-    "settings show": "roke settings show ID",
     "project show": "roke project show ID",
+    "project rename": "roke project rename OLD NEW",
+    "project rm": "roke project rm ID",
     "agent use": "roke agent use NAME [--global]",
     "agent show": "roke agent show NAME",
     "service show": "roke service show NAME",
@@ -151,6 +151,21 @@ def _flags(req: Request, args: list, allowed: dict) -> None:
         setattr(req, allowed[a], True)
 
 
+def check_project_id(req: Request) -> None:
+    """--id says which project the current directory is, for any command that
+    works on a directory's project."""
+    if not req.project_id:
+        return
+    if req.command == "project":
+        die("roke project takes IDs as arguments: use roke project show ID, not --id")
+    if req.command in ("init", "update", "version", "help"):
+        die(f"roke {req.command} does not work on a project, so it has no --id option")
+    if req.command == "down" and req.all:
+        die("roke down --all stops every project: it cannot be combined with --id")
+    if req.is_global:
+        die("--global changes your settings for every project: it cannot be combined with --id")
+
+
 def parse(argv: list) -> Request:
     req = Request()
     args = list(argv)
@@ -199,7 +214,9 @@ def parse(argv: list) -> Request:
             die(f"usage: roke settings edit [{'|'.join(EDITABLE)}] [--global]")
     elif c == "doctor":
         _flags(req, args, {"--yaml": "yaml"})
-    elif c == "purge" or (c == "settings" and args[:1] != ["show"]):
+    elif c == "settings" and args[:1] == ["show"]:
+        die("roke settings show ID is now roke project show ID")
+    elif c in ("purge", "settings"):
         _flags(req, args, {})
     elif c == "build":
         _flags(req, args, {"--no-cache": "no_cache"})
@@ -258,8 +275,6 @@ def parse(argv: list) -> Request:
             die("--major only applies to roke service upgrade")
         if c == "project" and req.is_global:
             die("roke project lists this machine's registry; it has no --global option")
-        if c == "settings" and req.is_global:
-            die("roke settings show ID inspects one project; it has no --global option")
         if req.note is not None and (c, req.sub) != ("network", "add"):
             die("--note only applies to roke network add")
         if c == "agent" and req.sub == "reset" and req.is_global:
@@ -289,13 +304,7 @@ def parse(argv: list) -> Request:
         req.help = args[0] if args else ""
     else:
         die(f"unknown command: {c} (see roke help)")
-    if req.project_id and c == "project":
-        die("use roke project show ID to inspect a registered project")
-    if req.project_id and c not in ("build", "run", "continue", "shell", "exec"):
-        die(
-            "--id is for preparing or starting a project; "
-            "use roke settings show ID to inspect its settings"
-        )
+    check_project_id(req)
     return req
 
 

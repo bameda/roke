@@ -2,7 +2,7 @@
 
 One directory per project, named after its **project ID**, which defaults to
 the directory name: for `~/src/my-app`, `projects/my-app/`. Choose another ID
-with `roke --id NAME` on the first start. roke creates the configuration
+with `roke --id ID` on the first use. roke creates the configuration
 when you edit it with `roke settings edit` or add services and MCP servers.
 All files are optional:
 

@@ -20,8 +20,9 @@ Commands apply to the current directory; `-C DIR` selects another project.
 Changes apply to that project unless you add `--global`.
 `roke help COMMAND` shows help for a command.
 
-Projects remember their ID. Use `--id NAME` on the first build or start to
-choose one, or to [reattach a moved project](configuration.md#project-ids-and-moves).
+Projects remember their ID. Use `--id ID` with any command that works on a
+project to choose it the first time, or to
+[reattach a moved project](configuration.md#project-ids-and-moves).
 
 For `exec`, put roke options before the command to execute; for `logs`, put
 them before the arguments passed to Compose.
@@ -40,22 +41,23 @@ them before the arguments passed to Compose.
 | `roke logs [OPTIONS] [SERVICE...]` | Show project logs; passes arguments to [`docker compose logs`](https://docs.docker.com/reference/cli/docker/compose/logs/) |
 | `roke settings` | The project's settings and where they come from |
 | `roke settings edit [FILE]` | Edit them in your editor; see [editing the settings](#editing-the-settings) |
-| `roke settings show ID` | The effective settings of a registered project, from any directory |
 | `roke build [--no-cache]` | Build the images; `--no-cache` also updates the agents |
 | `roke down [--all]` | Stop the project's containers, or every project's; their data is kept |
 | `roke purge` | Stop them and delete all the project's data |
 | `roke doctor [--yaml]` | Check prerequisites and report what needs fixing; `--yaml` produces a shareable report. Returns nonzero when something needs attention |
 
 `roke build` builds the box, gateway and selected services that have a
-Dockerfile. It registers the project automatically; `--id NAME` optionally
-chooses a different initial ID. It does not start the agent.
+Dockerfile. It registers the project automatically. It does not start the
+agent.
 
 **Projects** (see [project IDs and moves](configuration.md#project-ids-and-moves))
 
 | Command | Description |
 |---|---|
 | `roke project` | List registered IDs and paths on this machine, marking missing directories; works from anywhere without Docker |
-| `roke project show ID` | Show a registered project's path, settings directory and Compose name |
+| `roke project show ID` | A registered project's settings, as `roke settings` shows them, from any directory; marks a missing directory |
+| `roke project rename OLD NEW` | Give a project another ID: its settings move to the new ID's directory, and its containers and data are kept |
+| `roke project rm ID` | Forget a project's registration; its settings and Docker data are kept, and roke prints how to delete them |
 
 **Agents** (see [choosing the agent](#choosing-the-agent))
 
@@ -125,7 +127,7 @@ its `project.env`.
 ## Checking the settings
 
 `roke settings` shows the current project's effective configuration and
-where each value comes from. `roke settings show ID` inspects another
+where each value comes from. `roke project show ID` inspects another
 registered project from any directory, even if its path is missing.
 Neither command prints secret values.
 

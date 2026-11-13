@@ -64,7 +64,7 @@ Each one documents its own options in comments.
 
 Each project has its own directory in `projects/`, named after its stable
 **project ID**, which defaults to the directory name: for `~/src/my-app`,
-`projects/my-app/`. Use `roke --id NAME` to choose another ID. Every file
+`projects/my-app/`. Use `roke --id ID` to choose another ID. Every file
 in it is optional:
 
 ```
@@ -116,18 +116,35 @@ agent cannot change what roke mounts on its next start; see [Security](security.
 
 ## Project IDs and moves
 
-The first build, session or configuration edit registers the project's ID,
-path and Compose name. The ID defaults to the directory name. It must start
-with a letter or digit and contain only letters, digits, dots, underscores
-and hyphens. If the name is taken, choose another on the first build or start:
+The first command that works on a project (a build, a session, or an edit such
+as `roke service add`) registers its ID, path and Compose name. The ID defaults
+to the directory name. It must start with a letter or digit and contain only
+letters, digits, dots, underscores and hyphens.
+
+`--id ID` works with any command that acts on a project's directory, so you
+can choose the ID the first time, whichever command that is. This is how a
+second directory with the same name gets its own ID:
 
 ```fish
-roke build --id contoso-api
-roke                          # subsequent commands remember the ID
+cd ~/personal/api
+roke service add postgres --id api-personal   # registers this directory as api-personal
+roke                                          # later commands remember the ID
 ```
 
+To change the ID of a registered project, rename it. Its settings move to the
+new ID's directory, and its Compose name, so its containers and data, stay:
+
+```fish
+roke project rename api api-work
+```
+
+`roke project rm ID` forgets a project's registration, for one whose directory
+is gone. It keeps the project's settings and its containers and data in
+Docker, and prints how to delete them. Both commands refuse while the project
+is running.
+
 Use `roke project` to list registered IDs and paths, or `roke project show ID`
-for one project's details. Settings live in `projects/<id>/`; the local
+for one project's settings. Settings live in `projects/<id>/`; the local
 registry is `~/.config/roke/.local/projects.json`. Keep that registry on this
 machine when moving code; sync only configuration across machines.
 

@@ -24,9 +24,9 @@ def test_lists_current_and_missing_paths_without_modifying_registry(env):
     assert registry.read_text() == before
     assert not r.calls
     r = env.roke("project", "show", "first", cwd=env.home)
-    assert r.code == 0 and f"Path      {first} (missing)" in r.out
+    assert r.code == 0 and f"Project   {first} (missing)" in r.out
     assert registry.read_text() == before
-    assert not r.calls
+    assert "More about one: roke project show ID" in env.roke("project", cwd=env.home).out
 
 
 def test_show_details_and_rejects_unknown_ids(env):
@@ -37,7 +37,6 @@ def test_show_details_and_rejects_unknown_ids(env):
     assert r.code == 0 and str(first) in r.out and str(second) not in r.out
     assert "Compose   roke-first-" in r.out
     assert "ID        first" in r.out
-    assert not r.calls
     r = env.roke("project", "show", "missing", cwd=env.home)
     assert r.code != 0 and "unknown project ID: 'missing'" in r.err
 
@@ -49,6 +48,12 @@ def test_inventory_help_and_invalid_arguments(env):
         assert env.roke(*args).code != 0
     for args in (("project", "--id", "first"), ("--id", "first", "project")):
         assert "roke project show ID" in env.roke(*args).err
+    for args in (
+        ("project", "rename", "a"),
+        ("project", "rename", "a", "b", "c"),
+        ("project", "rm"),
+    ):
+        assert "usage: roke project r" in env.roke(*args).err
 
 
 def test_inventory_needs_configuration(bare_env):

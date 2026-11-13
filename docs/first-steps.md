@@ -160,7 +160,7 @@ if the new project needs different build settings or services with a Dockerfile.
 Each project keeps separate services, data, credentials and sessions.
 
 `roke project` lists registered IDs and paths. From any directory,
-`roke settings show ID` shows a registered project's settings.
+`roke project show ID` shows a registered project's settings.
 
 ## Further configuration and examples
 

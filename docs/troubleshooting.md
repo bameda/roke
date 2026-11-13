@@ -38,7 +38,7 @@ Use `roke settings edit` to edit the right file; see
 ### `project ID ... is registered at ...`
 
 Use `roke project` to locate the path that owns the ID. For a separate
-project, choose a new ID with `roke --id NAME`. For a moved project, follow
+project, choose a new ID with `roke --id ID`. For a moved project, follow
 [project IDs and moves](configuration.md#project-ids-and-moves).
 
 ### `could not load settings from ...`

@@ -17,8 +17,14 @@ SECRET_NAME = re.compile(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)=", re.M)
 
 # --- roke settings ------------------------------------------------------------------
 def show(req) -> None:
-    ws = Workspace(req).open(guards=False, registered_id=req.values[0] if req.sub == "show" else "")
+    ws = Workspace(req).open(guards=False)
     ws.load_all()
+    print(summary(ws))
+
+
+def summary(ws) -> str:
+    """What applies to the project and where it comes from; used by roke
+    settings and roke project show."""
     p = ws.project
     files = [
         ws.global_env,
@@ -34,24 +40,23 @@ def show(req) -> None:
         if ws.agent == "none"
         else f"{ws.agent} ({ws.agent_source})"
     )
-    print(
-        "\n".join(
-            [
-                f"Project   {p.dir}{state(p.compose_name)}",
-                f"ID        {p.name}",
-                f"Compose   {p.compose_name}",
-                f"Settings  {ws.config}: {found or '(no files)'}",
-                f"Agent     {agent}",
-                *([f"Parallel  {', '.join(ws.parallel_agents)}"] if ws.parallel_agents else []),
-                f"Network   {network_summary(ws)}",
-                f"Services  {service_labels(ws) or 'none'}",
-                f"MCPs      {mcp_labels(ws) or 'none'}",
-                f"Secrets   {secret_names(ws) or 'none'}",
-                f"Box ports {' '.join(ws.ports) or 'none'} (all published ports: roke urls)",
-                f"Serena    {'on' if ws.serena else 'off'}",
-                f".git      {'read-write' if ws.git_rw else 'read-only'}",
-            ]
-        )
+    where = state(p.compose_name) if p.dir.is_dir() else " (missing)"
+    return "\n".join(
+        [
+            f"Project   {p.dir}{where}",
+            f"ID        {p.name}",
+            f"Compose   {p.compose_name}",
+            f"Settings  {ws.config}: {found or '(no files)'}",
+            f"Agent     {agent}",
+            *([f"Parallel  {', '.join(ws.parallel_agents)}"] if ws.parallel_agents else []),
+            f"Network   {network_summary(ws)}",
+            f"Services  {service_labels(ws) or 'none'}",
+            f"MCPs      {mcp_labels(ws) or 'none'}",
+            f"Secrets   {secret_names(ws) or 'none'}",
+            f"Box ports {' '.join(ws.ports) or 'none'} (all published ports: roke urls)",
+            f"Serena    {'on' if ws.serena else 'off'}",
+            f".git      {'read-write' if ws.git_rw else 'read-only'}",
+        ]
     )
 
 

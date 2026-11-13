@@ -19,20 +19,22 @@ The project's box
   roke logs [OPTIONS] [SERVICE...]
                              Show project logs (Compose logs options)
   roke settings              The project's settings and where they come from
-  roke settings show ID      The settings of a registered project, from anywhere
   roke doctor [--yaml]       Check prerequisites (--yaml: shareable report)
   roke settings edit [FILE]  Edit them in your editor (--global: yours): env
                              (default), secrets, compose, instructions, or
                              tools (the project's mise.toml)
   roke build [--no-cache]    Build the images
-                             (--id ID is optional; default ID: directory name)
   roke down [--all]          Stop the project's containers, or every project's;
                              their data is kept
   roke purge                 Stop them and delete all the project's data
 
 Projects
   roke project               The registered IDs and paths on this machine
-  roke project show ID       A registered project's path, settings and Compose name
+  roke project show ID       A registered project's settings, from any directory
+  roke project rename OLD NEW
+                             Give a project another ID, keeping its data
+  roke project rm ID         Forget a project's registration (its settings and
+                             data are kept)
 
 Agents
   roke agent                 The agents, and the one this project uses
@@ -78,14 +80,16 @@ roke itself
                              (then roke build in your projects)
   roke help [COMMAND]        This help, or a command's part of it
 
-Project selection (for example: roke settings -C DIR):
+Project selection, for every command that works on a project (for example:
+roke settings -C DIR):
   -C DIR                     Work in DIR
+      --id ID                This directory is the project ID: chosen on first
+                             use, or to reattach it after a move
+                             (remembered for subsequent commands)
 
 Options for run, continue, shell and exec, for this time only (-s and -p
 also apply to roke urls):
   -a, --agent NAME           Use another agent
-      --id ID                Choose an ID on first start, or reattach after a move
-                             (remembered for subsequent sessions)
   -s, --services LIST        Start these services instead, comma-separated
   -p, --port PORT            Publish a port of the box on 127.0.0.1 (repeatable)
       --network MODE         restricted or open

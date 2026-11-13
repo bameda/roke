@@ -190,15 +190,132 @@ def test_missing_trailing_id_is_reported(env, args):
         ("settings",),
         ("doctor",),
         ("logs",),
-        ("service", "add", "redis"),
-        ("settings", "edit"),
+        ("urls",),
+        ("service",),
+        ("mcp",),
+        ("network",),
         ("down",),
     ],
 )
-def test_id_is_reserved_for_preparing_or_starting_projects(env, args):
+def test_id_names_the_project_in_read_only_commands_without_registering(env, args):
     r = env.roke(*args, "--id", "alias", cwd=env.project())
-    assert r.code != 0 and "--id is for preparing or starting a project" in r.err
+    assert "--id is for" not in r.err
     assert not registry(env).exists()
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("service", "add", "redis"),
+        ("mcp", "add", "fetch"),
+        ("agent", "use", "codex"),
+        ("network", "add", "api.example.com"),
+    ],
+)
+def test_id_chooses_the_id_in_commands_that_register(env, args):
+    shop = env.project()
+    r = env.roke(*args, "--id", "alias", cwd=shop)
+    assert r.code == 0, r.text
+    assert list(json.loads(registry(env).read_text())) == ["alias"]
+    assert env.project_env("alias").exists() and not env.project_env().exists()
+
+
+def test_second_folder_with_the_same_name_is_not_stuck(env):
+    """The error asks for --id, and every command accepts it."""
+    first = env.project("api")
+    assert env.roke("service", "add", "postgres", cwd=first).code == 0
+    other = env.tmp / "other" / "api"
+    (other / ".git").mkdir(parents=True)
+    r = env.roke("settings", cwd=other)
+    assert r.code != 0 and "choose another ID with: roke --id ID" in r.err
+    assert env.roke("service", "add", "redis", "--id", "api-other", cwd=other).code == 0
+    assert "ID        api-other" in env.roke("settings", cwd=other).out
+    assert set(json.loads(registry(env).read_text())) == {"api", "api-other"}
+
+
+@pytest.mark.parametrize(
+    "args,message",
+    [
+        (("init",), "roke init does not work on a project"),
+        (("update",), "roke update does not work on a project"),
+        (("version",), "roke version does not work on a project"),
+        (("help",), "roke help does not work on a project"),
+        (("down", "--all"), "cannot be combined with --id"),
+        (("agent", "use", "codex", "--global"), "cannot be combined with --id"),
+    ],
+)
+def test_id_is_refused_where_there_is_no_project(env, args, message):
+    r = env.roke("--id", "alias", *args, cwd=env.project())
+    assert r.code != 0 and message in r.err
+    assert not registry(env).exists()
+
+
+def test_renaming_is_offered_when_the_directory_has_another_id(env):
+    shop = env.project()
+    assert env.roke(cwd=shop).code == 0
+    r = env.roke("--id", "different", cwd=shop)
+    assert "roke project rename shop different" in r.err
+
+
+def test_rename_moves_the_settings_and_keeps_the_compose_name(env):
+    shop = env.project()
+    env.write_project_env("ROKE_SERVICES=redis\n")
+    before = project_name(env.roke(cwd=shop).last("run"))
+    r = env.roke("project", "rename", "shop", "store", cwd=env.home)
+    assert r.code == 0, r.text
+    entries = json.loads(registry(env).read_text())
+    assert entries == {"store": {"path": str(shop), "compose_name": before}}
+    assert "ROKE_SERVICES=redis" in env.project_env("store").read_text()
+    assert not env.project_env().exists()
+    r = env.roke(cwd=shop)
+    assert project_name(r.last("run")) == before
+    assert r.last("run")["env"]["ROKE_PROJECT_CONFIG"].endswith("/projects/store")
+    assert "ID        store" in env.roke("settings", cwd=shop).out
+
+
+def test_rename_errors_change_nothing(env):
+    first, second = env.project("first"), env.project("second")
+    env.roke(cwd=first)
+    env.roke(cwd=second)
+    (env.config / "projects" / "taken-dir").mkdir()
+    before = registry(env).read_text()
+    for args, message in [
+        (("nope", "x"), "unknown project ID: 'nope'"),
+        (("first", "second"), "already registered at"),
+        (("first", "first"), "already named first"),
+        (("first", "bad id"), "invalid project ID"),
+        (("first", "taken-dir"), "already exists"),
+    ]:
+        r = env.roke("project", "rename", *args)
+        assert r.code != 0 and message in r.err, (args, r.err)
+    assert registry(env).read_text() == before
+
+
+@pytest.mark.parametrize("verb,args", [("rename", ("shop", "store")), ("rm", ("shop",))])
+def test_a_running_project_is_not_renamed_or_forgotten(env, verb, args):
+    shop = env.project()
+    env.roke(cwd=shop)
+    before = registry(env).read_text()
+    r = env.roke("project", verb, *args, env={"FAKE_RUNNING_HASHES": "gateway=h1"})
+    assert r.code != 0 and "shop is running: stop it first" in r.err
+    assert registry(env).read_text() == before
+
+
+def test_rm_forgets_only_the_registration(env):
+    shop = env.project()
+    env.write_project_env("ROKE_SERVICES=redis\n")
+    compose = project_name(env.roke(cwd=shop).last("run"))
+    r = env.roke("project", "rm", "shop", cwd=env.home)
+    assert r.code == 0, r.text
+    assert json.loads(registry(env).read_text()) == {}
+    assert f"docker compose -p {compose} down --volumes" in r.err
+    assert "ROKE_SERVICES=redis" in env.project_env().read_text()  # the settings stay
+    assert "No projects registered" in env.roke("project").out
+    # Starting it again registers it as before: same ID, settings and Compose name.
+    r = env.roke(cwd=shop)
+    assert project_name(r.last("run")) == compose
+    assert list(json.loads(registry(env).read_text())) == ["shop"]
+    assert env.roke("project", "rm", "nope").code != 0
 
 
 def test_build_registers_custom_id_for_subsequent_commands(env):

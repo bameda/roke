@@ -7,10 +7,18 @@ import os
 import re
 import shutil
 import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
 from roke.ui import die
+
+ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
+INVALID_ID = (
+    "invalid project ID: use letters, digits, dots, underscores or hyphens; "
+    "start with a letter or digit"
+)
 
 
 @dataclass
@@ -39,7 +47,7 @@ def registered(config: Path) -> dict[str, dict[str, str]]:
         if not isinstance(records, dict):
             raise ValueError("expected an object")
         for name, entry in records.items():
-            if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", name):
+            if not ID.fullmatch(name):
                 raise ValueError("invalid project ID")
             if not isinstance(entry, dict) or set(entry) != {"path", "compose_name"}:
                 raise ValueError("expected path and compose_name")
@@ -74,21 +82,21 @@ def resolve(directory: str, config_dir: Path, project_id: str = "", lookup: bool
         die(f"directory does not exist: {directory}")
     path = path.resolve()
     records = registered(config_dir) if lookup else {}
-    if project_id and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", project_id):
-        die(
-            "invalid project ID: use letters, digits, dots, underscores or hyphens; "
-            "start with a letter or digit"
-        )
+    if project_id and not ID.fullmatch(project_id):
+        die(INVALID_ID)
     bound = next((name for name, entry in records.items() if entry["path"] == str(path)), "")
     if bound and project_id and bound != project_id:
-        die(f"{path} is already registered as {bound}; omit --id or use --id {bound}")
+        die(
+            f"{path} is already registered as {bound}; omit --id or use --id {bound}, "
+            f"or rename it: roke project rename {bound} {project_id}"
+        )
     name = project_id or bound or path.name
     if name in records:
         entry = records[name]
         if entry["path"] != str(path) and (not project_id or Path(entry["path"]).exists()):
             die(
                 f"project ID '{name}' is registered at {entry['path']}; "
-                "choose another ID with: roke --id NAME. "
+                "choose another ID with: roke --id ID. "
                 "After moving a directory, use --id with its existing ID "
                 "once the old path is gone"
             )
@@ -128,9 +136,9 @@ def _register(project: Project, config: Path, project_id: str) -> Project:
     with (state / "projects.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         project = resolve(str(project.dir), config, project_id)
-        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", project.name):
+        if not ID.fullmatch(project.name):
             die(
-                "choose a project ID with roke --id NAME "
+                "choose a project ID with roke --id ID "
                 "(letters, digits, dots, underscores or hyphens)"
             )
         records = registered(config)
@@ -142,16 +150,72 @@ def _register(project: Project, config: Path, project_id: str) -> Project:
         if records.get(project.name) == entry:
             return project
         records[project.name] = entry
-        registry = state / "projects.json"
-        with tempfile.NamedTemporaryFile(mode="w", dir=state, delete=False) as tmp:
-            try:
-                json.dump(records, tmp, indent=2)
-                tmp.write("\n")
-                tmp.close()
-                os.replace(tmp.name, registry)
-            finally:
-                Path(tmp.name).unlink(missing_ok=True)
+        _save(state, records)
     return project
+
+
+def _save(state: Path, records: dict[str, dict[str, str]]) -> None:
+    """Replace the registry atomically; only you can read it."""
+    with tempfile.NamedTemporaryFile(mode="w", dir=state, delete=False) as tmp:
+        try:
+            json.dump(records, tmp, indent=2)
+            tmp.write("\n")
+            tmp.close()
+            os.replace(tmp.name, state / "projects.json")
+        finally:
+            Path(tmp.name).unlink(missing_ok=True)
+
+
+@contextmanager
+def _locked(config: Path) -> Iterator[Path]:
+    """Hold the registry's lock, yielding its directory."""
+    state = config / ".local"
+    state.mkdir(mode=0o700, exist_ok=True)
+    with (state / "projects.lock").open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        yield state
+
+
+def rename(config: Path, old: str, new: str) -> dict[str, str]:
+    """Give the registered project OLD the ID NEW. Its settings move to the new
+    ID's directory; its Compose name, so its containers and data, stay."""
+    if not ID.fullmatch(new):
+        die(INVALID_ID)
+    if old == new:
+        die(f"the project is already named {old}")
+    with _locked(config) as state:
+        records = registered(config)
+        if old not in records:
+            die(f"unknown project ID: '{old}' (see roke project)")
+        if new in records:
+            die(f"project ID '{new}' is already registered at {records[new]['path']}")
+        source, target = config / "projects" / old, config / "projects" / new
+        if target.exists():
+            die(f"{target} already exists: choose another ID, or move that directory away")
+        try:
+            if source.exists():
+                source.rename(target)
+            records[new] = records.pop(old)
+            _save(state, records)
+        except OSError as exc:
+            if target.exists() and not source.exists():
+                target.rename(source)
+            die(f"cannot rename project {old}: {exc}")
+        return records[new]
+
+
+def unregister(config: Path, project_id: str) -> dict[str, str]:
+    """Forget the registration of PROJECT_ID, and nothing else."""
+    with _locked(config) as state:
+        records = registered(config)
+        if project_id not in records:
+            die(f"unknown project ID: '{project_id}' (see roke project)")
+        entry = records.pop(project_id)
+        try:
+            _save(state, records)
+        except OSError as exc:
+            die(f"cannot forget project {project_id}: {exc}")
+        return entry
 
 
 def _inside(path: Path, parent: Path) -> bool:
