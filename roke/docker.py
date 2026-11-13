@@ -2,6 +2,7 @@
 running roke projects, and docker compose for a project."""
 
 import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -31,6 +32,32 @@ def _output(args: list[str], operation: str) -> str:
     if result.returncode:
         die(f"could not {operation}: {result.stderr.strip() or 'Docker command failed'}")
     return result.stdout
+
+
+BOX_IMAGE = re.compile(r"roke:(build-[0-9a-f]+|latest)")
+
+
+def box_images() -> list[dict[str, str]]:
+    """The box images on this machine: roke:build-<hash>, and the roke:latest
+    of the versions that built a single image."""
+    fmt = "{{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedSince}}"
+    out = _output(["docker", "images", "roke", "--format", fmt], "list images")
+    rows = [line.split("\t") for line in out.splitlines()]
+    return [
+        dict(zip(("tag", "id", "size", "created"), row, strict=True))
+        for row in rows
+        if len(row) == 4 and BOX_IMAGE.fullmatch(row[0])
+    ]
+
+
+def remove_image(tag: str) -> str | None:
+    """Remove an image tag. None when it is gone, or why it is not: Docker
+    refuses an image that a container, even a stopped one, still uses."""
+    result = subprocess.run(["docker", "rmi", tag], capture_output=True, text=True)
+    if result.returncode == 0:
+        return None
+    reason = (result.stderr.strip().splitlines() or ["Docker could not remove it"])[-1]
+    return reason.removeprefix("Error response from daemon: ")
 
 
 def running_projects() -> list[str]:

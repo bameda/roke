@@ -151,6 +151,15 @@ Docker reuses the cached layer: run `roke build --no-cache` to fetch their newes
 release, or pin versions with `ROKE_AGENT_VERSIONS` in `roke.env` and run
 `roke build` after changing them. See [Agents](../catalog/agents/README.md).
 
+Each update or change of build settings builds a new box image and leaves the
+previous one behind, taking some gigabytes. Once your projects are rebuilt,
+remove the ones nothing uses:
+
+```fish
+roke image            # the box images, and which projects use each one
+roke image prune      # remove the unused ones
+```
+
 ## Rootless Docker
 
 With [rootless Docker](https://docs.docker.com/engine/security/rootless/),

@@ -36,6 +36,11 @@ Projects
   roke project rm ID         Forget a project's registration (its settings and
                              data are kept)
 
+Images
+  roke image                 The box images on this machine, and which projects
+                             use each one
+  roke image prune           Remove the ones no project uses
+
 Agents
   roke agent                 The agents, and the one this project uses
   roke agent show NAME       An agent, and its documentation
@@ -116,6 +121,7 @@ BOX_COMMANDS = (
 )
 SECTIONS = {
     "project": "Projects",
+    "image": "Images",
     **{c: "The project's box" for c in BOX_COMMANDS},
     "agent": "Agents",
     "service": "Services",

@@ -353,11 +353,18 @@ class Workspace:
                 "HOST_GID": env.get("ROKE_HOST_GID") or str(os.getgid()),
             }
         )
-        env["ROKE_BOX_IMAGE"] = box_image(BOX_DIR, env)
+        env["ROKE_BOX_IMAGE"] = self.box_image()
         if self.agent != "none" and create_agent_dir:
             (self.config / "agents" / self.agent).mkdir(parents=True, exist_ok=True)
         self.compose = Compose(BOX_DIR, p.compose_name, files, env)
         return self.compose
+
+    def box_image(self) -> str:
+        """The tag of the box image these settings build (see roke.images)."""
+        env = dict(self.env)
+        env["HOST_UID"] = env.get("ROKE_HOST_UID") or str(os.getuid())
+        env["HOST_GID"] = env.get("ROKE_HOST_GID") or str(os.getgid())
+        return box_image(BOX_DIR, env)
 
     # --- shortcuts ----------------------------------------------------------------------
     def load_all(self, required_agent: bool = False) -> None:

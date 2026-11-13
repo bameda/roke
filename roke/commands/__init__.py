@@ -1,6 +1,17 @@
 """The commands, grouped like `roke help`: one module per group."""
 
-from roke.commands import agent, box, doctor, mcp, network, project, service, settings, setup
+from roke.commands import (
+    agent,
+    box,
+    doctor,
+    image,
+    mcp,
+    network,
+    project,
+    service,
+    settings,
+    setup,
+)
 
 HANDLERS = {
     ("project", "list"): project.show,
@@ -34,6 +45,8 @@ HANDLERS = {
     ("mcp", "rm"): mcp.change,
     ("mcp", "allow"): mcp.approval,
     ("mcp", "ask"): mcp.approval,
+    ("image", "list"): image.show,
+    ("image", "prune"): image.prune,
     ("network", "list"): network.show,
     ("network", "add"): network.change,
     ("network", "rm"): network.change,

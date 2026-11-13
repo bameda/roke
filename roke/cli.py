@@ -28,6 +28,7 @@ GROUPS: dict[str, dict[str, tuple[int, int | None]]] = {
         "ask": (1, None),
     },
     "network": {"list": (0, 0), "add": (1, 1), "rm": (1, 1), "blocked": (0, 0)},
+    "image": {"list": (0, 0), "prune": (0, 0)},
 }
 USAGES = {
     "project show": "roke project show ID",
@@ -158,7 +159,7 @@ def check_project_id(req: Request) -> None:
         return
     if req.command == "project":
         die("roke project takes IDs as arguments: use roke project show ID, not --id")
-    if req.command in ("init", "update", "version", "help"):
+    if req.command in ("init", "update", "version", "help", "image"):
         die(f"roke {req.command} does not work on a project, so it has no --id option")
     if req.command == "down" and req.all:
         die("roke down --all stops every project: it cannot be combined with --id")
@@ -273,8 +274,8 @@ def parse(argv: list) -> Request:
             _expect_no_more(req, values)
         if req.major and req.sub != "upgrade":
             die("--major only applies to roke service upgrade")
-        if c == "project" and req.is_global:
-            die("roke project lists this machine's registry; it has no --global option")
+        if c in ("project", "image") and req.is_global:
+            die(f"roke {c} works on this machine as a whole; it has no --global option")
         if req.note is not None and (c, req.sub) != ("network", "add"):
             die("--note only applies to roke network add")
         if c == "agent" and req.sub == "reset" and req.is_global:
