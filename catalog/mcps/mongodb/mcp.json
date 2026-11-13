@@ -3,7 +3,7 @@
   "command": [
     "npx",
     "-y",
-    "mongodb-mcp-server@3.2.2",
+    "mongodb-mcp-server@3.3.0",
     "--readOnly"
   ],
   "env": {
