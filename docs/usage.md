@@ -63,13 +63,16 @@ agent.
 | `roke project show ID` | A registered project's settings, as `roke settings` shows them, from any directory; marks a missing directory |
 | `roke project rename OLD NEW` | Give a project another ID: its settings move to the new ID's directory, and its containers and data are kept |
 | `roke project rm ID` | Forget a project's registration; its settings and Docker data are kept, and roke prints how to delete them |
-| `roke image` | The box images on this machine, and which registered projects use each one |
-| `roke image prune` | Remove the images no registered project uses; Docker keeps any that a container still uses |
+| `roke image` | The images roke built on this machine (the box's, and the catalog services' such as `roke-playwright:VERSION`), and which registered projects use each one |
+| `roke image prune` | Remove the images no registered project uses; Docker keeps any that a container still uses. Other images, such as a service's base image, dangling images and the build cache, are Docker's: see `docker image prune` and `docker builder prune` |
 
 A box image's tag (`roke:build-<hash>`) comes from roke's recipe and the
 project's build settings, so `roke update` or a change in `ROKE_AGENTS`,
-`ROKE_AGENT_VERSIONS` and the like leaves the previous image unused. A project
-whose directory is gone keeps its image until you forget it with
+`ROKE_AGENT_VERSIONS` and the like leaves the previous image unused. A catalog
+service built from a Dockerfile, such as `playwright`, builds
+`roke-NAME:VERSION` with the version the project pins, so moving a project to
+another version leaves the old one unused too. A project whose directory is
+gone keeps its images until you forget it with
 `roke project rm ID`; if some project's settings cannot be read, `roke image
 prune` refuses, since it cannot tell what that project needs. `roke:latest`,
 built by versions of roke before images per configuration, is listed as unused.

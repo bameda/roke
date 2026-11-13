@@ -37,17 +37,21 @@ def _output(args: list[str], operation: str) -> str:
 BOX_IMAGE = re.compile(r"roke:(build-[0-9a-f]+|latest)")
 
 
-def box_images() -> list[dict[str, str]]:
-    """The box images on this machine: roke:build-<hash>, and the roke:latest
-    of the versions that built a single image."""
+def images(repositories: set[str]) -> list[dict[str, str]]:
+    """The images of these repositories on this machine. In the box's, roke,
+    only roke:build-<hash> and the roke:latest of versions that built a single
+    image count: other tags are yours."""
     fmt = "{{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedSince}}"
-    out = _output(["docker", "images", "roke", "--format", fmt], "list images")
-    rows = [line.split("\t") for line in out.splitlines()]
-    return [
-        dict(zip(("tag", "id", "size", "created"), row, strict=True))
-        for row in rows
-        if len(row) == 4 and BOX_IMAGE.fullmatch(row[0])
-    ]
+    out = _output(["docker", "images", "--format", fmt], "list images")
+    found = []
+    for line in out.splitlines():
+        row = line.split("\t")
+        if len(row) != 4 or row[0].partition(":")[0] not in repositories:
+            continue
+        if row[0].startswith("roke:") and not BOX_IMAGE.fullmatch(row[0]):
+            continue
+        found.append(dict(zip(("tag", "id", "size", "created"), row, strict=True)))
+    return found
 
 
 def remove_image(tag: str) -> str | None:

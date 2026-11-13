@@ -68,7 +68,7 @@ SECTIONS: tuple[tuple[str, tuple[Entry, ...]], ...] = (
             (
                 "image",
                 "roke image",
-                ("The box images, and which projects use each one",),
+                ("The images roke built, and which projects use each one",),
             ),
             ("image", "roke image prune", ("Remove the ones no project uses",)),
         ),

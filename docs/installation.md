@@ -152,13 +152,18 @@ release, or pin versions with `ROKE_AGENT_VERSIONS` in `roke.env` and run
 `roke build` after changing them. See [Agents](../catalog/agents/README.md).
 
 Each update or change of build settings builds a new box image and leaves the
-previous one behind, taking some gigabytes. Once your projects are rebuilt,
-remove the ones nothing uses:
+previous one behind, taking some gigabytes; a new version of a service such as
+`playwright` does the same with its own. Once your projects are rebuilt, remove
+the ones nothing uses:
 
 ```fish
-roke image            # the box images, and which projects use each one
+roke image            # the images roke built, and which projects use each one
 roke image prune      # remove the unused ones
 ```
+
+roke only removes images it can tell are its own. A service's base image,
+dangling images and the build cache are Docker's to clean, for every project at
+once: `docker image prune` and `docker builder prune`.
 
 ## Rootless Docker
 

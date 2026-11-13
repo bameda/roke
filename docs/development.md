@@ -183,7 +183,8 @@ the installed one; see [working on roke with roke](../CONTRIBUTING.md#working-on
 Box images use `roke:build-<hash>` tags derived from the recipe and build
 arguments (`roke/images.py`). Identical inputs in both copies share an image;
 different inputs get separate tags, and `roke image prune` removes the ones
-no registered project would build. The gateway uses `roke-gateway:latest`.
+no registered project would build, and the same for the catalog services'
+`roke-NAME:VERSION` images. The gateway uses `roke-gateway:latest`.
 Python code, Compose
 files and service definitions are read from the roke directory on each
 command. The agents' `setup.sh` and instructions are mounted into the box,

@@ -1,6 +1,7 @@
-"""roke image: which box images the registered projects use, and removing the rest."""
+"""roke image: which images roke built the registered projects use, and removing the rest."""
 
 import pytest
+from helpers import catalog_default
 
 
 def tag(env, name="shop", setting=None):
@@ -43,7 +44,7 @@ def test_projects_with_the_same_build_settings_share_an_image(env):
 
 
 def test_no_images_and_no_projects(env):
-    assert "No box images on this machine" in env.roke("image").out
+    assert "No images built by roke on this machine" in env.roke("image").out
     r = env.roke("image", "prune", env=images("roke:build-0123abcd"))
     assert r.code == 0 and removed(r) == ["roke:build-0123abcd"]
 
@@ -60,7 +61,7 @@ def test_prune_removes_only_what_no_project_uses(env):
 def test_prune_with_nothing_to_remove(env):
     used = tag(env)
     r = env.roke("image", "prune", env=images(used))
-    assert r.code == 0 and "no unused box images" in r.err and not removed(r)
+    assert r.code == 0 and "no unused images" in r.err and not removed(r)
 
 
 def test_images_a_container_uses_are_kept(env):
@@ -103,12 +104,23 @@ def test_an_unreadable_project_stops_the_prune(env):
     assert r.code != 0 and "cannot tell which images are needed: broken:" in r.err
     assert not removed(r)
     r = env.roke("image", env=images("roke:build-aaaa"))
-    assert r.code == 0 and "Could not work out the image of these projects" in r.out
+    assert r.code == 0 and "Could not work out the images of these projects" in r.out
     assert "unused: roke image prune" not in r.out
 
 
 def test_other_roke_images_are_left_alone(env):
-    r = env.roke("image", "prune", env=images("roke:build-aaaa", "roke:custom", "roke:v1"))
+    r = env.roke(
+        "image",
+        "prune",
+        env=images(
+            "roke:build-aaaa",
+            "roke:custom",
+            "roke:v1",
+            "roke-gateway:latest",
+            "roke-other:1",
+            "debian:trixie-slim",
+        ),
+    )
     assert removed(r) == ["roke:build-aaaa"]
 
 
@@ -129,3 +141,41 @@ def test_invalid_arguments(env, args, message):
 def test_image_needs_configuration(bare_env):
     r = bare_env.roke("image", env=images("roke:build-aaaa"))
     assert r.code != 0 and "roke init" in r.err
+
+
+def playwright_tag(version):
+    return f"roke-playwright:{version}"
+
+
+def test_the_images_of_catalog_services_follow_each_projects_version(env):
+    current = catalog_default("playwright", "PLAYWRIGHT_VERSION")
+    shop = env.project()
+    env.roke("service", "add", "playwright", cwd=shop)
+    old = env.project("legacy")
+    env.write_project_env("ROKE_SERVICES=playwright\nPLAYWRIGHT_VERSION=0.0.1\n", name="legacy")
+    env.roke("build", cwd=old)
+    r = env.roke("image", env=images(playwright_tag(current), playwright_tag("0.0.1")))
+    by_tag = {line.split()[0]: line for line in r.out.splitlines() if "roke-playwright" in line}
+    assert by_tag[playwright_tag(current)].rstrip().endswith("used by shop")
+    assert by_tag[playwright_tag("0.0.1")].rstrip().endswith("used by legacy")
+
+
+def test_a_service_image_nobody_pins_any_more_is_removed(env):
+    current = catalog_default("playwright", "PLAYWRIGHT_VERSION")
+    shop = env.project()
+    env.roke("service", "add", "playwright", cwd=shop)
+    r = env.roke(
+        "image",
+        "prune",
+        env=images(playwright_tag(current), playwright_tag("0.0.1"), tag(env, "other")),
+    )
+    assert removed(r) == [playwright_tag("0.0.1")]
+    # Removing the service from the project frees the image it used.
+    env.roke("service", "rm", "playwright", cwd=shop)
+    r = env.roke("image", "prune", env=images(playwright_tag(current)))
+    assert removed(r) == [playwright_tag(current)]
+
+
+def test_prune_points_to_what_roke_cannot_attribute(env):
+    r = env.roke("image", "prune", env=images("roke:build-aaaa"))
+    assert "docker image prune" in r.err and "docker builder prune" in r.err
