@@ -1,7 +1,7 @@
 # Local containers stand in for allowed and blocked internet destinations.
 # No test request needs a public endpoint.
 x-image: &image
-  image: python:3.13-alpine
+  image: python:3.15-alpine
 
 x-server: &server
   <<: *image
