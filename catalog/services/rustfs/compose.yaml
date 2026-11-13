@@ -19,7 +19,7 @@ services:
         condition: service_healthy
 
   rustfs:
-    image: rustfs/rustfs:${RUSTFS_VERSION:-1.0.4}
+    image: rustfs/rustfs:${RUSTFS_VERSION:-1.0.5}
     environment:
       RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-dev}
       RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-devdevdev}
