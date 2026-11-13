@@ -9,6 +9,8 @@ import subprocess
 from contextlib import nullcontext, redirect_stderr
 
 from roke import releases, version
+from roke.paths import config_dir
+from roke.ports import normalize as normalize_ports
 from roke.ui import Fail
 from roke.workspace import Workspace
 
@@ -91,10 +93,74 @@ def docker_versions(report: Report) -> None:
             report.versions[key] = version
 
 
-def diagnose(req, report: Report) -> None:
-    ws = Workspace(req).open()
-    ws.load_all(required_agent=True)
-    report.add("Project configuration", True)
+def check_docker(report: Report) -> bool:
+    """Docker, its Compose plugin and its daemon: whether all three work."""
+    if not shutil.which("docker"):
+        report.add("Docker", False, "install Docker with the Compose plugin")
+        return False
+    if report.as_yaml:
+        docker_versions(report)
+    version = subprocess.run(["docker", "compose", "version"], capture_output=True, text=True)
+    if version.returncode:
+        report.add("Docker Compose", False, "install the Compose plugin v2")
+        return False
+    match = re.fullmatch(r"Docker Compose version (v?\d[\w.+-]*)", version.stdout.strip())
+    if match:
+        report.versions["docker_compose"] = match[1]
+    report.add("Docker Compose", True)
+    if subprocess.run(["docker", "info"], capture_output=True).returncode:
+        report.add("Docker daemon", False, "start Docker and try again")
+        return False
+    report.add("Docker daemon", True)
+    return True
+
+
+def step(report: Report, name: str, hint: str, action) -> bool:
+    """Run ACTION as the check NAME: it fails with roke's own message, or with
+    HINT in a shareable report, which never quotes your configuration."""
+    try:
+        action()
+    except Fail as exc:
+        report.add(name, False, str(exc), report_detail=hint)
+        return False
+    report.add(name, True)
+    return True
+
+
+def agent(req) -> None:
+    """Whether an agent is chosen and installed. A workspace of its own: the
+    project's one has already settled on "none" when none is chosen."""
+    probe = Workspace(req)
+    probe.open()
+    probe.load_settings()
+    probe.choose_agent(required=True)
+
+
+def check_project(req, report: Report) -> Workspace | None:
+    """The configuration, the directory and the project's settings. Each check
+    needs the one before it; None when one fails."""
+    if not config_dir().is_dir():
+        report.add("Configuration directory", False, "create it with roke init")
+        return None
+    report.add("Configuration directory", True)
+    ws = Workspace(req)
+    if not step(
+        report,
+        "Project directory",
+        "This directory cannot be used as a project: see roke help",
+        ws.open,
+    ):
+        return None
+
+    def configuration() -> None:
+        ws.load_all()
+        normalize_ports(ws.ports, "-p or ROKE_PORTS")
+
+    if not step(
+        report, "Project configuration", "Check configuration with roke settings", configuration
+    ):
+        return None
+    step(report, "Coding agent", "Choose one with roke agent use NAME", lambda: agent(req))
     for name in ws.selected_mcps:
         if name in ws.resolved_mcps:
             report.add(f"MCP {name}", True)
@@ -103,23 +169,10 @@ def diagnose(req, report: Report) -> None:
             missing = [key for key in definition.get("requires", []) if not ws.env.get(key)]
             reason = f"set {', '.join(missing)} in secrets.env" if missing else "set its variables"
             report.add(f"MCP {name}", False, reason)
-    if not shutil.which("docker"):
-        report.add("Docker", False, "install Docker with the Compose plugin")
-        return
-    if report.as_yaml:
-        docker_versions(report)
-    version = subprocess.run(["docker", "compose", "version"], capture_output=True, text=True)
-    if version.returncode:
-        report.add("Docker Compose", False, "install the Compose plugin v2")
-        return
-    match = re.fullmatch(r"Docker Compose version (v?\d[\w.+-]*)", version.stdout.strip())
-    if match:
-        report.versions["docker_compose"] = match[1]
-    report.add("Docker Compose", True)
-    if subprocess.run(["docker", "info"], capture_output=True).returncode:
-        report.add("Docker daemon", False, "start Docker and try again")
-        return
-    report.add("Docker daemon", True)
+    return ws
+
+
+def check_compose(ws: Workspace, report: Report) -> None:
     compose = ws.prepare_compose(create_agent_dir=False)
     result = compose.call("config", "--format", "json", capture=True)
     if result.returncode:
@@ -143,3 +196,12 @@ def diagnose(req, report: Report) -> None:
         ["docker", "image", "inspect", image], capture_output=True
     ).returncode
     report.add("Box image", not missing_image, "run roke build" if missing_image else "")
+
+
+def diagnose(req, report: Report) -> None:
+    """Every check that can run, whatever failed before: Docker does not need a
+    project, and a project's settings do not need Docker."""
+    docker_ready = check_docker(report)
+    ws = check_project(req, report)
+    if ws and docker_ready:
+        check_compose(ws, report)

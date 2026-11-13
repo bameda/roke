@@ -34,7 +34,8 @@ def test_invalid_project_is_reported(env):
     shop = env.project()
     env.write_project_env("ROKE_SERVICES=unknown\n")
     r = env.roke("doctor", cwd=shop)
-    assert r.code != 0 and "unknown service" in r.err
+    assert r.code != 0
+    assert "Project configuration: FAIL (unknown service: 'unknown'" in r.out
     assert not r.compose_calls("run")
 
 
@@ -138,3 +139,57 @@ def test_yaml_report_when_configuration_is_missing(bare_env):
     assert r.out.startswith("schema_version: 1\nok: false\n")
     assert f'  roke: "{(REPO / "VERSION").read_text().strip()}"' in r.out
     assert not r.err
+
+
+def lines(result):
+    return result.out.splitlines()
+
+
+def test_a_missing_configuration_is_a_failed_check_and_docker_is_still_checked(bare_env):
+    r = bare_env.roke("doctor", cwd=bare_env.home)
+    assert r.code == 1 and not r.err
+    assert "Docker daemon: OK" in lines(r)
+    assert "Configuration directory: FAIL (create it with roke init)" in lines(r)
+    assert not any(line.startswith("Project") for line in lines(r))
+
+
+def test_no_agent_chosen_does_not_hide_the_other_checks(env):
+    shop = env.project()
+    (env.config / "roke.env").write_text("")
+    r = env.roke("doctor", cwd=shop)
+    assert r.code == 1, r.text
+    assert "Project configuration: OK" in lines(r)
+    assert "Coding agent: FAIL (choose a coding agent: roke agent use NAME --global" in r.out
+    assert "Compose configuration: OK" in lines(r)
+
+
+def test_a_directory_that_cannot_be_a_project_is_reported(env):
+    r = env.roke("doctor", cwd=env.home)
+    assert r.code == 1 and not r.err
+    assert "Project directory: FAIL (refusing to mount your whole $HOME)" in r.out
+    assert "Docker daemon: OK" in lines(r)
+    assert "Compose configuration" not in r.out
+
+
+def test_docker_problems_do_not_hide_the_project_checks(env):
+    shop = env.project()
+    env.write_project_env("ROKE_SERVICES=unknown\n")
+    r = env.roke("doctor", cwd=shop, env={"FAKE_DOCKER_FAIL": "info"})
+    assert any(line.startswith("Docker daemon: FAIL") for line in lines(r))
+    assert "Project configuration: FAIL" in r.out
+
+
+def test_invalid_ports_are_reported_without_blocking_settings(env):
+    shop = env.project()
+    env.write_project_env('ROKE_PORTS="3000,99999"\n')
+    r = env.roke("doctor", cwd=shop)
+    assert r.code == 1
+    assert "Project configuration: FAIL (invalid port '99999' in -p or ROKE_PORTS" in r.out
+    assert env.roke("settings", cwd=shop).code == 0
+
+
+def test_yaml_report_for_a_project_directory_that_cannot_be_used(env):
+    r = env.roke("doctor", "--yaml", cwd=env.home)
+    assert r.code == 1 and not r.err
+    assert 'name: "Project directory"' in r.out
+    assert str(env.home) not in r.text

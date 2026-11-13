@@ -156,3 +156,78 @@ def test_host_uid_override(env):
     env.append(env.config / "roke.env", "ROKE_HOST_UID=0\nROKE_HOST_GID=0\n")
     exported = env.roke(cwd=env.project()).last("run")["env"]
     assert exported["HOST_UID"] == "0" and exported["HOST_GID"] == "0"
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("-p", "3000,1275"),
+        ("-p", "3000, 1275"),
+        ("-p", "3000", "-p", "1275"),
+    ],
+)
+def test_ports_accept_commas_in_the_option(env, args):
+    shop = env.project()
+    text = Path(compose_files(env.roke(*args, cwd=shop).last("run"))[-1]).read_text()
+    assert '"127.0.0.1:3000:3000"' in text and '"127.0.0.1:1275:1275"' in text
+
+
+def test_ports_accept_commas_in_the_setting(env):
+    shop = env.project()
+    env.write_project_env('ROKE_PORTS="3000,1275 8080"\n')
+    text = Path(compose_files(env.roke(cwd=shop).last("run"))[-1]).read_text()
+    for port in ("3000", "1275", "8080"):
+        assert f'"127.0.0.1:{port}:{port}"' in text
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "abc",
+        "0",
+        "99999",
+        "3000:",
+        ":3000",
+        "a:b",
+        "1.2.3.4.5:80:80",
+        "999.0.0.1:80:80",
+        "80/xyz",
+        "80/tcp",
+        "1:2:3:4",
+        "[::1]:80:80",
+    ],
+)
+def test_invalid_ports_are_refused_before_docker(env, value):
+    shop = env.project()
+    r = env.roke("-p", value, cwd=shop)
+    assert r.code != 0 and f"invalid port '{value}' in -p" in r.err
+    assert not r.compose_calls("run")
+    env.write_project_env(f'ROKE_PORTS="{value}"\n')
+    r = env.roke(cwd=shop)
+    assert r.code != 0 and f"invalid port '{value}' in ROKE_PORTS" in r.err
+
+
+@pytest.mark.parametrize(
+    "value,mapping",
+    [
+        ("9000:8000", "9000:8000"),
+        ("127.0.0.1:9000:8000", "127.0.0.1:9000:8000"),
+        ("0.0.0.0:3000:3000", "0.0.0.0:3000:3000"),
+        ("5353:5353/udp", "5353:5353/udp"),
+        ("1", "127.0.0.1:1:1"),
+        ("65535", "127.0.0.1:65535:65535"),
+    ],
+)
+def test_valid_port_forms_are_published_as_written(env, value, mapping):
+    shop = env.project()
+    text = Path(compose_files(env.roke("-p", value, cwd=shop).last("run"))[-1]).read_text()
+    assert f'"{mapping}"' in text
+
+
+def test_a_bad_port_setting_does_not_block_fixing_or_stopping_the_project(env):
+    shop = env.project()
+    env.write_project_env('ROKE_PORTS="oops"\n')
+    for args in (("settings",), ("down",), ("build",), ("logs",), ("service",)):
+        assert env.roke(*args, cwd=shop).code == 0, args
+    r = env.roke("urls", cwd=shop)
+    assert r.code != 0 and "invalid port 'oops' in ROKE_PORTS" in r.err

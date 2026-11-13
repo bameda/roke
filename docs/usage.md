@@ -44,7 +44,7 @@ them before the arguments passed to Compose.
 | `roke build [--no-cache]` | Build the images; `--no-cache` also updates the agents |
 | `roke down [--all]` | Stop the project's containers, or every project's; their data is kept |
 | `roke purge` | Stop them and delete all the project's data |
-| `roke doctor [--yaml]` | Check prerequisites and report what needs fixing; `--yaml` produces a shareable report. Returns nonzero when something needs attention |
+| `roke doctor [--yaml]` | Check Docker, your configuration and the project, and report what needs fixing; every check that can run does, whatever failed before. `--yaml` produces a shareable report. Returns nonzero when something needs attention |
 
 `roke build` builds the box, gateway and selected services that have a
 Dockerfile. It registers the project automatically. It does not start the
@@ -129,7 +129,7 @@ built by versions of roke before images per configuration, is listed as unused.
 |---|---|
 | `-a`, `--agent NAME` | Use another agent |
 | `-s`, `--services LIST` | Start these services instead, comma-separated |
-| `-p`, `--port PORT` | Publish box ports on `127.0.0.1`; space-separated or repeatable |
+| `-p`, `--port PORT` | Publish box ports on `127.0.0.1`: one, several separated by spaces or commas (`-p 3000,5173`), or repeated. `HOST_PORT:PORT` and `IP:HOST_PORT:PORT` are passed on as written, so `0.0.0.0:3000:3000` publishes on every interface. Invalid ports are refused before Docker starts |
 | `--network MODE` | `restricted` or `open` |
 | `--git-rw` | Let the agent write to `.git`, so it can commit |
 | `--serena`, `--no-serena` | Enable or disable [Serena](serena.md) |

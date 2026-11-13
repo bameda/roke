@@ -5,8 +5,10 @@
 
 ## Common problems
 
-Run `roke doctor` to diagnose configuration, Docker and image problems;
-`roke settings` shows effective settings and their sources.
+Run `roke doctor` to diagnose configuration, Docker and image problems; it
+runs every check it can, so a missing configuration or a directory roke
+refuses still shows whether Docker works. `roke settings` shows effective
+settings and their sources.
 
 For a bug report, attach or paste this output:
 

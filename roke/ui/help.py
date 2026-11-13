@@ -96,7 +96,8 @@ Options for run, continue, shell and exec, for this time only (-s and -p
 also apply to roke urls):
   -a, --agent NAME           Use another agent
   -s, --services LIST        Start these services instead, comma-separated
-  -p, --port PORT            Publish a port of the box on 127.0.0.1 (repeatable)
+  -p, --port PORT            Publish ports of the box on 127.0.0.1 (several:
+                             3000,5173, or repeat the option)
       --network MODE         restricted or open
       --git-rw               Let the agent write to .git, so it can commit
       --serena, --no-serena  Enable or disable Serena

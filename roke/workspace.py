@@ -24,6 +24,7 @@ from roke.destination import valid as valid_destination
 from roke.docker import Compose, require_docker
 from roke.images import box_image
 from roke.paths import BOX_DIR, config_dir
+from roke.ports import normalize as normalize_ports
 from roke.project import by_id, check_guards, register, resolve
 from roke.ui import die, info
 
@@ -92,7 +93,7 @@ class Workspace:
         self.mcp_approvals = {**self.global_mcp_approvals, **self.project_mcp_approvals}
         self.env = env
         self.services_text = r.services if r.services is not None else env.get("ROKE_SERVICES", "")
-        self.ports = list(r.ports) or env.get("ROKE_PORTS", "").split()
+        self.ports = list(r.ports) or split_list(env.get("ROKE_PORTS", ""))
         self.git_rw = r.git_rw or env.get("ROKE_GIT_RW", "0") == "1"
         self.serena = r.serena if r.serena is not None else env.get("ROKE_SERENA", "0") == "1"
         env["ROKE_SERENA"] = "1" if self.serena else "0"
@@ -329,7 +330,8 @@ class Workspace:
 
         # The box shares the gateway's network, so its ports are published on
         # the gateway, through a compose file generated for this run.
-        ports = [port if ":" in port else f"127.0.0.1:{port}:{port}" for port in self.ports]
+        source = "-p" if self.req.ports else "ROKE_PORTS"
+        ports = normalize_ports(self.ports, source) if publish else []
         if self.serena and env.get("ROKE_SERENA_DASHBOARD") == "1":
             port = env.get("ROKE_SERENA_DASHBOARD_PORT", SERENA_DASHBOARD)
             ports.append(f"127.0.0.1:{port}:{SERENA_DASHBOARD}")
