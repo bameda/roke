@@ -10,12 +10,12 @@ services:
 
   playwright:
     # renovate: datasource=npm depName=playwright
-    image: roke-playwright:${PLAYWRIGHT_VERSION:-1.65.0}
+    image: roke-playwright:${PLAYWRIGHT_VERSION:-1.65.1}
     build:
       context: ./catalog/services/playwright
       args:
         # renovate: datasource=npm depName=playwright
-        PLAYWRIGHT_VERSION: ${PLAYWRIGHT_VERSION:-1.65.0}
+        PLAYWRIGHT_VERSION: ${PLAYWRIGHT_VERSION:-1.65.1}
     init: true
     # Chromium needs more shared memory than Docker's default 64 MB.
     shm_size: 1gb
