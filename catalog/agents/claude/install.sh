@@ -30,7 +30,7 @@ claude --version
 
 # The adapter editors talk to through roke acp (Agent Client Protocol).
 # renovate: datasource=npm depName=@agentclientprotocol/claude-agent-acp
-ACP_ADAPTER_VERSION=0.106.0
+ACP_ADAPTER_VERSION=0.107.0
 "$(dirname "$0")/../install-acp.sh" \
   @agentclientprotocol/claude-agent-acp "$ACP_ADAPTER_VERSION" claude-agent-acp
 
