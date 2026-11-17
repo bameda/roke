@@ -1,0 +1,4 @@
+# Destinations Claude Code looks up on its own and roke blocks on purpose:
+# roke network blocked marks them. DOMAIN  REASON, one per line.
+mcp-proxy.anthropic.com  your claude.ai connectors (Gmail, Calendar...), which roke turns off: ENABLE_CLAUDEAI_MCP_SERVERS=true and allowing it bring them back
+http-intake.logs.us5.datadoghq.com  Claude Code's telemetry: harmless, blocked on purpose (DISABLE_TELEMETRY would stop it, but also breaks Remote Control)

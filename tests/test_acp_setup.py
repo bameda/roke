@@ -9,7 +9,7 @@ import pytest
 from conftest import REPO
 
 
-def run_setup(tmp_path, agent, acp, mcp=None):
+def run_setup(tmp_path, agent, acp, mcp=None, extra_env=None):
     """Run the agent's setup.sh like the entrypoint does; returns ACP_COMMAND and
     the runtime directory (whose name has spaces and a quote, to be quoted right)."""
     home, config, project = tmp_path / "home", tmp_path / "config", tmp_path / "project"
@@ -45,6 +45,7 @@ def run_setup(tmp_path, agent, acp, mcp=None):
     script = f'python3() {{ "{sys.executable}" "$@"; }}\nset -euo pipefail\nlog() {{ :; }}\n'
     script += helpers + "\nAGENT_ARGS=()\nACP_COMMAND=()\n" + setup
     script += '\nprintf "%s\\0" "${ACP_COMMAND[@]}" > "$ACP_FILE"\n'
+    script += 'printf "%s" "${ENABLE_CLAUDEAI_MCP_SERVERS-unset}" > "$CLAUDEAI_FILE"\n'
     env = {
         **os.environ,
         "PATH": f"{fakebin}:{os.environ['PATH']}",
@@ -55,7 +56,10 @@ def run_setup(tmp_path, agent, acp, mcp=None):
         "SERENA_ENABLED": "0",
         "ROKE_ACP": "1" if acp else "0",
         "ACP_FILE": str(out),
+        "CLAUDEAI_FILE": str(tmp_path / "claudeai"),
     }
+    env.pop("ENABLE_CLAUDEAI_MCP_SERVERS", None)  # what the box passes in is up to the test
+    env.update(extra_env or {})
     result = subprocess.run(
         ["bash", "-c", script], cwd=project, env=env, capture_output=True, text=True, timeout=10
     )
@@ -135,3 +139,16 @@ def test_the_wrapper_without_servers_passes_everything_through(tmp_path):
         "stream-json",
     ]
     assert call_wrapper(runtime, env, tmp_path, "auth", "status") == ["auth", "status"]
+
+
+def claudeai_setting(tmp_path, **env):
+    run_setup(tmp_path, "claude", acp=False, extra_env=env)
+    return (tmp_path / "claudeai").read_text()
+
+
+def test_claude_turns_off_the_claudeai_connectors_unless_asked(tmp_path):
+    assert claudeai_setting(tmp_path) == "false"
+
+
+def test_the_connectors_can_be_turned_back_on(tmp_path):
+    assert claudeai_setting(tmp_path, ENABLE_CLAUDEAI_MCP_SERVERS="true") == "true"

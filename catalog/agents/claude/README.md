@@ -56,6 +56,19 @@ How roke gives Claude Code the instructions, MCP servers and approvals is in
 - The approvals `roke mcp allow` and `ask` generate also cover Serena. Your
   deny and ask rules keep Claude Code's precedence. See
   [tool approvals](../../mcps/README.md#tool-approvals).
+- **Your claude.ai connectors are off.** Signed in with a claude.ai account,
+  Claude Code adds its connectors (Gmail, Calendar, Drive...) as MCP servers,
+  through `mcp-proxy.anthropic.com`. They are not in `roke mcp`, and their tools
+  would act on your accounts from the box, so roke sets
+  `ENABLE_CLAUDEAI_MCP_SERVERS=false`; it also saves some context in every
+  session. To use them, set that variable to `true` in your settings and
+  `roke network add mcp-proxy.anthropic.com`.
+- **Telemetry.** Claude Code sends usage metrics to third-party logging
+  services, such as `http-intake.logs.us5.datadoghq.com`. The restricted
+  network blocks them, and `roke network blocked` marks them as harmless.
+  Do not silence them with `DISABLE_TELEMETRY` or
+  `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`: both also turn off the feature
+  flags Remote Control needs.
 - **Sandboxing.** Claude Code's own sandbox for shell commands may not work
   inside the box, which runs without Linux capabilities. The box itself is
   the sandbox: the agent cannot reach anything on your machine beyond the

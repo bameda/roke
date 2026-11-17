@@ -244,3 +244,35 @@ def test_group_comments_are_notes_too(env):
     lines = env.roke("network", cwd=shop).out.splitlines()
     for host in ("api.staging.example.com", "cdn.staging.example.com"):
         assert next(line for line in lines if host in line).endswith("Staging")
+
+
+CLAUDE_LOOKUPS = "mcp-proxy.anthropic.com,http-intake.logs.us5.datadoghq.com,other.example.com"
+
+
+def test_blocked_explains_what_claude_code_looks_up_on_its_own(env):
+    shop = env.project()  # claude is the default agent
+    r = env.roke(
+        "network",
+        "blocked",
+        cwd=shop,
+        env={"FAKE_RUNNING": "1", "FAKE_BLOCKED_DOMAINS": CLAUDE_LOOKUPS},
+    )
+    lines = r.out.splitlines()
+    proxy = next(line for line in lines if "mcp-proxy.anthropic.com" in line)
+    assert "your claude.ai connectors" in proxy and "ENABLE_CLAUDEAI_MCP_SERVERS=true" in proxy
+    telemetry = next(line for line in lines if "datadoghq.com" in line)
+    assert "telemetry" in telemetry and "harmless" in telemetry
+    assert next(line for line in lines if "other.example.com" in line).endswith("2 lookups")
+
+
+def test_other_agents_do_not_get_claudes_explanations(env):
+    shop = env.project()
+    env.roke("agent", "use", "codex", cwd=shop)
+    r = env.roke(
+        "network",
+        "blocked",
+        cwd=shop,
+        env={"FAKE_RUNNING": "1", "FAKE_BLOCKED_DOMAINS": CLAUDE_LOOKUPS},
+    )
+    for domain in ("mcp-proxy.anthropic.com", "datadoghq.com"):
+        assert next(line for line in r.out.splitlines() if domain in line).endswith("2 lookups")

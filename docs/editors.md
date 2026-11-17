@@ -153,6 +153,9 @@ Claude Code prints the session's URL, and a QR code is one keypress away.
   The conversation passes through Anthropic and is stored there while Remote
   Control is connected, as [its documentation](https://code.claude.com/docs/en/remote-control#connection-and-security)
   explains. The files and commands stay in the box.
+- Do not set `DISABLE_TELEMETRY` or `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`:
+  they also turn off the feature flags Remote Control needs, and roke warns
+  you if they are set.
 - `roke continue --ui -a claude` resumes the last session.
 - If it cannot connect, `roke network blocked` shows what the box was denied.
 

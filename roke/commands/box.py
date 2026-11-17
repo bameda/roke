@@ -19,6 +19,8 @@ from roke.ui import die, info
 from roke.workspace import Workspace
 
 OPENCODE_UI_PORT = "4096"
+# Claude Code settings that also turn off the feature flags Remote Control needs.
+FLAGS_OFF_BY = ("DISABLE_TELEMETRY", "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC")
 
 
 def run(req) -> int:
@@ -83,6 +85,12 @@ def ui_command(ws, req) -> list[str]:
             info(
                 "Remote Control needs a claude.ai login: with ANTHROPIC_API_KEY set, Claude "
                 "Code uses the API key and refuses it; remove the key from secrets.env"
+            )
+        flags = [v for v in FLAGS_OFF_BY if ws.env.get(v)]
+        if flags:
+            info(
+                f"{' and '.join(flags)} turn off the feature flags Remote Control needs: "
+                f"remove {'it' if len(flags) == 1 else 'them'} from your settings"
             )
         resume = ["--continue"] if req.command == "continue" else []
         return ["claude", *resume, "--remote-control", ws.project.name]

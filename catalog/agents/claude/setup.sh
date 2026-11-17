@@ -11,6 +11,13 @@ ACP_COMMAND=(claude-agent-acp)
 # The image decides the version.
 export DISABLE_UPDATES=1
 
+# Claude Code adds the connectors of your claude.ai account (Gmail, Calendar,
+# Drive...) as MCP servers, through Anthropic's proxy. They are not in roke
+# mcp, their tools would act on your accounts from the box, and the box's
+# network does not allow that proxy anyway. They are off unless you set
+# ENABLE_CLAUDEAI_MCP_SERVERS=true yourself, and allow mcp-proxy.anthropic.com.
+export ENABLE_CLAUDEAI_MCP_SERVERS="${ENABLE_CLAUDEAI_MCP_SERVERS:-false}"
+
 # Your configuration (settings.json, CLAUDE.md, agents/, commands/,
 # skills/...) is linked into ~/.claude. Claude Code keeps its own state
 # (login, sessions, auto memory) there and in ~/.claude.json, in the box's

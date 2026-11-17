@@ -255,3 +255,26 @@ def test_remote_control_warns_about_an_api_key(env):
     result = env.roke("--ui", "-a", "claude", cwd=shop)
     assert result.code == 0
     assert "needs a claude.ai login" in result.err and "sk-secret" not in result.text
+
+
+@pytest.mark.parametrize(
+    "setting,names",
+    [
+        ("DISABLE_TELEMETRY=1", "DISABLE_TELEMETRY turn off"),
+        (
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1",
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC turn off",
+        ),
+    ],
+)
+def test_remote_control_warns_about_settings_that_turn_off_its_feature_flags(env, setting, names):
+    shop = env.project()
+    env.write_project_env(setting + "\n")
+    result = env.roke("--ui", "-a", "claude", cwd=shop)
+    assert result.code == 0, result.text
+    assert names in result.err and "remove it from your settings" in result.err
+
+
+def test_remote_control_without_those_settings_has_no_warning(env):
+    result = env.roke("--ui", "-a", "claude", cwd=env.project())
+    assert "feature flags" not in result.err

@@ -9,6 +9,7 @@ can be tuned with environment variables:
   FAKE_NO_IMAGE=1         `docker image inspect` fails (image not built)
   FAKE_IMAGES="a,b"       the tags `docker images roke` lists
   FAKE_RMI_FAIL="a"       `docker rmi` refuses these tags (a container uses them)
+  FAKE_BLOCKED_DOMAINS="a,b"  more domains in the report of `roke network blocked`
   FAKE_RUN_SCRIPT=PATH    `docker compose run` becomes this Python script, with
                           the caller's standard input and output (a fake agent)
   FAKE_COMPOSE_LS="a b"   projects listed by `docker compose ls -q`
@@ -135,6 +136,8 @@ if args[:1] == ["compose"]:
         print("Domains the project looked up and were not allowed:")
         print("  blocked.example.com                                1 lookups")
         print("  news.oraios-software.de                            2 lookups")
+        for domain in filter(None, os.environ.get("FAKE_BLOCKED_DOMAINS", "").split(",")):
+            print(f"  {domain:<50} 2 lookups")
         sys.exit(0)
     if "config" in rest:
         if os.environ.get("FAKE_BAD_CONFIG"):
