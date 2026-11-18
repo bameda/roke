@@ -155,6 +155,11 @@ cd ~/src/another-project
 roke
 ```
 
+To set the project up in the same command, add `--save`, which keeps the
+options of the session as the project's settings:
+`roke --agent claude --services postgres,redis --save`
+(see [starting a project with its settings](usage.md#starting-a-project-with-its-settings)).
+
 Projects with the same build settings reuse the box image. Run `roke build`
 if the new project needs different build settings or services with a Dockerfile.
 Each project keeps separate services, data, credentials and sessions.

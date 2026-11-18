@@ -133,7 +133,7 @@ built by versions of roke before images per configuration, is listed as unused.
 | Option | Description |
 |---|---|
 | `-a`, `--agent NAME` | Use another agent, for this session only: the project keeps its own (`roke agent use`, or `--save`, changes it) |
-| `--save` | With `-a`, in `roke` and `roke continue`: keep that agent as the project's, as `roke agent use NAME` does |
+| `--save` | In `roke` and `roke continue`: keep the options given (`-a`, `-s`, `-p`, `--network`, `--git-rw`, `--serena`) as the project's settings; see [starting a project with its settings](#starting-a-project-with-its-settings) |
 | `-s`, `--services LIST` | Start these services instead, separated by commas or spaces |
 | `-p`, `--port PORT` | Publish box ports on `127.0.0.1`: one, several separated by spaces or commas (`-p 3000,5173`), or repeated. `HOST_PORT:PORT` also publishes on `127.0.0.1`; `IP:HOST_PORT:PORT` is passed on as written, so `0.0.0.0:3000:3000` publishes on every interface. Invalid ports are refused before Docker starts |
 | `--network MODE` | `restricted` or `open` |
@@ -205,8 +205,27 @@ roke --agent codex --save       # start it, and keep it for this project
 
 `--agent` does not change the project: the next `roke continue` uses the
 project's agent again, and roke says so when you start with another one.
-`roke agent use NAME`, run in a directory before its first session, creates
-the project with that agent and leaves the default untouched.
+
+### Starting a project with its settings
+
+The options of a session are for that session only, unless you add `--save`,
+which keeps them as the project's settings, creating the project if it is new:
+
+```fish
+cd ~/src/shop
+roke --agent claude --services postgres,redis -p 5173 --save
+roke continue        # claude, with postgres and redis and the port, with no options
+```
+
+`--save` keeps what you give: the agent (`-a`), the services (`-s`, which
+replace the project's list, as they do for a session), the ports (`-p`), the
+network mode, `--git-rw` and `--serena` or `--no-serena`. It only does so once
+the session is sure to start, so nothing is kept after a mistake. Without it,
+the first session of a new project says how to keep its options.
+
+The same can be done in steps, which also creates the project and leaves the
+default alone: `roke agent use claude` and `roke service add postgres redis`
+(`roke network add`, `roke settings edit` for the rest).
 
 See [Agents](../catalog/agents/README.md) for installation, authentication
 and what carries over when switching.

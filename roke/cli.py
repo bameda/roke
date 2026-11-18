@@ -64,7 +64,7 @@ class Request:
     git_rw: bool = False
     serena: bool | None = None
     ui: bool = False  # run --ui
-    save: bool = False  # run, continue: --agent --save
+    save: bool = False  # run, continue: keep the session's options
     cmd: list = field(default_factory=list)  # shell, exec and logs
     values: list = field(default_factory=list)  # names or destinations
     is_global: bool = False
@@ -77,6 +77,23 @@ class Request:
     channel: str = ""  # update --stable or --main
     mcp_approval: str = ""  # mcp add --allow or --ask
     help: str | None = None  # set when only the help is wanted
+
+    def given_options(self) -> list[str]:
+        """The options of a session that --save can keep for the project."""
+        options = []
+        if self.agent:
+            options.append("-a")
+        if self.services is not None:
+            options.append("-s")
+        if self.ports:
+            options.append("-p")
+        if self.network:
+            options.append("--network")
+        if self.git_rw:
+            options.append("--git-rw")
+        if self.serena is not None:
+            options.append("--serena" if self.serena else "--no-serena")
+        return options
 
 
 def _expect_no_more(req: Request, args: list) -> None:
@@ -157,8 +174,8 @@ def _flags(req: Request, args: list, allowed: dict) -> None:
 
 
 def check_save(req: Request) -> None:
-    if req.save and not req.agent:
-        die("--save keeps the agent chosen with -a for the project: roke -a NAME --save")
+    if req.save and not req.given_options():
+        die("--save keeps the options you give: -a, -s, -p, --network, --git-rw, --serena")
 
 
 def check_project_id(req: Request) -> None:

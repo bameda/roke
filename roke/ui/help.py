@@ -226,8 +226,9 @@ RUN_OPTIONS = """\
 Options for run, continue, shell, exec and acp, for this time only (-s and -p
 also apply to roke urls):
   -a, --agent NAME           Use another agent, for this session only
-      --save                 With -a, in roke and roke continue: keep it as the
-                             project's agent
+      --save                 In roke and roke continue: keep the options given
+                             (-a, -s, -p, --network, --git-rw, --serena) as
+                             the project's settings
   -s, --services LIST        Start these services instead (commas or spaces)
   -p, --port PORT            Publish ports of the box on 127.0.0.1 (several:
                              3000,5173, or repeat the option); HOST:PORT picks

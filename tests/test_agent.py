@@ -124,7 +124,8 @@ def test_save_keeps_the_agent_for_the_project(env, command):
     r = env.roke(*command, "-a", "codex", "--save", cwd=shop)
     assert r.code == 0, r.text
     assert agent_of(r) == "codex"
-    assert "agent for shop: codex" in r.err and "this session only" not in r.err
+    assert "kept for shop" in r.err and "agent codex" in r.err
+    assert "this session only" not in r.err
     assert env_value(env.project_env(), "ROKE_AGENT") == "codex"
     # The project keeps it; others and the default do not change.
     assert agent_of(env.roke(cwd=shop)) == "codex"
@@ -133,9 +134,9 @@ def test_save_keeps_the_agent_for_the_project(env, command):
     assert "ROKE_AGENT=claude" in (env.config / "roke.env").read_text()
 
 
-def test_save_needs_an_agent(env):
+def test_save_needs_an_option(env):
     r = env.roke("--save", cwd=env.project())
-    assert r.code != 0 and "--save keeps the agent chosen with -a" in r.err
+    assert r.code != 0 and "--save keeps the options you give" in r.err
     assert not r.compose_calls("run")
 
 

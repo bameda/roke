@@ -5,9 +5,8 @@ import ipaddress
 import re
 import sys
 
-from roke import acp
+from roke import acp, settings
 from roke import urls as urls_output
-from roke.commands.agent import save_project_agent
 from roke.docker import (
     container_env,
     published_configuration,
@@ -27,6 +26,7 @@ FLAGS_OFF_BY = ("DISABLE_TELEMETRY", "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC")
 def run(req) -> int:
     ws = Workspace(req).open(docker=True, register_project=True)
     ws.load_all(required_agent=True)
+    new_project = not ws.project.env_file.exists()
     command = ui_command(ws, req) if req.ui else req.cmd
     ws.pin_versions(ws.selected)
     compose = ws.prepare_compose(publish=True)
@@ -57,19 +57,11 @@ def run(req) -> int:
         f"services: {ws.env['ROKE_SERVICES'] or 'none'}  ·  "
         f".git: {'rw' if ws.git_rw else 'ro'}  ·  serena: {'yes' if ws.serena else 'no'}"
     )
-    if req.save:
-        save_project_agent(ws, ws.agent)
-    elif req.command in ("run", "continue") and req.agent and ws.agent != ws.configured_agent:
-        used = (
-            f"the project uses {ws.configured_agent}"
-            if ws.configured_agent
-            else "no agent is set for the project"
-        )
-        info(
-            f"{ws.agent} for this session only; {used}: "
-            f"roke agent use {ws.agent}, or --save, keeps it"
-        )
     protect_running_sessions(ws, compose)
+    if req.save:
+        save_options(ws, req)
+    elif req.command in ("run", "continue"):
+        session_notice(ws, req, new_project)
     if req.command == "acp":
         # Quiet progress: nothing from Compose may reach the editor's stream.
         session = compose.command("--progress", "quiet", "run", *args, "box")
@@ -229,3 +221,50 @@ def protect_running_sessions(ws, compose) -> None:
         f"{', '.join(changed)}, cutting that session off (different ports, services or "
         "network): finish it first, or run roke down"
     )
+
+
+def save_options(ws, req) -> None:
+    """--save: keep the options of this session as the project's settings,
+    once the session is sure to start."""
+    path, kept = ws.project.env_file, []
+    if req.agent:
+        settings.set_value(path, "ROKE_AGENT", ws.agent)
+        kept.append(f"agent {ws.agent}")
+    if req.services is not None:
+        names = ",".join(settings.split_list(req.services))
+        settings.set_value(path, "ROKE_SERVICES", names)
+        kept.append(f"services {names or 'none'}")
+    if req.ports:
+        settings.set_value(path, "ROKE_PORTS", ",".join(req.ports))
+        kept.append(f"ports {' '.join(req.ports)}")
+    if req.network:
+        settings.set_value(path, "ROKE_NETWORK", req.network)
+        kept.append(f"network {req.network}")
+    if req.git_rw:
+        settings.set_value(path, "ROKE_GIT_RW", "1")
+        kept.append(".git read-write")
+    if req.serena is not None:
+        settings.set_value(path, "ROKE_SERENA", "1" if req.serena else "0")
+        kept.append(f"Serena {'on' if req.serena else 'off'}")
+    info(f"kept for {ws.project.name}, in {path}: {', '.join(kept)}")
+
+
+def session_notice(ws, req, new_project: bool) -> None:
+    """Say that the options of this session are not kept: --agent when it
+    differs from the project's, and every option when the project is new,
+    which is when it is worth knowing how to keep them."""
+    if req.agent and ws.agent != ws.configured_agent:
+        used = (
+            f"the project uses {ws.configured_agent}"
+            if ws.configured_agent
+            else "no agent is set for the project"
+        )
+        info(
+            f"{ws.agent} for this session only; {used}: "
+            f"roke agent use {ws.agent}, or --save, keeps it"
+        )
+    elif new_project and req.given_options():
+        info(
+            f"this project has no settings of its own yet: --save keeps "
+            f"{', '.join(req.given_options())} for it, and for the next sessions"
+        )
