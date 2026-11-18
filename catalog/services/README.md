@@ -61,7 +61,8 @@ in `roke.env` for every project, or in `projects/<id>/project.env` for
 one. Each service's README lists them with their defaults.
 
 **Data** is per project: two projects using `postgres` get separate
-databases. Services keep running when you exit the agent.
+databases. Services keep running when you exit the agent, until the next session, which
+stops those that are no longer in the project's list if no other session is open.
 
 | Command | Effect |
 |---|---|

@@ -184,7 +184,7 @@ def test_the_session_runs_in_the_box_with_the_protocol_on_standard_output(env):
     r = converse(env, shop, [initialize(), new], wait_for=lambda out: len(out) >= 3)
     assert r.code == 0, r.err
     run = r.run_args()
-    assert "-T" in run and "ROKE_ACP=1" in run and "--rm" in run
+    assert "-T" in run and "ROKE_ACP=1" in run and "--rm" in run and "--remove-orphans" in run
     assert (
         run.index("--progress") < run.index("run") and run[run.index("--progress") + 1] == "quiet"
     )

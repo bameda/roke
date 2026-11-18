@@ -112,6 +112,15 @@ them. Run `roke down --all`, then restart Docker (`sudo systemctl restart
 docker`), which stops its containers. The networks that exist keep their
 subnets.
 
+### `Found orphan containers ... for this project`
+
+Compose found a container of a service that is not in the project's list any
+more, for example one you started with `-s` or removed with `roke service rm`.
+The next session stops and removes such containers when no other session is
+open, so you only see this warning while one is: it is harmless, and its advice
+(an option for `roke`) does not exist. `roke down` removes them at once. The
+service's data stays in its volumes.
+
 ### Something cannot connect (a download, an API, a database...)
 
 The network is restricted by default. Run `roke network blocked` to see what the

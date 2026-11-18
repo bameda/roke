@@ -94,7 +94,7 @@ built by versions of roke before images per configuration, is listed as unused.
 | `roke service` | The services, marking the ones this project uses |
 | `roke service show NAME` | A service in this project: its version, address, web UI and variables, and its README |
 | `roke service add NAME...` | Add services to this project |
-| `roke service rm NAME...` | Remove them from it; their data is kept until `roke purge` |
+| `roke service rm NAME...` | Remove them from it; their data is kept until `roke purge`, and a container still running is stopped by the next session, or by `roke down` |
 | `roke service upgrade [NAME...]` | Move the project's services, or some, to roke's current versions; `--major` also for major versions of services that keep data (see [Versions](../catalog/services/README.md#versions)) |
 
 **MCP servers** (see [MCP servers](../catalog/mcps/README.md))

@@ -58,7 +58,11 @@ def run(req) -> int:
         f"services: {ws.env['ROKE_SERVICES'] or 'none'}  ·  "
         f".git: {'rw' if ws.git_rw else 'ro'}  ·  serena: {'yes' if ws.serena else 'no'}"
     )
-    protect_running_sessions(ws, compose)
+    if not protect_running_sessions(ws, compose):
+        # No session is open, so a container of a service that is no longer
+        # the project's serves nobody: compose would only warn about it, and
+        # advise an option roke does not offer. Its data stays in its volumes.
+        args.append("--remove-orphans")
     if req.save:
         save_options(ws, req)
     elif req.command in ("run", "continue"):
@@ -206,15 +210,15 @@ def _down(req, *args) -> int:
     return ws.prepare_compose(all_services=True).call("down", *args).returncode
 
 
-def protect_running_sessions(ws, compose) -> None:
+def protect_running_sessions(ws, compose) -> bool:
     """Refuse to start a session that would recreate a container another
     session is using: docker compose run recreates the running dependencies
     whose configuration changed, and recreating the gateway would leave the
-    other session without network."""
+    other session without network. Returns whether another session is open."""
     running = running_containers(compose.name)
     sessions = [c for c in running if c["service"] == "box" and c["oneoff"] == "True"]
     if not sessions:
-        return
+        return False
     wanted = compose.config_hashes()
     changed = sorted(
         c["service"]
@@ -222,7 +226,7 @@ def protect_running_sessions(ws, compose) -> None:
         if c["oneoff"] != "True" and c["service"] in wanted and wanted[c["service"]] != c["hash"]
     )
     if not changed:
-        return
+        return True
     agents = sorted({container_env(c["id"]).get("ROKE_AGENT", "?") for c in sessions})
     if "gateway" in changed and any(agent != ws.agent for agent in agents):
         together = ",".join(sorted({*agents, ws.agent}))
