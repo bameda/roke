@@ -7,6 +7,7 @@ import sys
 
 from roke import acp
 from roke import urls as urls_output
+from roke.commands.agent import save_project_agent
 from roke.docker import (
     container_env,
     published_configuration,
@@ -56,6 +57,18 @@ def run(req) -> int:
         f"services: {ws.env['ROKE_SERVICES'] or 'none'}  ·  "
         f".git: {'rw' if ws.git_rw else 'ro'}  ·  serena: {'yes' if ws.serena else 'no'}"
     )
+    if req.save:
+        save_project_agent(ws, ws.agent)
+    elif req.command in ("run", "continue") and req.agent and ws.agent != ws.configured_agent:
+        used = (
+            f"the project uses {ws.configured_agent}"
+            if ws.configured_agent
+            else "no agent is set for the project"
+        )
+        info(
+            f"{ws.agent} for this session only; {used}: "
+            f"roke agent use {ws.agent}, or --save, keeps it"
+        )
     protect_running_sessions(ws, compose)
     if req.command == "acp":
         # Quiet progress: nothing from Compose may reach the editor's stream.

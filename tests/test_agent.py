@@ -1,3 +1,4 @@
+import pytest
 from helpers import env_value
 
 
@@ -79,3 +80,77 @@ def test_agent_not_in_the_image(env):
     assert "not in ROKE_AGENTS" in env.roke("agent", "use", "codex", cwd=shop).text
     r = env.roke("--agent", "codex", cwd=shop)
     assert r.code != 0 and "not in ROKE_AGENTS" in r.err
+
+
+def agent_of(result):
+    return result.last("run")["env"]["ROKE_AGENT"]
+
+
+def test_agent_option_says_it_is_for_this_session_only(env):
+    shop = env.project()  # the default agent is claude
+    for args in (("-a", "codex"), ("continue", "-a", "codex")):
+        r = env.roke(*args, cwd=shop)
+        assert agent_of(r) == "codex"
+        assert "codex for this session only; the project uses claude" in r.err
+        assert "roke agent use codex, or --save, keeps it" in r.err
+    assert not env.project_env().exists()  # nothing was kept
+    assert agent_of(env.roke(cwd=shop)) == "claude"
+
+
+def test_no_notice_when_the_option_is_the_projects_agent(env):
+    r = env.roke("-a", "claude", cwd=env.project())
+    assert "this session only" not in r.err
+
+
+def test_the_notice_says_when_no_agent_is_set(env):
+    shop = env.project()
+    (env.config / "roke.env").write_text("")
+    r = env.roke("-a", "codex", cwd=shop)
+    assert r.code == 0
+    assert "codex for this session only; no agent is set for the project" in r.err
+
+
+@pytest.mark.parametrize("command", ["shell", "exec"])
+def test_no_notice_for_a_login_or_a_command(env, command):
+    """roke exec -a codex codex login is not a session to keep."""
+    extra = ["codex", "login"] if command == "exec" else []
+    r = env.roke(command, "-a", "codex", *extra, cwd=env.project())
+    assert r.code == 0 and "this session only" not in r.err
+
+
+@pytest.mark.parametrize("command", [(), ("continue",)])
+def test_save_keeps_the_agent_for_the_project(env, command):
+    shop, other = env.project(), env.project("other")
+    r = env.roke(*command, "-a", "codex", "--save", cwd=shop)
+    assert r.code == 0, r.text
+    assert agent_of(r) == "codex"
+    assert "agent for shop: codex" in r.err and "this session only" not in r.err
+    assert env_value(env.project_env(), "ROKE_AGENT") == "codex"
+    # The project keeps it; others and the default do not change.
+    assert agent_of(env.roke(cwd=shop)) == "codex"
+    assert agent_of(env.roke("continue", cwd=shop)) == "codex"
+    assert agent_of(env.roke(cwd=other)) == "claude"
+    assert "ROKE_AGENT=claude" in (env.config / "roke.env").read_text()
+
+
+def test_save_needs_an_agent(env):
+    r = env.roke("--save", cwd=env.project())
+    assert r.code != 0 and "--save keeps the agent chosen with -a" in r.err
+    assert not r.compose_calls("run")
+
+
+# (roke exec takes what follows its options as the command to run, so it is not here.)
+@pytest.mark.parametrize("command", ["shell", "acp", "urls"])
+def test_save_is_for_sessions_only(env, command):
+    r = env.roke(command, "-a", "codex", "--save", cwd=env.project())
+    assert r.code != 0 and "unknown option" in r.err and "--save" in r.err
+
+
+def test_save_keeps_nothing_when_the_agent_cannot_run(env):
+    shop = env.project()
+    r = env.roke("-a", "nope", "--save", cwd=shop)
+    assert r.code != 0 and "unknown agent: 'nope'" in r.err
+    env.append(env.config / "roke.env", 'ROKE_AGENTS="claude"\n')
+    r = env.roke("-a", "codex", "--save", cwd=shop)
+    assert r.code != 0 and "not in ROKE_AGENTS" in r.err
+    assert not env.project_env().exists() or env_value(env.project_env(), "ROKE_AGENT") is None

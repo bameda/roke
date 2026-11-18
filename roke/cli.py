@@ -64,6 +64,7 @@ class Request:
     git_rw: bool = False
     serena: bool | None = None
     ui: bool = False  # run --ui
+    save: bool = False  # run, continue: --agent --save
     cmd: list = field(default_factory=list)  # shell, exec and logs
     values: list = field(default_factory=list)  # names or destinations
     is_global: bool = False
@@ -130,6 +131,9 @@ def _run_options(req: Request, args: list) -> list:
         elif a == "--ui" and req.command in ("run", "continue"):
             req.ui = True
             i += 1
+        elif a == "--save" and req.command in ("run", "continue"):
+            req.save = True
+            i += 1
         elif a in ("-h", "--help"):
             req.help = req.command
             return []
@@ -150,6 +154,11 @@ def _flags(req: Request, args: list, allowed: dict) -> None:
         if a not in allowed:
             _expect_no_more(req, [a])
         setattr(req, allowed[a], True)
+
+
+def check_save(req: Request) -> None:
+    if req.save and not req.agent:
+        die("--save keeps the agent chosen with -a for the project: roke -a NAME --save")
 
 
 def check_project_id(req: Request) -> None:
@@ -306,6 +315,7 @@ def parse(argv: list) -> Request:
     else:
         die(f"unknown command: {c} (see roke help)")
     check_project_id(req)
+    check_save(req)
     return req
 
 

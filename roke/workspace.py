@@ -109,6 +109,10 @@ class Workspace:
             self.agent_source = "this project"
         if r.agent:
             self.agent_source = "--agent"
+        # What the project uses without --agent, which is for one session only.
+        self.configured_agent = env.get("ROKE_AGENT", "") or (
+            installed[0] if len(installed) == 1 else ""
+        )
         agent = r.agent or env.get("ROKE_AGENT", "")
         if not agent:
             if len(installed) == 1:

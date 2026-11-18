@@ -22,6 +22,12 @@ def show(req) -> None:
     print("\n".join(lines))
 
 
+def save_project_agent(ws, name: str) -> None:
+    """Make NAME the agent of the workspace's project, in its project.env."""
+    settings.set_value(ws.project.env_file, "ROKE_AGENT", name)
+    info(f"agent for {ws.project.name}: {name} (in {ws.project.env_file})")
+
+
 def use(req) -> None:
     ws = Workspace(req).open(guards=not req.is_global, register_project=not req.is_global)
     name, p = req.values[0], ws.project
@@ -39,8 +45,7 @@ def use(req) -> None:
         if settings.defines(p.env_file, "ROKE_AGENT"):
             info("note: this project has its own agent; roke agent reset to use the default")
     else:
-        settings.set_value(p.env_file, "ROKE_AGENT", name)
-        info(f"agent for {p.name}: {name} (in {p.env_file})")
+        save_project_agent(ws, name)
 
 
 def reset(req) -> None:

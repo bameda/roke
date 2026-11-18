@@ -132,7 +132,8 @@ built by versions of roke before images per configuration, is listed as unused.
 
 | Option | Description |
 |---|---|
-| `-a`, `--agent NAME` | Use another agent |
+| `-a`, `--agent NAME` | Use another agent, for this session only: the project keeps its own (`roke agent use`, or `--save`, changes it) |
+| `--save` | With `-a`, in `roke` and `roke continue`: keep that agent as the project's, as `roke agent use NAME` does |
 | `-s`, `--services LIST` | Start these services instead, separated by commas or spaces |
 | `-p`, `--port PORT` | Publish box ports on `127.0.0.1`: one, several separated by spaces or commas (`-p 3000,5173`), or repeated. `HOST_PORT:PORT` also publishes on `127.0.0.1`; `IP:HOST_PORT:PORT` is passed on as written, so `0.0.0.0:3000:3000` publishes on every interface. Invalid ports are refused before Docker starts |
 | `--network MODE` | `restricted` or `open` |
@@ -199,7 +200,13 @@ roke agent use claude --global  # default for projects without their own choice
 roke agent use opencode         # this project
 roke agent reset                # use the default again
 roke --agent codex              # this session only
+roke --agent codex --save       # start it, and keep it for this project
 ```
+
+`--agent` does not change the project: the next `roke continue` uses the
+project's agent again, and roke says so when you start with another one.
+`roke agent use NAME`, run in a directory before its first session, creates
+the project with that agent and leaves the default untouched.
 
 See [Agents](../catalog/agents/README.md) for installation, authentication
 and what carries over when switching.
