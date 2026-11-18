@@ -2,6 +2,7 @@
 running roke projects, and docker compose for a project."""
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -62,6 +63,23 @@ def remove_image(tag: str) -> str | None:
         return None
     reason = (result.stderr.strip().splitlines() or ["Docker could not remove it"])[-1]
     return reason.removeprefix("Error response from daemon: ")
+
+
+def address_pools_exhausted() -> bool:
+    """Whether Docker has no subnet left for a new network. A session that
+    fails to start cannot say so, since compose prints the reason and exits, so
+    this tries a network of no use and removes it at once."""
+    name = f"roke-probe-{os.getpid()}"
+    try:
+        probe = subprocess.run(
+            ["docker", "network", "create", name], capture_output=True, text=True, timeout=30
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    if probe.returncode == 0:
+        subprocess.run(["docker", "network", "rm", name], capture_output=True)
+        return False
+    return "address pools" in probe.stderr
 
 
 def running_projects() -> list[str]:

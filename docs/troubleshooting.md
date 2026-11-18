@@ -67,6 +67,51 @@ else it tried to reach. Turning the verification off
 (`MISE_GITHUB_ATTESTATIONS=false`) would install the tool without checking
 where it comes from: allow what is missing instead.
 
+### `all predefined address pools have been fully subnetted`
+
+Docker gives every network a subnet from its default address pools, which hold
+about 30 networks. Each roke project uses two while its containers exist (the
+project's own and the one the gateway goes out through), and other Compose
+projects use theirs, so with enough of them started there is nothing left.
+When a session fails to start for this reason, roke says so.
+
+Check how many networks there are, and which are roke's:
+
+```fish
+docker network ls | wc -l                  # close to 30: the pools are used up
+docker network ls --filter name=roke
+```
+
+To free subnets:
+
+1. `roke down --all` stops every roke project, which removes its networks
+   (the data is kept). `roke down` does it for one.
+2. `docker network prune` removes the networks no container uses.
+
+If there are only a few networks and it still fails, a route of your LAN or
+VPN covers the pools (`ip route` shows it), and freeing networks does not help:
+give Docker a range you do not use, as follows.
+
+To give Docker more room, make its networks smaller. In
+`/etc/docker/daemon.json`, merged with what the file already has (mind the
+commas), keep the default pools and add one:
+
+```json
+{
+  "default-address-pools": [
+    { "base": "172.17.0.0/12", "size": 16 },
+    { "base": "192.168.0.0/16", "size": 20 },
+    { "base": "10.99.0.0/16", "size": 24 }
+  ]
+}
+```
+
+`10.99.0.0/16` is an example: use a range that your LAN and your VPN do not
+use. Each `/24` network is plenty for a project, and that range gives 256 of
+them. Run `roke down --all`, then restart Docker (`sudo systemctl restart
+docker`), which stops its containers. The networks that exist keep their
+subnets.
+
 ### Something cannot connect (a download, an API, a database...)
 
 The network is restricted by default. Run `roke network blocked` to see what the

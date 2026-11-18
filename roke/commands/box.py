@@ -8,6 +8,7 @@ import sys
 from roke import acp, settings
 from roke import urls as urls_output
 from roke.docker import (
+    address_pools_exhausted,
     container_env,
     published_configuration,
     require_docker,
@@ -65,7 +66,7 @@ def run(req) -> int:
     if req.command == "acp":
         # Quiet progress: nothing from Compose may reach the editor's stream.
         session = compose.command("--progress", "quiet", "run", *args, "box")
-        return acp.serve(session, compose.env, p.dir)
+        return explain_failure(acp.serve(session, compose.env, p.dir))
     if req.ui and ws.agent == "opencode":
         info(f"OpenCode UI: http://127.0.0.1:{OPENCODE_UI_PORT} (use the server password)")
     elif req.ui:
@@ -73,7 +74,21 @@ def run(req) -> int:
             "Remote Control: open the session URL Claude Code prints, or find the session "
             "at claude.ai/code or in the Claude app"
         )
-    return compose.call("run", *args, "box", *command).returncode
+    return explain_failure(compose.call("run", *args, "box", *command).returncode)
+
+
+def explain_failure(code: int) -> int:
+    """compose exits with 1 when it cannot start the session: when that is
+    because Docker has run out of subnets, say what to do, since compose only
+    says that the address pools are fully subnetted."""
+    if code == 1 and address_pools_exhausted():
+        info(
+            "Docker has no subnet left for this project's networks: its address pools are "
+            "used up (each roke project uses two, and Docker's defaults allow about 30). "
+            "roke down --all stops every project and frees them, docker network prune "
+            "removes unused ones, and docs/troubleshooting.md says how to give Docker more"
+        )
+    return code
 
 
 def ui_command(ws, req) -> list[str]:
