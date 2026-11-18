@@ -16,7 +16,7 @@ from roke.docker import (
     running_projects,
     stop_project,
 )
-from roke.ui import die, info
+from roke.ui import die, info, info_block
 from roke.workspace import Workspace
 
 OPENCODE_UI_PORT = "4096"
@@ -53,10 +53,16 @@ def run(req) -> int:
     # (core.fsmonitor, core.hooksPath...) that would run on your host.
     if not ws.git_rw and (p.dir / ".git").is_dir():
         args += ["-v", f"{p.dir}/.git:{p.dir}/.git:ro", "-e", "ROKE_GIT_READONLY=1"]
-    info(
-        f"project: {p.dir}  ·  id: {p.name}  ·  agent: {ws.agent}  ·  network: {ws.network}  ·  "
-        f"services: {ws.env['ROKE_SERVICES'] or 'none'}  ·  "
-        f".git: {'rw' if ws.git_rw else 'ro'}  ·  serena: {'yes' if ws.serena else 'no'}"
+    info_block(
+        [
+            ("project", str(p.dir)),
+            ("id", p.name),
+            ("agent", ws.agent),
+            ("network", ws.network),
+            ("services", ws.env["ROKE_SERVICES"] or "none"),
+            (".git", "read-write" if ws.git_rw else "read-only"),
+            ("serena", "on" if ws.serena else "off"),
+        ]
     )
     if not protect_running_sessions(ws, compose):
         # No session is open, so a container of a service that is no longer

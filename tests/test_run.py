@@ -278,3 +278,41 @@ def test_remote_control_warns_about_settings_that_turn_off_its_feature_flags(env
 def test_remote_control_without_those_settings_has_no_warning(env):
     result = env.roke("--ui", "-a", "claude", cwd=env.project())
     assert "feature flags" not in result.err
+
+
+HEADER_LABELS = ["project", "id", "agent", "network", "services", ".git", "serena"]
+
+
+def header(result):
+    """The facts roke prints when a session starts: label -> value."""
+    lines = result.err.splitlines()
+    start = next(i for i, line in enumerate(lines) if line.startswith("[roke] project "))
+    rows = {}
+    for number, line in enumerate(lines[start : start + len(HEADER_LABELS)]):
+        assert line.startswith("[roke] " if number == 0 else " " * 7), line
+        label, _, value = line[7:].partition("  ")
+        rows[label.strip()] = value.strip()
+    return list(rows), rows
+
+
+def test_the_session_header_has_one_fact_per_line_and_aligned(env):
+    shop = env.project()
+    result = env.roke(cwd=shop)
+    labels, rows = header(result)
+    assert labels == HEADER_LABELS
+    assert rows["project"] == str(shop.resolve()) and rows["id"] == "shop"
+    assert rows["agent"] == "claude" and rows["network"] == "restricted"
+    assert rows["services"] == "none" and rows[".git"] == "read-only" and rows["serena"] == "off"
+    # The values start in the same column, whatever the label.
+    lines = result.err.splitlines()
+    start = next(i for i, line in enumerate(lines) if line.startswith("[roke] project "))
+    for line in lines[start : start + len(HEADER_LABELS)]:
+        assert line[15:17] == "  " and line[17] != " ", line
+
+
+def test_the_header_shows_what_the_session_was_given(env):
+    shop = env.project()
+    result = env.roke("-a", "codex", "-s", "postgres,redis", "--git-rw", "--serena", cwd=shop)
+    rows = header(result)[1]
+    assert rows["agent"] == "codex" and rows["services"] == "postgres,redis"
+    assert rows[".git"] == "read-write" and rows["serena"] == "on"

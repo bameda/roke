@@ -17,6 +17,14 @@ def info(message: str) -> None:
     print(f"[roke] {message}", file=sys.stderr, flush=True)
 
 
+def info_block(rows: list[tuple[str, str]]) -> None:
+    """Several facts under one [roke] prefix, one per line, values aligned."""
+    width = max(len(label) for label, _ in rows)
+    margin = "\n" + " " * len("[roke] ")
+    lines = [f"{label:<{width}}  {value}" for label, value in rows]
+    print("[roke] " + margin.join(lines), file=sys.stderr, flush=True)
+
+
 def die(message: str) -> NoReturn:
     raise Fail(message)
 

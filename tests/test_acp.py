@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import select
 import subprocess
 import sys
@@ -191,7 +192,7 @@ def test_the_session_runs_in_the_box_with_the_protocol_on_standard_output(env):
     assert run[-1] == "box"  # no command: the box starts the agent's adapter
     assert [m.get("id") for m in r.out if "result" in m] == [0, 1]
     assert {"jsonrpc": "2.0", "method": "session/update", "params": {"update": "hello"}} in r.out
-    assert "project:" in r.err  # roke's own messages are on standard error
+    assert "[roke] project " in r.err  # roke's own messages are on standard error
 
 
 def test_the_agent_never_reaches_the_host_through_the_editor(env):
@@ -226,7 +227,7 @@ def test_the_exit_code_is_the_agents(env):
 def test_every_agent_is_served_the_same_way(env, agent):
     r = converse(env, env.project(), [initialize()], "-a", agent, wait_for=updated)
     assert r.code == 0, r.err
-    assert f"agent: {agent}" in r.err
+    assert re.search(rf"\n {{7}}agent +{agent}\n", r.err)
     assert next(c for c in r.docker_calls if "run" in c["args"])["env"]["ROKE_AGENT"] == agent
 
 
