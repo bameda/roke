@@ -15,7 +15,7 @@ repos:
 
   # Python: lint (fixing what it can) and format.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.5
+    rev: v0.17.6
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -36,7 +36,7 @@ repos:
 
   # GitHub and Renovate files, against their official schemas.
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.39.0
+    rev: 0.40.0
     hooks:
       - id: check-github-workflows
       - id: check-renovate
@@ -51,6 +51,6 @@ repos:
 
   # GitHub Actions workflows: security issues.
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: v1.32.0
+    rev: v1.33.1
     hooks:
       - id: zizmor
